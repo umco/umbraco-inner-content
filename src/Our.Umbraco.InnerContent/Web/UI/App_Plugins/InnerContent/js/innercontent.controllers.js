@@ -283,6 +283,11 @@ angular.module("umbraco").factory('innerContentService', [
                     }
                 }
 
+                // Overwrite Umbraco Content Type label with alternate configured value
+                if (scaffold.contentTypeName && contentType.docTypeAltLabel) {
+                    scaffold.contentTypeName = contentType.docTypeAltLabel;
+                }
+
                 // Store the scaffold object
                 scaffolds.push(scaffold);
 
