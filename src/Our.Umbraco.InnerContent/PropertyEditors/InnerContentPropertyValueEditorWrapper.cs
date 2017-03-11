@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Newtonsoft.Json.Linq;
 using Our.Umbraco.InnerContent.Extensions;
@@ -66,15 +67,26 @@ namespace Our.Umbraco.InnerContent.PropertyEditors
                 }
                 else
                 {
-                    // Create a fake property using the property abd stored value
-                    var prop = new Property(propType, item[propKey] == null ? null : item[propKey].ToString());
+                    try
+                    {
+                        // Create a fake property using the property abd stored value
+                        var prop = new Property(propType, item[propKey] == null ? null : item[propKey].ToString());
 
-                    // Lookup the property editor
-                    var propEditor = PropertyEditorResolver.Current.GetByAlias(propType.PropertyEditorAlias);
+                        // Lookup the property editor
+                        var propEditor = PropertyEditorResolver.Current.GetByAlias(propType.PropertyEditorAlias);
 
-                    // Get the editor to do it's conversion, and store it back
-                    item[propKey] = propEditor.ValueEditor.ConvertDbToString(prop, propType,
-                        ApplicationContext.Current.Services.DataTypeService);
+                        // Get the editor to do it's conversion, and store it back
+                        item[propKey] = propEditor.ValueEditor.ConvertDbToString(prop, propType,
+                            ApplicationContext.Current.Services.DataTypeService);
+                    }
+                    catch (InvalidOperationException)
+                    {
+                        // https://github.com/umco/umbraco-nested-content/issues/111
+                        // Catch any invalid cast operations as likely means courier failed due to missing
+                        // or trashed item so couldn't convert a guid back to an int
+
+                        item[propKey] = null;
+                    }
                 }
             }
 
@@ -122,18 +134,29 @@ namespace Our.Umbraco.InnerContent.PropertyEditors
                 }
                 else
                 {
-                    // Create a fake property using the property abd stored value
-                    var prop = new Property(propType, item[propKey] == null ? null : item[propKey].ToString());
+                    try
+                    {
+                        // Create a fake property using the property abd stored value
+                        var prop = new Property(propType, item[propKey] == null ? null : item[propKey].ToString());
 
-                    // Lookup the property editor
-                    var propEditor = PropertyEditorResolver.Current.GetByAlias(propType.PropertyEditorAlias);
+                        // Lookup the property editor
+                        var propEditor = PropertyEditorResolver.Current.GetByAlias(propType.PropertyEditorAlias);
 
-                    // Get the editor to do it's conversion
-                    var newValue = propEditor.ValueEditor.ConvertDbToEditor(prop, propType,
-                        ApplicationContext.Current.Services.DataTypeService);
+                        // Get the editor to do it's conversion
+                        var newValue = propEditor.ValueEditor.ConvertDbToEditor(prop, propType,
+                            ApplicationContext.Current.Services.DataTypeService);
 
-                    // Store the value back
-                    item[propKey] = (newValue == null) ? null : JToken.FromObject(newValue);
+                        // Store the value back
+                        item[propKey] = (newValue == null) ? null : JToken.FromObject(newValue);
+                    }
+                    catch (InvalidOperationException)
+                    {
+                        // https://github.com/umco/umbraco-nested-content/issues/111
+                        // Catch any invalid cast operations as likely means courier failed due to missing
+                        // or trashed item so couldn't convert a guid back to an int
+
+                        item[propKey] = null;
+                    }
                 }
 
             }
