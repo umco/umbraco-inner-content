@@ -323,7 +323,7 @@ angular.module("umbraco").factory('innerContentService', [
                 return itm2.icContentTypeAlias === itm.icContentTypeAlias;
             });
 
-            var nameTemplate = contentType.nameTemplate || "Item {{$index}}";
+            var nameTemplate = contentType.nameTemplate || "Item {{$index+1}}";
             var nameExp = $interpolate(nameTemplate);
 
             if (nameExp) {
