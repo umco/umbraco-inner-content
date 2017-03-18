@@ -13,6 +13,6 @@ Thumbs.db
 
 artifacts/
 src/packages/*/**
-build/_umbraco/
 build/_nuget/
+build/_umbraco/
 assets/

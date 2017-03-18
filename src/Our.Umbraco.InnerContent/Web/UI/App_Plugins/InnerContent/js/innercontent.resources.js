@@ -10,6 +10,16 @@
                     'Failed to retrieve content types'
                 );
             },
+            getContentTypeInfos: function (aliases) {
+                return umbRequestHelper.resourcePromise(
+                    $http({
+                        url: "/umbraco/backoffice/InnerContent/InnerContentApi/GetContentTypeInfos",
+                        method: "GET",
+                        params: { aliases: aliases }
+                    }),
+                    'Failed to retrieve content types'
+                );
+            },
             getContentTypeIcons: function (aliases) {
                 return umbRequestHelper.resourcePromise(
                     $http({

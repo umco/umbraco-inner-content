@@ -28,6 +28,22 @@ namespace Our.Umbraco.InnerContent.Web.Controllers
         }
 
         [HttpGet]
+        public IEnumerable<object> GetContentTypeInfos([ModelBinder] string[] aliases)
+        {
+            return Services.ContentTypeService.GetAllContentTypes()
+                .Where(x => aliases == null || aliases.Contains(x.Alias))
+                .OrderBy(x => x.SortOrder)
+                .Select(x => new
+                {
+                    id = x.Id,
+                    guid = x.Key,
+                    name = x.Name,
+                    alias = x.Alias,
+                    icon = x.Icon.IsNullOrWhiteSpace() || x.Icon == ".sprTreeFolder" ? "icon-folder" : x.Icon
+                });
+        }
+
+        [HttpGet]
         public IDictionary<string, string> GetContentTypeIcons([ModelBinder] string[] aliases)
         {
             return Services.ContentTypeService.GetAllContentTypes()
