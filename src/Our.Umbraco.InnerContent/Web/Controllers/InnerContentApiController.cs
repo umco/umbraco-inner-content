@@ -49,7 +49,7 @@ namespace Our.Umbraco.InnerContent.Web.Controllers
             return Services.ContentTypeService.GetAllContentTypes()
                 .Where(x => aliases.Contains(x.Alias))
                 .ToDictionary(
-                    x => x.Alias, 
+                    x => x.Alias,
                     x => x.Icon.IsNullOrWhiteSpace() || x.Icon == ".sprTreeFolder" ? "icon-folder" : x.Icon);
         }
     }

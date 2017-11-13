@@ -9,6 +9,7 @@ namespace Our.Umbraco.InnerContent
     {
         protected override void ApplicationStarted(UmbracoApplicationBase umbracoApplication, ApplicationContext applicationContext)
         {
+            // TODO: [LK] Replace with the distributed cache expiry
             DataTypeService.Saved += ExpireCache;
         }
 
