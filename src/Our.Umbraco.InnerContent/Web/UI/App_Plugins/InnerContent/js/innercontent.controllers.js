@@ -86,22 +86,21 @@ angular.module("umbraco").controller("Our.Umbraco.InnerContent.Controllers.DocTy
 ]);
 
 // Property Editors
-angular.module("umbraco").controller("Our.Umbraco.InnerContent.Controllers.InnerContentDialogController",
-    [
-        "$scope",
-        "$interpolate",
-        "formHelper",
-        "contentResource",
+angular.module("umbraco").controller("Our.Umbraco.InnerContent.Controllers.InnerContentDialogController", [
+    "$scope",
+    "$interpolate",
+    "formHelper",
+    "contentResource",
 
-        function ($scope) {
-            $scope.item = $scope.model.dialogData.item;
-        }
+    function ($scope) {
+        $scope.item = $scope.model.dialogData.item;
+    }
 
-    ]);
+]);
 
 // Directives
 angular.module('umbraco.directives').directive('innerContentOverlay', [
-    
+
     "$q",
     "innerContentService",
 
@@ -123,7 +122,7 @@ angular.module('umbraco.directives').directive('innerContentOverlay', [
             // content type, we don't need to fetch the scaffold again
             var createEditorModel = function (contentType, dbModel) {
 
-                var process = function(editorModel, dbModel2) {
+                var process = function (editorModel, dbModel2) {
                     var n = angular.copy(editorModel);
                     n.key = innerContentService.generateUid(); // Create new ID for item
                     return innerContentService.extendEditorModel(n, dbModel2);
@@ -154,7 +153,7 @@ angular.module('umbraco.directives').directive('innerContentOverlay', [
                         scope.openContentEditorOverlay();
                     });
                 },
-                close: function() {
+                close: function () {
                     scope.closeAllOverlays();
                 }
             };
@@ -162,7 +161,7 @@ angular.module('umbraco.directives').directive('innerContentOverlay', [
             scope.contentEditorOverlay = {
                 view: Umbraco.Sys.ServerVariables.umbracoSettings.appPluginsPath + "/innercontent/views/innercontent.dialog.html",
                 show: false,
-                submit: function(model) {
+                submit: function (model) {
                     if (scope.config.callback) {
                         // Convert model to basic model
                         scope.config.data.model = innerContentService.createDbModel(model.dialogData.item);
@@ -172,12 +171,12 @@ angular.module('umbraco.directives').directive('innerContentOverlay', [
                     }
                     scope.closeAllOverlays();
                 },
-                close: function() {
+                close: function () {
                     scope.closeAllOverlays();
                 }
             };
 
-            scope.openContentTypePickerOverlay = function() {
+            scope.openContentTypePickerOverlay = function () {
 
                 if (scope.contentTypePickerOverlay.availableItems.length === 0) {
                     scope.closeAllOverlays();
@@ -197,21 +196,21 @@ angular.module('umbraco.directives').directive('innerContentOverlay', [
 
             };
 
-            scope.closeContentTypePickerOverlay = function() {
+            scope.closeContentTypePickerOverlay = function () {
                 scope.contentTypePickerOverlay.show = false;
             };
 
-            scope.openContentEditorOverlay = function() {
+            scope.openContentEditorOverlay = function () {
                 scope.contentEditorOverlay.title = "Edit item",
                     scope.contentEditorOverlay.dialogData = { item: scope.currentItem };
                 scope.contentEditorOverlay.show = true;
             };
 
-            scope.closeContentEditorOverlay = function() {
+            scope.closeContentEditorOverlay = function () {
                 scope.contentEditorOverlay.show = false;
             };
 
-            scope.closeAllOverlays = function() {
+            scope.closeAllOverlays = function () {
                 scope.closeContentTypePickerOverlay();
                 scope.closeContentEditorOverlay();
                 scope.config.show = false;
@@ -241,11 +240,11 @@ angular.module('umbraco.directives').directive('innerContentOverlay', [
                 // If overlay items haven't be initialized, then intialize them
                 if (!scope.config.contentTypePickerItems) {
 
-                    var aliases = scope.config.contentTypes.map(function(itm) {
+                    var aliases = scope.config.contentTypes.map(function (itm) {
                         return itm.icContentTypeAlias;
                     });
 
-                    innerContentService.getContentTypeInfos(aliases).then(function(docTypes) {
+                    innerContentService.getContentTypeInfos(aliases).then(function (docTypes) {
 
                         // Cache items in the PE's config so we only request these once per PE instance
                         scope.config.contentTypePickerItems = docTypes;
@@ -292,12 +291,12 @@ angular.module("umbraco").factory('innerContentService', [
         var self = {};
 
         var getScaffold = function (contentType) {
-            return contentResource.getScaffold(-20, contentType.icContentTypeAlias).then(function(scaffold) {
+            return contentResource.getScaffold(-20, contentType.icContentTypeAlias).then(function (scaffold) {
 
                 // remove all tabs except the specified tab
                 if (contentType.hasOwnProperty("icTabAlias")) {
 
-                    var tab = _.find(scaffold.tabs, function(tab) {
+                    var tab = _.find(scaffold.tabs, function (tab) {
                         return tab.id !== 0 && (tab.alias.toLowerCase() === contentType.icTabAlias.toLowerCase() || contentType.icTabAlias === "");
                     });
                     scaffold.tabs = [];
@@ -319,7 +318,7 @@ angular.module("umbraco").factory('innerContentService', [
 
         self.populateName = function (itm, idx, contentTypes) {
 
-            var contentType = _.find(contentTypes, function(itm2) {
+            var contentType = _.find(contentTypes, function (itm2) {
                 return itm2.icContentTypeAlias === itm.icContentTypeAlias;
             });
 
@@ -327,7 +326,7 @@ angular.module("umbraco").factory('innerContentService', [
             var nameExp = $interpolate(nameTemplate);
 
             if (nameExp) {
-                    
+
                 // Inject temporary index property
                 itm.$index = idx;
 
@@ -366,10 +365,10 @@ angular.module("umbraco").factory('innerContentService', [
                 return self.extendEditorModel(scaffold, dbModel);
 
             });
-            
+
         }
 
-        self.extendEditorModel = function(editorModel, dbModel) {
+        self.extendEditorModel = function (editorModel, dbModel) {
 
             editorModel.key = dbModel && dbModel.key ? dbModel.key : editorModel.key;
             editorModel.name = dbModel && dbModel.name ? dbModel.name : editorModel.name;
@@ -430,9 +429,9 @@ angular.module("umbraco").factory('innerContentService', [
             var d2 = Math.random() * 0xffffffff | 0;
             var d3 = Math.random() * 0xffffffff | 0;
             return lut[d0 & 0xff] + lut[d0 >> 8 & 0xff] + lut[d0 >> 16 & 0xff] + lut[d0 >> 24 & 0xff] + '-' +
-              lut[d1 & 0xff] + lut[d1 >> 8 & 0xff] + '-' + lut[d1 >> 16 & 0x0f | 0x40] + lut[d1 >> 24 & 0xff] + '-' +
-              lut[d2 & 0x3f | 0x80] + lut[d2 >> 8 & 0xff] + '-' + lut[d2 >> 16 & 0xff] + lut[d2 >> 24 & 0xff] +
-              lut[d3 & 0xff] + lut[d3 >> 8 & 0xff] + lut[d3 >> 16 & 0xff] + lut[d3 >> 24 & 0xff];
+                lut[d1 & 0xff] + lut[d1 >> 8 & 0xff] + '-' + lut[d1 >> 16 & 0x0f | 0x40] + lut[d1 >> 24 & 0xff] + '-' +
+                lut[d2 & 0x3f | 0x80] + lut[d2 >> 8 & 0xff] + '-' + lut[d2 >> 16 & 0xff] + lut[d2 >> 24 & 0xff] +
+                lut[d3 & 0xff] + lut[d3 >> 8 & 0xff] + lut[d3 >> 16 & 0xff] + lut[d3 >> 24 & 0xff];
         }
 
         return self;

@@ -86,7 +86,7 @@ namespace Our.Umbraco.InnerContent.PropertyEditors
 
         protected void ConvertDbToEditorRecursive(JToken token, Property property, PropertyType propertyType, IDataTypeService dataTypeService)
         {
-            var jArr = token as JArray; 
+            var jArr = token as JArray;
             if (jArr != null)
             {
                 foreach (var item in jArr)
@@ -122,7 +122,7 @@ namespace Our.Umbraco.InnerContent.PropertyEditors
                 return null;
 
             var value = JsonConvert.DeserializeObject<JToken>(editorValue.Value.ToString());
-            if (value == null || (value is JArray &&  ((JArray)value).Count == 0))
+            if (value == null || (value is JArray && ((JArray)value).Count == 0))
                 return null;
 
             // Process value
