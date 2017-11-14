@@ -4,6 +4,8 @@
     {
         internal const string ContentTypeAliasPropertyKey = "icContentTypeAlias";
 
+        internal const string ContentTypeGuidPropertyKey = "icContentTypeGuid";
+
         internal const string PreValuesCacheKey = "Our.Umbraco.InnerContent.GetPreValuesCollectionByDataTypeId_{0}";
     }
 }

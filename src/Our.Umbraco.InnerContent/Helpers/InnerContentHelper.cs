@@ -27,11 +27,7 @@ namespace Our.Umbraco.InnerContent.Helpers
             int level = 0,
             bool preview = false)
         {
-            var contentTypeAlias = GetContentTypeAliasFromItem(item);
-            if (string.IsNullOrEmpty(contentTypeAlias))
-                return null;
-
-            var publishedContentType = PublishedContentType.Get(PublishedItemType.Content, contentTypeAlias);
+            var publishedContentType = GetPublishedContentTypeFromItem(item);
             if (publishedContentType == null)
                 return null;
 
@@ -101,12 +97,55 @@ namespace Our.Umbraco.InnerContent.Helpers
             return contentTypeAliasProperty?.ToObject<string>();
         }
 
+        internal static Guid? GetContentTypeGuidFromItem(JObject item)
+        {
+            var contentTypeGuidProperty = item?[InnerContentConstants.ContentTypeGuidPropertyKey];
+            return contentTypeGuidProperty?.ToObject<Guid?>();
+        }
+
         internal static IContentType GetContentTypeFromItem(JObject item)
         {
             var contentTypeAlias = GetContentTypeAliasFromItem(item);
             return !contentTypeAlias.IsNullOrWhiteSpace()
                 ? ApplicationContext.Current.Services.ContentTypeService.GetContentType(contentTypeAlias)
                 : null;
+        }
+
+        internal static PublishedContentType GetPublishedContentTypeFromItem(JObject item)
+        {
+            var contentTypeAlias = string.Empty;
+
+            // First we check if the item has a content-type GUID...
+            var contentTypeGuid = GetContentTypeGuidFromItem(item);
+            if (contentTypeGuid != null && contentTypeGuid.HasValue && contentTypeGuid.Value != Guid.Empty)
+            {
+                // If so, we attempt to get the content-type object
+                var contentType = ApplicationContext.Current.Services.ContentTypeService.GetContentType(contentTypeGuid.Value);
+                if (contentType != null)
+                {
+                    // Assign the content-type alias
+                    contentTypeAlias = contentType.Alias;
+
+                    // HACK: Force populating the cache [LK:2017-11-14]
+                    // We need to return a `PublishedContentType` object, there's only one way to do this,
+                    // e.g. via the `PublishedContentType.Get` method.
+                    // Now, since we already have the `IContentType` instance, we can pop it in the static-cache,
+                    // so that the `PublishedContentType.Get` method can immediately access it.
+                    // See Umbraco source-code for the cache-item key:
+                    // https://github.com/umbraco/Umbraco-CMS/blob/release-7.4.0/src/Umbraco.Core/Models/PublishedContent/PublishedContentType.cs#L135
+                    var key = string.Format("PublishedContentType_{0}_{1}", PublishedItemType.Content.ToString().ToLowerInvariant(), contentTypeAlias.ToLowerInvariant());
+                    ApplicationContext.Current.ApplicationCache.StaticCache.GetCacheItem(key, () => contentType);
+                }
+            }
+
+            // If we don't have the content-type alias at this point, check if we can get it from the item
+            if (string.IsNullOrEmpty(contentTypeAlias))
+                contentTypeAlias = GetContentTypeAliasFromItem(item);
+
+            if (string.IsNullOrEmpty(contentTypeAlias))
+                return null;
+
+            return PublishedContentType.Get(PublishedItemType.Content, contentTypeAlias);
         }
     }
 }

@@ -11,6 +11,7 @@ angular.module("umbraco").controller("Our.Umbraco.InnerContent.Controllers.DocTy
                 // All stored content type aliases must be prefixed "mb" for easier recognition.
                 // For good measure we'll also prefix the tab alias "mb" 
                 icContentTypeAlias: "",
+                icContentTypeGuid: "",
                 icTabAlias: "",
                 nameTemplate: ""
             });
@@ -60,6 +61,7 @@ angular.module("umbraco").controller("Our.Umbraco.InnerContent.Controllers.DocTy
                 // All stored content type aliases must be prefixed "mb" for easier recognition.
                 // For good measure we'll also prefix the tab alias "mb" 
                 icContentTypeAlias: "",
+                icContentTypeGuid: "",
                 nameTemplate: ""
             });
         }
