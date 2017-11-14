@@ -1,7 +1,7 @@
 os: Visual Studio 2015
 
 # version format
-version: 1.0.3.{build}
+version: 1.0.4.{build}
 
 # UMBRACO_PACKAGE_PRERELEASE_SUFFIX if a rtm release build this should be blank, otherwise if empty will default to alpha
 # example UMBRACO_PACKAGE_PRERELEASE_SUFFIX=beta
@@ -15,7 +15,7 @@ before_build:
   - nuget restore src
 
 build_script:
-- build-appveyor.cmd
+  - build-appveyor.cmd
 
 artifacts:
   - path: artifacts\*.nupkg
