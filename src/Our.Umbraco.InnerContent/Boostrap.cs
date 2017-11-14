@@ -1,7 +1,9 @@
-﻿using Umbraco.Core;
-using Umbraco.Core.Events;
-using Umbraco.Core.Models;
-using Umbraco.Core.Services;
+﻿using System;
+using Newtonsoft.Json;
+using Umbraco.Core;
+using Umbraco.Core.Cache;
+using Umbraco.Core.Sync;
+using Umbraco.Web.Cache;
 
 namespace Our.Umbraco.InnerContent
 {
@@ -9,17 +11,29 @@ namespace Our.Umbraco.InnerContent
     {
         protected override void ApplicationStarted(UmbracoApplicationBase umbracoApplication, ApplicationContext applicationContext)
         {
-            // TODO: [LK] Replace with the distributed cache expiry
-            DataTypeService.Saved += ExpireCache;
+            CacheRefresherBase<DataTypeCacheRefresher>.CacheUpdated += DataTypeCacheRefresher_Updated;
         }
 
-        private void ExpireCache(IDataTypeService sender, SaveEventArgs<IDataTypeDefinition> e)
+        private void DataTypeCacheRefresher_Updated(DataTypeCacheRefresher sender, CacheRefresherEventArgs e)
         {
-            foreach (var dataType in e.SavedEntities)
+            if (e.MessageType == MessageType.RefreshByJson)
             {
-                ApplicationContext.Current.ApplicationCache.RuntimeCache.ClearCacheItem(
-                    string.Concat("Our.Umbraco.InnerContent.GetPreValuesCollectionByDataTypeId_", dataType.Id));
+                var payload = JsonConvert.DeserializeObject<JsonPayload[]>((string)e.MessageObject);
+                if (payload != null)
+                {
+                    foreach (var item in payload)
+                    {
+                        ApplicationContext.Current.ApplicationCache.RuntimeCache.ClearCacheItem(
+                            string.Concat("Our.Umbraco.InnerContent.GetPreValuesCollectionByDataTypeId_", item.Id));
+                    }
+                }
             }
+        }
+
+        private class JsonPayload
+        {
+            public Guid UniqueId { get; set; }
+            public int Id { get; set; }
         }
     }
 }
