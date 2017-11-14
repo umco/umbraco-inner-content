@@ -89,7 +89,7 @@ namespace Our.Umbraco.InnerContent.Helpers
         internal static PreValueCollection GetPreValuesCollectionByDataTypeId(int dtdId)
         {
             var preValueCollection = (PreValueCollection)ApplicationContext.Current.ApplicationCache.RuntimeCache.GetCacheItem(
-                string.Concat("Our.Umbraco.InnerContent.GetPreValuesCollectionByDataTypeId_", dtdId),
+                string.Format(InnerContentConstants.PreValuesCacheKey, dtdId),
                 () => ApplicationContext.Current.Services.DataTypeService.GetPreValuesCollectionByDataTypeId(dtdId));
 
             return preValueCollection;

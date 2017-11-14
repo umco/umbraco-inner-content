@@ -24,7 +24,7 @@ namespace Our.Umbraco.InnerContent
                     foreach (var item in payload)
                     {
                         ApplicationContext.Current.ApplicationCache.RuntimeCache.ClearCacheItem(
-                            string.Concat("Our.Umbraco.InnerContent.GetPreValuesCollectionByDataTypeId_", item.Id));
+                            string.Format(InnerContentConstants.PreValuesCacheKey, item.Id));
                     }
                 }
             }
