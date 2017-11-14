@@ -8,8 +8,8 @@ angular.module("umbraco").controller("Our.Umbraco.InnerContent.Controllers.DocTy
 
         $scope.add = function () {
             $scope.model.value.push({
-                // All stored content type aliases must be prefixed "mb" for easier recognition.
-                // For good measure we'll also prefix the tab alias "mb" 
+                // All stored content type aliases must be prefixed "ic" for easier recognition.
+                // For good measure we'll also prefix the tab alias "ic" 
                 icContentTypeAlias: "",
                 icTabAlias: "",
                 nameTemplate: ""
@@ -57,8 +57,8 @@ angular.module("umbraco").controller("Our.Umbraco.InnerContent.Controllers.DocTy
 
         $scope.add = function () {
             $scope.model.value.push({
-                // All stored content type aliases must be prefixed "mb" for easier recognition.
-                // For good measure we'll also prefix the tab alias "mb" 
+                // All stored content type aliases must be prefixed "ic" for easier recognition.
+                // For good measure we'll also prefix the tab alias "ic" 
                 icContentTypeAlias: "",
                 nameTemplate: ""
             });
