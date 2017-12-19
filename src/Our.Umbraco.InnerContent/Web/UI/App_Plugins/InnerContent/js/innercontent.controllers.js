@@ -86,15 +86,22 @@ angular.module("umbraco").controller("Our.Umbraco.InnerContent.Controllers.DocTy
 ]);
 
 // Property Editors
-angular.module("umbraco").controller("Our.Umbraco.InnerContent.Controllers.InnerContentDialogController", [
-    "$scope",
-    "$interpolate",
-    "formHelper",
-    "contentResource",
+angular.module("umbraco").controller("Our.Umbraco.InnerContent.Controllers.InnerContentDialogController",
+    [
+        "$scope",
+        "$interpolate",
+        "formHelper",
+        "contentResource",
 
-    function ($scope) {
-        $scope.item = $scope.model.dialogData.item;
-    }
+        function ($scope) {
+            $scope.item = $scope.model.dialogData.item;
+
+            // Set a nodeContext property as nested property editors
+            // can use this to know what doc type this node is etc
+            // NC + DTGE do the same
+            $scope.nodeContext = $scope.item;
+        }
+
 
 ]);
 
