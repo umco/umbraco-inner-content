@@ -73,6 +73,12 @@ namespace Our.Umbraco.InnerContent.Helpers
                 node.SetChildren(children);
             }
 
+            if (PublishedContentModelFactoryResolver.HasCurrent && PublishedContentModelFactoryResolver.Current.HasValue)
+            {
+                // Let the current model factory create a typed model to wrap our model
+                return PublishedContentModelFactoryResolver.Current.Factory.CreateModel(node);
+            }
+
             return node;
         }
 
