@@ -1,6 +1,5 @@
 ﻿using Newtonsoft.Json;
 using Umbraco.Core;
-using Umbraco.Core.Cache;
 using Umbraco.Core.Sync;
 using Umbraco.Web.Cache;
 
@@ -10,7 +9,7 @@ namespace Our.Umbraco.InnerContent
     {
         protected override void ApplicationStarted(UmbracoApplicationBase umbracoApplication, ApplicationContext applicationContext)
         {
-            CacheRefresherBase<DataTypeCacheRefresher>.CacheUpdated += (sender, e) =>
+            DataTypeCacheRefresher.CacheUpdated += (sender, e) =>
             {
                 if (e.MessageType == MessageType.RefreshByJson)
                 {

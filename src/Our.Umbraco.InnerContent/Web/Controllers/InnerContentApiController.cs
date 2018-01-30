@@ -2,7 +2,6 @@
 using System.Linq;
 using System.Web.Http;
 using System.Web.Http.ModelBinding;
-using Umbraco.Core;
 using Umbraco.Web.Editors;
 using Umbraco.Web.Mvc;
 
@@ -22,7 +21,7 @@ namespace Our.Umbraco.InnerContent.Web.Controllers
                     guid = x.Key,
                     name = x.Name,
                     alias = x.Alias,
-                    icon = x.Icon.IsNullOrWhiteSpace() || x.Icon == ".sprTreeFolder" ? "icon-folder" : x.Icon,
+                    icon = string.IsNullOrWhiteSpace(x.Icon) || x.Icon == ".sprTreeFolder" ? "icon-folder" : x.Icon,
                     tabs = x.CompositionPropertyGroups.Select(y => y.Name).Distinct()
                 });
         }
@@ -39,7 +38,7 @@ namespace Our.Umbraco.InnerContent.Web.Controllers
                     guid = x.Key,
                     name = x.Name,
                     alias = x.Alias,
-                    icon = x.Icon.IsNullOrWhiteSpace() || x.Icon == ".sprTreeFolder" ? "icon-folder" : x.Icon
+                    icon = string.IsNullOrWhiteSpace(x.Icon) || x.Icon == ".sprTreeFolder" ? "icon-folder" : x.Icon
                 });
         }
 
@@ -50,7 +49,7 @@ namespace Our.Umbraco.InnerContent.Web.Controllers
                 .Where(x => aliases.Contains(x.Alias))
                 .ToDictionary(
                     x => x.Alias,
-                    x => x.Icon.IsNullOrWhiteSpace() || x.Icon == ".sprTreeFolder" ? "icon-folder" : x.Icon);
+                    x => string.IsNullOrWhiteSpace(x.Icon) || x.Icon == ".sprTreeFolder" ? "icon-folder" : x.Icon);
         }
     }
 }
