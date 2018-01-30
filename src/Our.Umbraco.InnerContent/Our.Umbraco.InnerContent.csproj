@@ -80,7 +80,6 @@
   <ItemGroup>
     <Compile Include="Boostrap.cs" />
     <Compile Include="Converters\InnerContentValueConverter.cs" />
-    <Compile Include="Extensions\PreValueCollectionExtensions.cs" />
     <Compile Include="Helpers\InnerContentHelper.cs" />
     <Compile Include="InnerContentConstants.cs" />
     <Compile Include="Models\DetachedPublishedContent.cs" />
