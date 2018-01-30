@@ -47,19 +47,9 @@ namespace Our.Umbraco.InnerContent.Helpers
                 }
             }
 
-            // Parse out the name manually
-            object nameObj;
-            if (propValues.TryGetValue("name", out nameObj))
-            {
-                // Do nothing, we just want to parse out the name if we can
-            }
-
-            // Parse out key manually
-            object keyObj;
-            if (propValues.TryGetValue("key", out keyObj))
-            {
-                // Do nothing, we just want to parse out the key if we can
-            }
+            // Manually parse out the special properties
+            propValues.TryGetValue("name", out object nameObj);
+            propValues.TryGetValue("key", out object keyObj);
 
             // Get the current request node we are embedded in
             var pcr = UmbracoContext.Current.PublishedContentRequest;

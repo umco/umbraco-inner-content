@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 14
-VisualStudioVersion = 14.0.25420.1
+# Visual Studio 15
+VisualStudioVersion = 15.0.27004.2008
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Our.Umbraco.InnerContent", "Our.Umbraco.InnerContent\Our.Umbraco.InnerContent.csproj", "{4B0C20EA-3B2B-4C56-A09A-C4F208D577EC}"
 EndProject
@@ -40,5 +40,8 @@ Global
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{0EDC340A-DCE2-459A-9114-99B7334A1D2D} = {ABCCCFCD-7ABB-4480-ACA6-E32A79B89990}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {3DB20A45-23C8-4D1F-9007-7E6FAD1B4C06}
 	EndGlobalSection
 EndGlobal
