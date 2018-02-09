@@ -107,11 +107,11 @@
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>IF %25ComputerName%25 == UMBRELLA-SB (
+    <PostBuildEvent>IF %25ComputerName%25 == DESKTOP-ESFKU58 (
   IF NOT "$(SolutionDir)" == "*Undefined*" (
-    XCOPY /s /y "$(TargetPath)" "C:\VCS\Umbrella\Carlsberg\pegasus-v2\tuborg-2017\bin\"
-    XCOPY /s /y "$(TargetDir)$(ProjectName).pdb" "C:\VCS\Umbrella\Carlsberg\pegasus-v2\tuborg-2017\bin\"
-    XCOPY /s /y "$(ProjectDir)Web\UI\*.*" "C:\VCS\Umbrella\Carlsberg\pegasus-v2\tuborg-2017\"
+    xcopy /s /y "$(TargetPath)" "C:\Users\Matt\Storage\Sandbox\Umbraco\UmbracoCms.7.7.6\bin\"
+    xcopy /s /y "$(TargetDir)$(ProjectName).pdb" "C:\Users\Matt\Storage\Sandbox\Umbraco\UmbracoCms.7.7.6\bin\"
+    xcopy /s /y "$(ProjectDir)Web\UI\*.*" "C:\Users\Matt\Storage\Sandbox\Umbraco\UmbracoCms.7.7.6\"
   )
 )</PostBuildEvent>
   </PropertyGroup>

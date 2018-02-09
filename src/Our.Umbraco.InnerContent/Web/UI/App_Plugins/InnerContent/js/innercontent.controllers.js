@@ -89,17 +89,52 @@ angular.module("umbraco").controller("Our.Umbraco.InnerContent.Controllers.DocTy
 angular.module("umbraco").controller("Our.Umbraco.InnerContent.Controllers.InnerContentDialogController",
     [
         "$scope",
+        "$rootScope",
         "$interpolate",
-        "formHelper",
-        "contentResource",
 
-        function ($scope) {
+        function ($scope, $rootScope) {
             $scope.item = $scope.model.dialogData.item;
 
             // Set a nodeContext property as nested property editors
             // can use this to know what doc type this node is etc
             // NC + DTGE do the same
             $scope.nodeContext = $scope.item;
+
+            $scope.canConfirmClose = false;
+            $scope.showConfirmClose = false;
+
+            // This is by no means ideal as we are overriding a core method to prevent te overlay closing
+            // put without coding a custom overlay, I couldn't think of a better way of doing it. We'll
+            // have to keep a close eye on the overlay api to ensure the method name doesn't change, but
+            // for now it works.
+            var overlayScope = $scope;
+            while (overlayScope.$id !== $rootScope.$id) {
+                if (overlayScope.hasOwnProperty("view") && overlayScope.view.indexOf("innercontent.dialog.html") !== -1) {
+                    break;
+                }
+                overlayScope = overlayScope.$parent;
+            }
+
+            if (overlayScope && overlayScope.$id !== $rootScope.$id) {
+                $scope.canConfirmClose = true;
+                overlayScope.oldCloseOverLay = overlayScope.closeOverLay;
+                overlayScope.closeOverLay = function() {
+                    if (overlayScope.overlayForm.$dirty) {
+                        $scope.showConfirmClose = true;
+                    } else {
+                        overlayScope.oldCloseOverLay();
+                    }
+                }
+            }
+
+            $scope.confirmClose = function () {
+                $scope.showConfirmClose = false;
+                overlayScope.oldCloseOverLay();
+            }
+
+            $scope.cancelClose = function () {
+                $scope.showConfirmClose = false;
+            }
         }
 
 
