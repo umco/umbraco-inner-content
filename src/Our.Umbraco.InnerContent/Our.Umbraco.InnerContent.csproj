@@ -100,6 +100,7 @@
     <Content Include="Web\UI\App_Plugins\InnerContent\js\innercontent.controllers.js" />
     <Content Include="Web\UI\App_Plugins\InnerContent\js\innercontent.resources.js" />
     <Content Include="Web\UI\App_Plugins\InnerContent\views\innercontent.dialog.html" />
+    <Content Include="Web\UI\App_Plugins\InnerContent\views\innercontent.unsavedchanges.html" />
     <Content Include="Web\UI\App_Plugins\InnerContent\views\innercontent.overlay.html" />
     <Content Include="Web\UI\App_Plugins\InnerContent\views\innercontent.doctypetabpicker.html" />
     <Content Include="Web\UI\App_Plugins\InnerContent\views\innercontent.doctypepicker.html" />
