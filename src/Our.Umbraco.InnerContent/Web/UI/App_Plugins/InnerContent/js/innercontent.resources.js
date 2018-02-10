@@ -10,24 +10,34 @@
                     'Failed to retrieve content types'
                 );
             },
-            getContentTypeInfos: function (aliases) {
+            getContentTypeInfos: function (guids) {
                 return umbRequestHelper.resourcePromise(
                     $http({
                         url: "/umbraco/backoffice/InnerContent/InnerContentApi/GetContentTypeInfos",
                         method: "GET",
-                        params: { aliases: aliases }
+                        params: { guids: guids }
                     }),
                     'Failed to retrieve content types'
                 );
             },
-            getContentTypeIcons: function (aliases) {
+            getContentTypeIcons: function (guids) {
                 return umbRequestHelper.resourcePromise(
                     $http({
                         url: "/umbraco/backoffice/InnerContent/InnerContentApi/GetContentTypeIcons",
                         method: "GET",
-                        params: { aliases: aliases }
+                        params: { guids: guids }
                     }),
                     'Failed to retrieve content type icons'
+                );
+            },
+            getContentTypeScaffold: function (guid) {
+                return umbRequestHelper.resourcePromise(
+                    $http({
+                        url: "/umbraco/backoffice/InnerContent/InnerContentApi/getContentTypeScaffold",
+                        method: "GET",
+                        params: { guid: guid }
+                    }),
+                    'Failed to retrieve content type scaffold'
                 );
             }
         };

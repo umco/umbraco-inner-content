@@ -1,8 +1,9 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
-using System.Web.Http;
-using System.Web.Http.ModelBinding;
+using System.Web.Mvc;
 using Umbraco.Web.Editors;
+using Umbraco.Web.Models.ContentEditing;
 using Umbraco.Web.Mvc;
 
 namespace Our.Umbraco.InnerContent.Web.Controllers
@@ -10,7 +11,7 @@ namespace Our.Umbraco.InnerContent.Web.Controllers
     [PluginController("InnerContent")]
     public class InnerContentApiController : UmbracoAuthorizedJsonController
     {
-        [HttpGet]
+        [System.Web.Http.HttpGet]
         public IEnumerable<object> GetContentTypes()
         {
             return Services.ContentTypeService.GetAllContentTypes()
@@ -26,11 +27,11 @@ namespace Our.Umbraco.InnerContent.Web.Controllers
                 });
         }
 
-        [HttpGet]
-        public IEnumerable<object> GetContentTypeInfos([ModelBinder] string[] aliases)
+        [System.Web.Http.HttpGet]
+        public IEnumerable<object> GetContentTypeInfos([System.Web.Http.ModelBinding.ModelBinder] Guid[] guids)
         {
             return Services.ContentTypeService.GetAllContentTypes()
-                .Where(x => aliases == null || aliases.Contains(x.Alias))
+                .Where(x => guids == null || guids.Contains(x.Key))
                 .OrderBy(x => x.SortOrder)
                 .Select(x => new
                 {
@@ -42,14 +43,21 @@ namespace Our.Umbraco.InnerContent.Web.Controllers
                 });
         }
 
-        [HttpGet]
-        public IDictionary<string, string> GetContentTypeIcons([ModelBinder] string[] aliases)
+        [System.Web.Http.HttpGet]
+        public IDictionary<string, string> GetContentTypeIcons([System.Web.Http.ModelBinding.ModelBinder] Guid[] guids)
         {
             return Services.ContentTypeService.GetAllContentTypes()
-                .Where(x => aliases.Contains(x.Alias))
+                .Where(x => guids.Contains(x.Key))
                 .ToDictionary(
-                    x => x.Alias,
+                    x => x.Key.ToString(),
                     x => string.IsNullOrWhiteSpace(x.Icon) || x.Icon == ".sprTreeFolder" ? "icon-folder" : x.Icon);
+        }
+
+        [HttpGet]
+        public ContentItemDisplay GetContentTypeScaffold(Guid guid)
+        {
+            var contentType = Services.ContentTypeService.GetContentType(guid);
+            return new ContentController().GetEmpty(contentType.Alias, -20);
         }
     }
 }

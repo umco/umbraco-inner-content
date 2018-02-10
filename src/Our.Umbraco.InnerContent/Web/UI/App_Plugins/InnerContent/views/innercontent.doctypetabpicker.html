@@ -20,13 +20,10 @@
                 <tr ng-repeat="config in model.value">
                     <td class="icon icon-navigation"></td>
                     <td>
-                        <select id="{{model.alias}}_doctype_select"
-                                ng-options="dt.alias as dt.name for dt in model.docTypes | orderBy: 'name'"
-                                ng-model="config.icContentTypeAlias" required></select>
-                    </td>
+                        <select ng-options="dt.guid as dt.name for dt in model.docTypes | orderBy: 'name'"
+                                ng-model="config.icContentTypeGuid" required></select>
                     <td>
-                        <select id="{{model.alias}}_tab_select"
-                                ng-options="t for t in selectedDocTypeTabs(config)"
+                        <select ng-options="t for t in selectedDocTypeTabs(config)"
                                 ng-model="config.icTabAlias" required></select>
                     </td>
                     <td>
