@@ -28,7 +28,7 @@ namespace Our.Umbraco.InnerContent.Web.Controllers
         }
 
         [System.Web.Http.HttpGet]
-        public IEnumerable<object> GetContentTypeInfos([System.Web.Http.ModelBinding.ModelBinder] Guid[] guids)
+        public IEnumerable<object> GetContentTypesByGuid([System.Web.Http.ModelBinding.ModelBinder] Guid[] guids)
         {
             return Services.ContentTypeService.GetAllContentTypes()
                 .Where(x => guids == null || guids.Contains(x.Key))
@@ -39,12 +39,30 @@ namespace Our.Umbraco.InnerContent.Web.Controllers
                     guid = x.Key,
                     name = x.Name,
                     alias = x.Alias,
-                    icon = string.IsNullOrWhiteSpace(x.Icon) || x.Icon == ".sprTreeFolder" ? "icon-folder" : x.Icon
+                    icon = string.IsNullOrWhiteSpace(x.Icon) || x.Icon == ".sprTreeFolder" ? "icon-folder" : x.Icon,
+                    tabs = x.CompositionPropertyGroups.Select(y => y.Name).Distinct()
                 });
         }
 
         [System.Web.Http.HttpGet]
-        public IDictionary<string, string> GetContentTypeIcons([System.Web.Http.ModelBinding.ModelBinder] Guid[] guids)
+        public IEnumerable<object> GetContentTypesByAlias([System.Web.Http.ModelBinding.ModelBinder] string[] aliases)
+        {
+            return Services.ContentTypeService.GetAllContentTypes()
+                .Where(x => aliases == null || aliases.Contains(x.Alias))
+                .OrderBy(x => x.SortOrder)
+                .Select(x => new
+                {
+                    id = x.Id,
+                    guid = x.Key,
+                    name = x.Name,
+                    alias = x.Alias,
+                    icon = string.IsNullOrWhiteSpace(x.Icon) || x.Icon == ".sprTreeFolder" ? "icon-folder" : x.Icon,
+                    tabs = x.CompositionPropertyGroups.Select(y => y.Name).Distinct()
+                });
+        }
+
+        [System.Web.Http.HttpGet]
+        public IDictionary<string, string> GetContentTypeIconsByGuid([System.Web.Http.ModelBinding.ModelBinder] Guid[] guids)
         {
             return Services.ContentTypeService.GetAllContentTypes()
                 .Where(x => guids.Contains(x.Key))
@@ -54,7 +72,7 @@ namespace Our.Umbraco.InnerContent.Web.Controllers
         }
 
         [HttpGet]
-        public ContentItemDisplay GetContentTypeScaffold(Guid guid)
+        public ContentItemDisplay GetContentTypeScaffoldByGuid(Guid guid)
         {
             var contentType = Services.ContentTypeService.GetContentType(guid);
             return new ContentController().GetEmpty(contentType.Alias, -20);

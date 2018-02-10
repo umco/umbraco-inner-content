@@ -35,7 +35,7 @@ angular.module("umbraco").controller("Our.Umbraco.InnerContent.Controllers.DocTy
             handle: ".icon-navigation"
         };
 
-        innerContentService.getContentTypes().then(function (docTypes) {
+        innerContentService.getAllContentTypes().then(function (docTypes) {
             $scope.model.docTypes = docTypes;
 
             // Sometimes changes in Inner Content require
@@ -75,7 +75,7 @@ angular.module("umbraco").controller("Our.Umbraco.InnerContent.Controllers.DocTy
             handle: ".icon-navigation"
         };
 
-        innerContentService.getContentTypes().then(function (docTypes) {
+        innerContentService.getAllContentTypes().then(function (docTypes) {
             $scope.model.docTypes = docTypes;
 
             // Sometimes changes in Inner Content require
@@ -256,7 +256,7 @@ angular.module('umbraco.directives').directive('innerContentOverlay', [
                         return itm.icContentTypeGuid;
                     });
 
-                    innerContentService.getContentTypeInfos(guids).then(function (docTypes) {
+                    innerContentService.getContentTypesByGuid(guids).then(function (docTypes) {
 
                         // Cache items in the PE's config so we only request these once per PE instance
                         scope.config.contentTypePickerItems = docTypes;
@@ -361,7 +361,7 @@ angular.module("umbraco").factory('innerContentService', [
         var self = {};
 
         var getScaffold = function (contentType) {
-            return icResources.getContentTypeScaffold(contentType.icContentTypeGuid).then(function (scaffold) {
+            return icResources.getContentTypeScaffoldByGuid(contentType.icContentTypeGuid).then(function (scaffold) {
 
                 // remove all tabs except the specified tab
                 if (contentType.hasOwnProperty("icTabAlias")) {
@@ -412,16 +412,16 @@ angular.module("umbraco").factory('innerContentService', [
 
         }
 
-        self.getContentTypes = function () {
-            return icResources.getContentTypes();
+        self.getAllContentTypes = function () {
+            return icResources.getAllContentTypes();
         }
 
-        self.getContentTypeInfos = function (guids) {
-            return icResources.getContentTypeInfos(guids);
+        self.getContentTypesByGuid = function (guids) {
+            return icResources.getContentTypesByGuid(guids);
         }
 
-        self.getContentTypeIcons = function (guids) {
-            return icResources.getContentTypeIcons(guids);
+        self.getContentTypeIconsByGuid = function (guids) {
+            return icResources.getContentTypeIconsByGuid(guids);
         }
 
         self.createEditorModel = function (contentType, dbModel) {
@@ -493,14 +493,25 @@ angular.module("umbraco").factory('innerContentService', [
 
         self.preProcessModels = function (dbModels, configContentTypes, docTypes) {
 
+            var contentTypeAliases = [];
+
             // Pre v1.0.4 we stored the doc type alias
             // but as of 1.0.4 we switched to using the guid
             // so we remap any models which store the alias
             // to now use the guid instead
 
-            var fixDbModels = !!dbModels && _.some(dbModels, function(m) {
-                return m.hasOwnProperty("icContentTypeAlias");
-            });
+            var fixDbModels = false;
+
+            if (!!dbModels) {
+                _.forEach(dbModels, function (m) {
+                    if (m.hasOwnProperty("icContentTypeAlias")) {
+                        contentTypeAliases.push(m.icContentTypeAlias);
+                        fixDbModels = true;
+                        return true;
+                    }
+                    return false;
+                });
+            }
 
             var doFixDbModels = function (dbModels, docTypes) {
                 _.forEach(dbModels, function (itm) {
@@ -514,9 +525,18 @@ angular.module("umbraco").factory('innerContentService', [
                 });
             }
 
-            var fixConfigContentTypes = !!configContentTypes && _.some(configContentTypes, function (ct) {
-                return ct.hasOwnProperty("icContentTypeAlias");
-            });
+            var fixConfigContentTypes = false;
+
+            if (!!configContentTypes) {
+                _.forEach(configContentTypes, function (ct) {
+                    if (ct.hasOwnProperty("icContentTypeAlias")) {
+                        contentTypeAliases.push(ct.icContentTypeAlias);
+                        fixConfigContentTypes = true;
+                        return true;
+                    }
+                    return false;
+                });
+            }
 
             var doFixConfigContentTypes = function (contentTypes, docTypes) {
                 _.forEach(contentTypes, function (itm) {
@@ -530,6 +550,8 @@ angular.module("umbraco").factory('innerContentService', [
                 });
             }
 
+            contentTypeAliases = _.uniq(contentTypeAliases);
+
             if (fixDbModels || fixConfigContentTypes) {
                 if (docTypes) {
                     if (fixDbModels) {
@@ -539,7 +561,9 @@ angular.module("umbraco").factory('innerContentService', [
                         doFixConfigContentTypes(configContentTypes, docTypes);
                     }
                 } else {
-                    self.getContentTypes().then(function (docTypes2) {
+                    // If we don't have a list of content types, go get them
+                    // but only get ones we know we need to fix
+                    self.getContentTypesByAlias(contentTypeAliases).then(function (docTypes2) {
                         if (fixDbModels) {
                             doFixDbModels(dbModels, docTypes2);
                         }

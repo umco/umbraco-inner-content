@@ -1,39 +1,49 @@
 ﻿angular.module('umbraco.resources').factory('Our.Umbraco.InnerContent.Resources.InnerContentResources',
     function ($q, $http, umbRequestHelper) {
         return {
-            getContentTypes: function () {
+            getAllContentTypes: function () {
                 return umbRequestHelper.resourcePromise(
                     $http({
-                        url: "/umbraco/backoffice/InnerContent/InnerContentApi/GetContentTypes",
+                        url: "/umbraco/backoffice/InnerContent/InnerContentApi/GetAllContentTypes",
                         method: "GET"
                     }),
                     'Failed to retrieve content types'
                 );
             },
-            getContentTypeInfos: function (guids) {
+            getContentTypesByGuid: function (guids) {
                 return umbRequestHelper.resourcePromise(
                     $http({
-                        url: "/umbraco/backoffice/InnerContent/InnerContentApi/GetContentTypeInfos",
+                        url: "/umbraco/backoffice/InnerContent/InnerContentApi/GetContentTypesByGuid",
                         method: "GET",
                         params: { guids: guids }
                     }),
                     'Failed to retrieve content types'
                 );
             },
-            getContentTypeIcons: function (guids) {
+            getContentTypesByAlias: function (aliases) {
                 return umbRequestHelper.resourcePromise(
                     $http({
-                        url: "/umbraco/backoffice/InnerContent/InnerContentApi/GetContentTypeIcons",
+                        url: "/umbraco/backoffice/InnerContent/InnerContentApi/GetContentTypesByAlias",
+                        method: "GET",
+                        params: { aliases: aliases }
+                    }),
+                    'Failed to retrieve content types'
+                );
+            },
+            getContentTypeIconsByGuid: function (guids) {
+                return umbRequestHelper.resourcePromise(
+                    $http({
+                        url: "/umbraco/backoffice/InnerContent/InnerContentApi/GetContentTypeIconsByGuid",
                         method: "GET",
                         params: { guids: guids }
                     }),
                     'Failed to retrieve content type icons'
                 );
             },
-            getContentTypeScaffold: function (guid) {
+            getContentTypeScaffoldByGuid: function (guid) {
                 return umbRequestHelper.resourcePromise(
                     $http({
-                        url: "/umbraco/backoffice/InnerContent/InnerContentApi/getContentTypeScaffold",
+                        url: "/umbraco/backoffice/InnerContent/InnerContentApi/getContentTypeScaffoldByGuid",
                         method: "GET",
                         params: { guid: guid }
                     }),
