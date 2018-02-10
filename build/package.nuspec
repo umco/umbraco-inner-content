@@ -16,7 +16,7 @@
 		<language></language>
 		<tags></tags>
 		<dependencies>
-      		<dependency id="Our.Umbraco.InnerContent.Core" version="0.0.0" />
+			<dependency id="Our.Umbraco.InnerContent.Core" version="0.0.0" />
 		</dependencies>
 	</metadata>
 	<files />

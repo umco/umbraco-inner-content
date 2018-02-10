@@ -1,7 +1,5 @@
-﻿using System;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 using Umbraco.Core;
-using Umbraco.Core.Cache;
 using Umbraco.Core.Sync;
 using Umbraco.Web.Cache;
 
@@ -11,29 +9,21 @@ namespace Our.Umbraco.InnerContent
     {
         protected override void ApplicationStarted(UmbracoApplicationBase umbracoApplication, ApplicationContext applicationContext)
         {
-            CacheRefresherBase<DataTypeCacheRefresher>.CacheUpdated += DataTypeCacheRefresher_Updated;
-        }
-
-        private void DataTypeCacheRefresher_Updated(DataTypeCacheRefresher sender, CacheRefresherEventArgs e)
-        {
-            if (e.MessageType == MessageType.RefreshByJson)
+            DataTypeCacheRefresher.CacheUpdated += (sender, e) =>
             {
-                var payload = JsonConvert.DeserializeObject<JsonPayload[]>((string)e.MessageObject);
-                if (payload != null)
+                if (e.MessageType == MessageType.RefreshByJson)
                 {
-                    foreach (var item in payload)
+                    var payload = JsonConvert.DeserializeAnonymousType((string)e.MessageObject, new[] { new { Id = default(int) } });
+                    if (payload != null)
                     {
-                        ApplicationContext.Current.ApplicationCache.RuntimeCache.ClearCacheItem(
-                            string.Format(InnerContentConstants.PreValuesCacheKey, item.Id));
+                        foreach (var item in payload)
+                        {
+                            applicationContext.ApplicationCache.RuntimeCache.ClearCacheItem(
+                                string.Format(InnerContentConstants.PreValuesCacheKey, item.Id));
+                        }
                     }
                 }
-            }
-        }
-
-        private class JsonPayload
-        {
-            public Guid UniqueId { get; set; }
-            public int Id { get; set; }
+            };
         }
     }
 }

@@ -43,19 +43,9 @@ namespace Our.Umbraco.InnerContent.Helpers
                 }
             }
 
-            // Parse out the name manually
-            object nameObj;
-            if (propValues.TryGetValue("name", out nameObj))
-            {
-                // Do nothing, we just want to parse out the name if we can
-            }
-
-            // Parse out key manually
-            object keyObj;
-            if (propValues.TryGetValue("key", out keyObj))
-            {
-                // Do nothing, we just want to parse out the key if we can
-            }
+            // Manually parse out the special properties
+            propValues.TryGetValue("name", out object nameObj);
+            propValues.TryGetValue("key", out object keyObj);
 
             // Get the current request node we are embedded in
             var pcr = UmbracoContext.Current.PublishedContentRequest;
@@ -77,6 +67,12 @@ namespace Our.Umbraco.InnerContent.Helpers
             {
                 var children = ConvertInnerContentToPublishedContent((JArray)propValues["children"], node, level + 1, preview);
                 node.SetChildren(children);
+            }
+
+            if (PublishedContentModelFactoryResolver.HasCurrent && PublishedContentModelFactoryResolver.Current.HasValue)
+            {
+                // Let the current model factory create a typed model to wrap our model
+                return PublishedContentModelFactoryResolver.Current.Factory.CreateModel(node);
             }
 
             return node;

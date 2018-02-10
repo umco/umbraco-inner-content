@@ -8,8 +8,8 @@ angular.module("umbraco").controller("Our.Umbraco.InnerContent.Controllers.DocTy
 
         $scope.add = function () {
             $scope.model.value.push({
-                // All stored content type aliases must be prefixed "mb" for easier recognition.
-                // For good measure we'll also prefix the tab alias "mb" 
+                // All stored content type aliases must be prefixed "ic" for easier recognition.
+                // For good measure we'll also prefix the tab alias "ic" 
                 icContentTypeAlias: "",
                 icContentTypeGuid: "",
                 icTabAlias: "",
@@ -58,8 +58,8 @@ angular.module("umbraco").controller("Our.Umbraco.InnerContent.Controllers.DocTy
 
         $scope.add = function () {
             $scope.model.value.push({
-                // All stored content type aliases must be prefixed "mb" for easier recognition.
-                // For good measure we'll also prefix the tab alias "mb" 
+                // All stored content type aliases must be prefixed "ic" for easier recognition.
+                // For good measure we'll also prefix the tab alias "ic" 
                 icContentTypeAlias: "",
                 icContentTypeGuid: "",
                 nameTemplate: ""
@@ -88,15 +88,22 @@ angular.module("umbraco").controller("Our.Umbraco.InnerContent.Controllers.DocTy
 ]);
 
 // Property Editors
-angular.module("umbraco").controller("Our.Umbraco.InnerContent.Controllers.InnerContentDialogController", [
-    "$scope",
-    "$interpolate",
-    "formHelper",
-    "contentResource",
+angular.module("umbraco").controller("Our.Umbraco.InnerContent.Controllers.InnerContentDialogController",
+    [
+        "$scope",
+        "$rootScope",
+        "$interpolate",
 
-    function ($scope) {
-        $scope.item = $scope.model.dialogData.item;
-    }
+        function ($scope, $rootScope) {
+            $scope.item = $scope.model.dialogData.item;
+
+            // Set a nodeContext property as nested property editors
+            // can use this to know what doc type this node is etc
+            // NC + DTGE do the same
+            $scope.nodeContext = $scope.item;
+
+        }
+
 
 ]);
 
@@ -271,6 +278,64 @@ angular.module('umbraco.directives').directive('innerContentOverlay', [
             scope: {
                 config: "="
             },
+            link: link
+        };
+
+        return directive;
+
+    }
+]);
+
+angular.module('umbraco.directives').directive('innerContentUnsavedChanges', [
+
+    "$rootScope",
+
+    function ($rootScope) {
+
+        function link(scope) {
+
+            scope.canConfirmClose = false;
+            scope.showConfirmClose = false;
+
+            // This is by no means ideal as we are overriding a core method to prevent te overlay closing
+            // put without coding a custom overlay, I couldn't think of a better way of doing it. We'll
+            // have to keep a close eye on the overlay api to ensure the method name doesn't change, but
+            // for now it works.
+            var overlayScope = scope;
+            while (overlayScope.$id !== $rootScope.$id) {
+                if (overlayScope.hasOwnProperty("overlayForm")) {
+                    scope.canConfirmClose = true;
+                    break;
+                }
+                overlayScope = overlayScope.$parent;
+            }
+
+            if (scope.canConfirmClose) {
+                overlayScope.oldCloseOverLay = overlayScope.closeOverLay;
+                overlayScope.closeOverLay = function () {
+                    if (overlayScope.overlayForm.$dirty) {
+                        scope.showConfirmClose = true;
+                    } else {
+                        overlayScope.oldCloseOverLay.apply(overlayScope);
+                    }
+                }
+            }
+
+            scope.confirmClose = function () {
+                scope.showConfirmClose = false;
+                overlayScope.oldCloseOverLay.apply(overlayScope);
+            }
+
+            scope.cancelClose = function () {
+                scope.showConfirmClose = false;
+            }
+
+        }
+
+        var directive = {
+            restrict: 'E',
+            replace: true,
+            templateUrl: Umbraco.Sys.ServerVariables.umbracoSettings.appPluginsPath + '/innercontent/views/innercontent.unsavedchanges.html',
             link: link
         };
 

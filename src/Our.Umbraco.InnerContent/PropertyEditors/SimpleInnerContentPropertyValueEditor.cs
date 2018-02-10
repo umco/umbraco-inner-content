@@ -35,8 +35,7 @@ namespace Our.Umbraco.InnerContent.PropertyEditors
 
         protected void ConvertDbToStringRecursive(JToken token, Property property, PropertyType propertyType, IDataTypeService dataTypeService)
         {
-            var jArr = token as JArray;
-            if (jArr != null)
+            if (token is JArray jArr)
             {
                 foreach (var item in jArr)
                 {
@@ -44,8 +43,7 @@ namespace Our.Umbraco.InnerContent.PropertyEditors
                 }
             }
 
-            var jObj = token as JObject;
-            if (jObj != null)
+            if (token is JObject jObj)
             {
                 if (jObj[InnerContentConstants.ContentTypeAliasPropertyKey] != null)
                 {
@@ -86,8 +84,7 @@ namespace Our.Umbraco.InnerContent.PropertyEditors
 
         protected void ConvertDbToEditorRecursive(JToken token, Property property, PropertyType propertyType, IDataTypeService dataTypeService)
         {
-            var jArr = token as JArray;
-            if (jArr != null)
+            if (token is JArray jArr)
             {
                 foreach (var item in jArr)
                 {
@@ -95,8 +92,7 @@ namespace Our.Umbraco.InnerContent.PropertyEditors
                 }
             }
 
-            var jObj = token as JObject;
-            if (jObj != null)
+            if (token is JObject jObj)
             {
                 if (jObj[InnerContentConstants.ContentTypeAliasPropertyKey] != null)
                 {
@@ -134,8 +130,7 @@ namespace Our.Umbraco.InnerContent.PropertyEditors
 
         protected void ConvertEditorToDbRecursive(JToken token, ContentPropertyData editorValue, object currentValue)
         {
-            var jArr = token as JArray;
-            if (jArr != null)
+            if (token is JArray jArr)
             {
                 foreach (var item in jArr)
                 {
@@ -143,8 +138,7 @@ namespace Our.Umbraco.InnerContent.PropertyEditors
                 }
             }
 
-            var jObj = token as JObject;
-            if (jObj != null)
+            if (token is JObject jObj)
             {
                 if (jObj[InnerContentConstants.ContentTypeAliasPropertyKey] != null)
                 {

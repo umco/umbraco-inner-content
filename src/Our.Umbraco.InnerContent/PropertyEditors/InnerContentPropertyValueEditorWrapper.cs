@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using Newtonsoft.Json.Linq;
-using Our.Umbraco.InnerContent.Extensions;
 using Our.Umbraco.InnerContent.Helpers;
 using Umbraco.Core;
 using Umbraco.Core.Models;
@@ -22,7 +21,7 @@ namespace Our.Umbraco.InnerContent.PropertyEditors
         {
             base.ConfigureForDisplay(preValues);
 
-            var asDictionary = preValues.AsPreValueDictionary();
+            var asDictionary = preValues.PreValuesAsDictionary.ToDictionary(x => x.Key, x => x.Value.Value);
             if (asDictionary.ContainsKey("hideLabel"))
             {
                 var boolAttempt = asDictionary["hideLabel"].TryConvertTo<bool>();
