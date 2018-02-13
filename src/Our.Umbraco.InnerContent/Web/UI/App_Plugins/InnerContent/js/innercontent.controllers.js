@@ -542,7 +542,7 @@ angular.module("umbraco").factory('innerContentService', [
 
             var doFixConfigContentTypes = function (contentTypes, docTypes) {
                 _.forEach(contentTypes, function (itm) {
-                    if (model.hasOwnProperty("icContentTypeAlias")) {
+                    if (itm.hasOwnProperty("icContentTypeAlias")) {
                         var dt = _.find(docTypes, function (itm2) {
                             return itm2.alias.toLowerCase() === itm.icContentTypeAlias.toLowerCase();
                         });
