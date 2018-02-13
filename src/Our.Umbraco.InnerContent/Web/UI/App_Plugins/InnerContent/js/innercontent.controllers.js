@@ -565,7 +565,7 @@ angular.module("umbraco").factory('innerContentService', [
                 } else {
                     // If we don't have a list of content types, go get them
                     // but only get ones we know we need to fix
-                    self.getContentTypesByAlias(contentTypeAliases).then(function (docTypes2) {
+                    icResources.getContentTypesByAlias(contentTypeAliases).then(function (docTypes2) {
                         if (fixDbModels) {
                             doFixDbModels(dbModels, docTypes2);
                         }
