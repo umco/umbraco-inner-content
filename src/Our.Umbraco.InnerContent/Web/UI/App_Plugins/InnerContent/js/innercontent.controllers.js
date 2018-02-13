@@ -16,7 +16,7 @@ angular.module("umbraco").controller("Our.Umbraco.InnerContent.Controllers.DocTy
 
         $scope.selectedDocTypeTabs = function (cfg) {
             var dt = _.find($scope.model.docTypes, function (itm) {
-                return itm.guid.toLowerCase() == cfg.icContentTypeGuid.toLowerCase();
+                return itm.guid.toLowerCase() === cfg.icContentTypeGuid.toLowerCase();
             });
             var tabs = dt ? dt.tabs : [];
             if (!_.contains(tabs, cfg.icTabAlias)) {
@@ -124,7 +124,7 @@ angular.module('umbraco.directives').directive('innerContentOverlay', [
 
             var getContentType = function (guid) {
                 return _.find(scope.config.contentTypes, function (ct) {
-                    return ct.icContentTypeGuid == guid;
+                    return ct.icContentTypeGuid.toLowerCase() === guid.toLowerCase();
                 });
             }
 
@@ -519,7 +519,7 @@ angular.module("umbraco").factory('innerContentService', [
                 _.forEach(dbModels, function (itm) {
                     if (itm.hasOwnProperty("icContentTypeAlias")) {
                         var dt = _.find(docTypes, function (itm2) {
-                            return itm2.alias.toLowerCase() == itm.icContentTypeAlias.toLowerCase();
+                            return itm2.alias.toLowerCase() === itm.icContentTypeAlias.toLowerCase();
                         });
                         itm.icContentTypeGuid = dt.guid;
                         delete itm.icContentTypeAlias;
@@ -544,7 +544,7 @@ angular.module("umbraco").factory('innerContentService', [
                 _.forEach(contentTypes, function (itm) {
                     if (model.hasOwnProperty("icContentTypeAlias")) {
                         var dt = _.find(docTypes, function (itm2) {
-                            return itm2.alias.toLowerCase() == itm.icContentTypeAlias.toLowerCase();
+                            return itm2.alias.toLowerCase() === itm.icContentTypeAlias.toLowerCase();
                         });
                         itm.icContentTypeGuid = dt.guid;
                         delete itm.icContentTypeAlias;
