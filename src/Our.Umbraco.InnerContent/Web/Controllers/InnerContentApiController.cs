@@ -12,7 +12,7 @@ namespace Our.Umbraco.InnerContent.Web.Controllers
     public class InnerContentApiController : UmbracoAuthorizedJsonController
     {
         [System.Web.Http.HttpGet]
-        public IEnumerable<object> GetContentTypes()
+        public IEnumerable<object> GetAllContentTypes()
         {
             return Services.ContentTypeService.GetAllContentTypes()
                 .OrderBy(x => x.SortOrder)
