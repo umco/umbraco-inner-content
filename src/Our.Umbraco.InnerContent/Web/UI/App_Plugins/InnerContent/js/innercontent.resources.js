@@ -1,33 +1,53 @@
 ﻿angular.module('umbraco.resources').factory('Our.Umbraco.InnerContent.Resources.InnerContentResources',
     function ($q, $http, umbRequestHelper) {
         return {
-            getContentTypes: function () {
+            getAllContentTypes: function () {
                 return umbRequestHelper.resourcePromise(
                     $http({
-                        url: "/umbraco/backoffice/InnerContent/InnerContentApi/GetContentTypes",
+                        url: "/umbraco/backoffice/InnerContent/InnerContentApi/GetAllContentTypes",
                         method: "GET"
                     }),
                     'Failed to retrieve content types'
                 );
             },
-            getContentTypeInfos: function (aliases) {
+            getContentTypesByGuid: function (guids) {
                 return umbRequestHelper.resourcePromise(
                     $http({
-                        url: "/umbraco/backoffice/InnerContent/InnerContentApi/GetContentTypeInfos",
+                        url: "/umbraco/backoffice/InnerContent/InnerContentApi/GetContentTypesByGuid",
+                        method: "GET",
+                        params: { guids: guids }
+                    }),
+                    'Failed to retrieve content types'
+                );
+            },
+            getContentTypesByAlias: function (aliases) {
+                return umbRequestHelper.resourcePromise(
+                    $http({
+                        url: "/umbraco/backoffice/InnerContent/InnerContentApi/GetContentTypesByAlias",
                         method: "GET",
                         params: { aliases: aliases }
                     }),
                     'Failed to retrieve content types'
                 );
             },
-            getContentTypeIcons: function (aliases) {
+            getContentTypeIconsByGuid: function (guids) {
                 return umbRequestHelper.resourcePromise(
                     $http({
-                        url: "/umbraco/backoffice/InnerContent/InnerContentApi/GetContentTypeIcons",
+                        url: "/umbraco/backoffice/InnerContent/InnerContentApi/GetContentTypeIconsByGuid",
                         method: "GET",
-                        params: { aliases: aliases }
+                        params: { guids: guids }
                     }),
                     'Failed to retrieve content type icons'
+                );
+            },
+            getContentTypeScaffoldByGuid: function (guid) {
+                return umbRequestHelper.resourcePromise(
+                    $http({
+                        url: "/umbraco/backoffice/InnerContent/InnerContentApi/getContentTypeScaffoldByGuid",
+                        method: "GET",
+                        params: { guid: guid }
+                    }),
+                    'Failed to retrieve content type scaffold'
                 );
             }
         };
