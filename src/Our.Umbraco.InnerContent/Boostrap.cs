@@ -24,6 +24,15 @@ namespace Our.Umbraco.InnerContent
                     }
                 }
             };
+
+            ContentTypeCacheRefresher.CacheUpdated += (sender, e) =>
+            {
+                if (e.MessageType == MessageType.RefreshByJson)
+                {
+                    // If any doc types change, just clear out the entire guid => alias cache
+                    applicationContext.ApplicationCache.StaticCache.ClearCacheByKeySearch(InnerContentConstants.ContentTypeAliasByGuidCacheKey);
+                }
+            };
         }
     }
 }
