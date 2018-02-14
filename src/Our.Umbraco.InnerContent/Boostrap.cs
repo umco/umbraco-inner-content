@@ -1,6 +1,7 @@
 ﻿using System.Linq;
 using Newtonsoft.Json;
 using Umbraco.Core;
+using Umbraco.Core.Cache;
 using Umbraco.Core.Sync;
 using Umbraco.Web.Cache;
 
@@ -36,12 +37,13 @@ namespace Our.Umbraco.InnerContent
                         var contentTypes = applicationContext.Services.ContentTypeService.GetAllContentTypes(payload.Select(x => x.Id).ToArray());
                         foreach (var contentType in contentTypes)
                         {
+                            // Only clear the guid => alias cache if the content-types alias has changed
                             var key = string.Format(InnerContentConstants.ContentTypeAliasByGuidCacheKey, contentType.Key);
-                            var alias = applicationContext.ApplicationCache.StaticCache.GetCacheItem(key, () => contentType.Alias);
-                            if (alias != null && alias.ToString() != contentType.Alias)
+                            var alias = applicationContext.ApplicationCache.StaticCache.GetCacheItem<string>(key, () => contentType.Alias);
+                            if (alias != null && alias != contentType.Alias)
                             {
                                 applicationContext.ApplicationCache.StaticCache.ClearCacheItem(key);
-                                applicationContext.ApplicationCache.StaticCache.GetCacheItem(key, () => contentType.Alias);
+                                applicationContext.ApplicationCache.StaticCache.GetCacheItem<string>(key, () => contentType.Alias);
                             }
                         }
                     }

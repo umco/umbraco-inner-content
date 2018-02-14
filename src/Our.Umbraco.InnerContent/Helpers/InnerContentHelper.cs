@@ -4,6 +4,7 @@ using System.Linq;
 using Newtonsoft.Json.Linq;
 using Our.Umbraco.InnerContent.Models;
 using Umbraco.Core;
+using Umbraco.Core.Cache;
 using Umbraco.Core.Models;
 using Umbraco.Core.Models.PublishedContent;
 using Umbraco.Web;
@@ -80,7 +81,7 @@ namespace Our.Umbraco.InnerContent.Helpers
 
         internal static PreValueCollection GetPreValuesCollectionByDataTypeId(int dtdId)
         {
-            var preValueCollection = (PreValueCollection)ApplicationContext.Current.ApplicationCache.RuntimeCache.GetCacheItem(
+            var preValueCollection = ApplicationContext.Current.ApplicationCache.RuntimeCache.GetCacheItem<PreValueCollection>(
                 string.Format(InnerContentConstants.PreValuesCacheKey, dtdId),
                 () => ApplicationContext.Current.Services.DataTypeService.GetPreValuesCollectionByDataTypeId(dtdId));
 
@@ -115,7 +116,13 @@ namespace Our.Umbraco.InnerContent.Helpers
             var contentTypeGuid = GetContentTypeGuidFromItem(item);
             if (contentTypeGuid != null && contentTypeGuid.HasValue && contentTypeGuid.Value != Guid.Empty)
             {
-                contentTypeAlias = (string)ApplicationContext.Current.ApplicationCache.StaticCache.GetCacheItem(string.Format(InnerContentConstants.ContentTypeAliasByGuidCacheKey, contentTypeGuid.Value), 
+                // HACK: If Umbraco's `PublishedContentType.Get` method supported a GUID parameter,
+                // we could use that method directly, however it only supports the content-type alias (as of v7.4.0)
+                // See: https://github.com/umbraco/Umbraco-CMS/blob/release-7.4.0/src/Umbraco.Core/Models/PublishedContent/PublishedContentType.cs#L133
+                // Our workaround is to cache a content-type GUID => alias lookup.
+
+                contentTypeAlias = ApplicationContext.Current.ApplicationCache.StaticCache.GetCacheItem<string>(
+                    string.Format(InnerContentConstants.ContentTypeAliasByGuidCacheKey, contentTypeGuid.Value),
                     () => ApplicationContext.Current.Services.ContentTypeService.GetContentType(contentTypeGuid.Value).Alias);
             }
 
