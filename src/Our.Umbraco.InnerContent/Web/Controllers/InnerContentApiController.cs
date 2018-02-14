@@ -1,7 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Web.Mvc;
+using System.Web.Http;
+using System.Web.Http.ModelBinding;
 using Umbraco.Web.Editors;
 using Umbraco.Web.Models.ContentEditing;
 using Umbraco.Web.Mvc;
@@ -11,7 +12,7 @@ namespace Our.Umbraco.InnerContent.Web.Controllers
     [PluginController("InnerContent")]
     public class InnerContentApiController : UmbracoAuthorizedJsonController
     {
-        [System.Web.Http.HttpGet]
+        [HttpGet]
         public IEnumerable<object> GetAllContentTypes()
         {
             return Services.ContentTypeService.GetAllContentTypes()
@@ -27,8 +28,8 @@ namespace Our.Umbraco.InnerContent.Web.Controllers
                 });
         }
 
-        [System.Web.Http.HttpGet]
-        public IEnumerable<object> GetContentTypesByGuid([System.Web.Http.ModelBinding.ModelBinder] Guid[] guids)
+        [HttpGet]
+        public IEnumerable<object> GetContentTypesByGuid([ModelBinder] Guid[] guids)
         {
             return Services.ContentTypeService.GetAllContentTypes()
                 .Where(x => guids == null || guids.Contains(x.Key))
@@ -44,8 +45,8 @@ namespace Our.Umbraco.InnerContent.Web.Controllers
                 });
         }
 
-        [System.Web.Http.HttpGet]
-        public IEnumerable<object> GetContentTypesByAlias([System.Web.Http.ModelBinding.ModelBinder] string[] aliases)
+        [HttpGet]
+        public IEnumerable<object> GetContentTypesByAlias([ModelBinder] string[] aliases)
         {
             return Services.ContentTypeService.GetAllContentTypes()
                 .Where(x => aliases == null || aliases.Contains(x.Alias))
@@ -61,8 +62,8 @@ namespace Our.Umbraco.InnerContent.Web.Controllers
                 });
         }
 
-        [System.Web.Http.HttpGet]
-        public IDictionary<string, string> GetContentTypeIconsByGuid([System.Web.Http.ModelBinding.ModelBinder] Guid[] guids)
+        [HttpGet]
+        public IDictionary<string, string> GetContentTypeIconsByGuid([ModelBinder] Guid[] guids)
         {
             return Services.ContentTypeService.GetAllContentTypes()
                 .Where(x => guids.Contains(x.Key))
