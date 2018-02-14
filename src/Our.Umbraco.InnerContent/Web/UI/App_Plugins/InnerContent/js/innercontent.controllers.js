@@ -504,7 +504,7 @@ angular.module("umbraco").factory('innerContentService', [
 
             var fixDbModels = false;
 
-            if (!!dbModels) {
+            if (dbModels) {
                 _.forEach(dbModels, function (m) {
                     if (m.hasOwnProperty("icContentTypeAlias")) {
                         contentTypeAliases.push(m.icContentTypeAlias);
@@ -529,7 +529,7 @@ angular.module("umbraco").factory('innerContentService', [
 
             var fixConfigContentTypes = false;
 
-            if (!!configContentTypes) {
+            if (configContentTypes) {
                 _.forEach(configContentTypes, function (ct) {
                     if (ct.hasOwnProperty("icContentTypeAlias")) {
                         contentTypeAliases.push(ct.icContentTypeAlias);
