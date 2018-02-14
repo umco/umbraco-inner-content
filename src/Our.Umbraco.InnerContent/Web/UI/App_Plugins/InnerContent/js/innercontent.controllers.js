@@ -504,7 +504,7 @@ angular.module("umbraco").factory('innerContentService', [
 
             var fixDbModels = false;
 
-            if (!!dbModels) {
+            if (dbModels) {
                 _.forEach(dbModels, function (m) {
                     if (m.hasOwnProperty("icContentTypeAlias")) {
                         contentTypeAliases.push(m.icContentTypeAlias);
@@ -529,7 +529,7 @@ angular.module("umbraco").factory('innerContentService', [
 
             var fixConfigContentTypes = false;
 
-            if (!!configContentTypes) {
+            if (configContentTypes) {
                 _.forEach(configContentTypes, function (ct) {
                     if (ct.hasOwnProperty("icContentTypeAlias")) {
                         contentTypeAliases.push(ct.icContentTypeAlias);
@@ -542,7 +542,7 @@ angular.module("umbraco").factory('innerContentService', [
 
             var doFixConfigContentTypes = function (contentTypes, docTypes) {
                 _.forEach(contentTypes, function (itm) {
-                    if (model.hasOwnProperty("icContentTypeAlias")) {
+                    if (itm.hasOwnProperty("icContentTypeAlias")) {
                         var dt = _.find(docTypes, function (itm2) {
                             return itm2.alias.toLowerCase() === itm.icContentTypeAlias.toLowerCase();
                         });
@@ -565,7 +565,7 @@ angular.module("umbraco").factory('innerContentService', [
                 } else {
                     // If we don't have a list of content types, go get them
                     // but only get ones we know we need to fix
-                    self.getContentTypesByAlias(contentTypeAliases).then(function (docTypes2) {
+                    icResources.getContentTypesByAlias(contentTypeAliases).then(function (docTypes2) {
                         if (fixDbModels) {
                             doFixDbModels(dbModels, docTypes2);
                         }

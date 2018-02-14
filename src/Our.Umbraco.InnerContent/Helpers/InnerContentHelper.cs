@@ -115,23 +115,8 @@ namespace Our.Umbraco.InnerContent.Helpers
             var contentTypeGuid = GetContentTypeGuidFromItem(item);
             if (contentTypeGuid != null && contentTypeGuid.HasValue && contentTypeGuid.Value != Guid.Empty)
             {
-                // If so, we attempt to get the content-type object
-                var contentType = ApplicationContext.Current.Services.ContentTypeService.GetContentType(contentTypeGuid.Value);
-                if (contentType != null)
-                {
-                    // Assign the content-type alias
-                    contentTypeAlias = contentType.Alias;
-
-                    // HACK: Force populating the cache [LK:2017-11-14]
-                    // We need to return a `PublishedContentType` object, there's only one way to do this,
-                    // e.g. via the `PublishedContentType.Get` method.
-                    // Now, since we already have the `IContentType` instance, we can pop it in the static-cache,
-                    // so that the `PublishedContentType.Get` method can immediately access it.
-                    // See Umbraco source-code for the cache-item key:
-                    // https://github.com/umbraco/Umbraco-CMS/blob/release-7.4.0/src/Umbraco.Core/Models/PublishedContent/PublishedContentType.cs#L135
-                    var key = string.Format("PublishedContentType_{0}_{1}", PublishedItemType.Content.ToString().ToLowerInvariant(), contentTypeAlias.ToLowerInvariant());
-                    ApplicationContext.Current.ApplicationCache.StaticCache.GetCacheItem(key, () => contentType);
-                }
+                contentTypeAlias = (string)ApplicationContext.Current.ApplicationCache.StaticCache.GetCacheItem(string.Format(InnerContentConstants.ContentTypeAliasByGuidCacheKey, contentTypeGuid.Value), 
+                    () => ApplicationContext.Current.Services.ContentTypeService.GetContentType(contentTypeGuid.Value).Alias);
             }
 
             // If we don't have the content-type alias at this point, check if we can get it from the item
