@@ -78,7 +78,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Boostrap.cs" />
+    <Compile Include="Bootstrap.cs" />
     <Compile Include="Converters\InnerContentValueConverter.cs" />
     <Compile Include="Helpers\InnerContentHelper.cs" />
     <Compile Include="InnerContentConstants.cs" />
