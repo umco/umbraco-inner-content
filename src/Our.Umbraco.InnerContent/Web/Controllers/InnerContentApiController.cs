@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Web.Http;
 using System.Web.Http.ModelBinding;
+using Our.Umbraco.InnerContent.Web.WebApi.Filters;
 using Umbraco.Web.Editors;
 using Umbraco.Web.Models.ContentEditing;
 using Umbraco.Web.Mvc;
@@ -73,6 +74,7 @@ namespace Our.Umbraco.InnerContent.Web.Controllers
         }
 
         [HttpGet]
+        [UseInternalActionFilter("Umbraco.Web.WebApi.Filters.OutgoingEditorModelEventAttribute", onActionExecuted: true)]
         public ContentItemDisplay GetContentTypeScaffoldByGuid(Guid guid)
         {
             var contentType = Services.ContentTypeService.GetContentType(guid);
