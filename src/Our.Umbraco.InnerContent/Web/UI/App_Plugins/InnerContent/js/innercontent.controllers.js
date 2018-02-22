@@ -107,7 +107,7 @@ angular.module("umbraco").controller("Our.Umbraco.InnerContent.Controllers.Inner
             // NC + DTGE do the same
             $scope.nodeContext = $scope.item;
         }
-]);
+    ]);
 
 // Directives
 angular.module('umbraco.directives').directive('innerContentOverlay', [
@@ -375,7 +375,7 @@ angular.module("umbraco").factory('innerContentService', [
                     }
 
                 } else {
-                    
+
                     if (self.compareCurrentUmbracoVersion("7.8", { zeroExtend: true }) < 0) {
                         // Remove general properties tab for pre 7.8 umbraco installs
                         scaffold.tabs.pop();
@@ -574,16 +574,16 @@ angular.module("umbraco").factory('innerContentService', [
                         }
                     });
                 }
-                
+
             }
-            
-		}
-		
+
+        }
+
         self.compareCurrentUmbracoVersion = function compareCurrentUmbracoVersion(v, options) {
             return this.compareVersions(Umbraco.Sys.ServerVariables.application.version, v, options);
         }
 
-        self.compareVersions =  function compareVersions(v1, v2, options) {
+        self.compareVersions = function compareVersions(v1, v2, options) {
 
             var lexicographical = options && options.lexicographical,
                 zeroExtend = options && options.zeroExtend,

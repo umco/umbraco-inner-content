@@ -43,7 +43,7 @@
             getContentTypeScaffoldByGuid: function (guid) {
                 return umbRequestHelper.resourcePromise(
                     $http({
-                        url: "/umbraco/backoffice/InnerContent/InnerContentApi/getContentTypeScaffoldByGuid",
+                        url: "/umbraco/backoffice/InnerContent/InnerContentApi/GetContentTypeScaffoldByGuid",
                         method: "GET",
                         params: { guid: guid }
                     }),
