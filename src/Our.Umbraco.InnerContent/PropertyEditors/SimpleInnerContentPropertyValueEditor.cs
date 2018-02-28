@@ -16,10 +16,14 @@ namespace Our.Umbraco.InnerContent.PropertyEditors
         public override string ConvertDbToString(Property property, PropertyType propertyType, IDataTypeService dataTypeService)
         {
             // Convert / validate value
-            if (property.Value == null || string.IsNullOrWhiteSpace(property.Value.ToString()))
+            if (property.Value == null)
                 return string.Empty;
 
-            var value = JsonConvert.DeserializeObject<JToken>(property.Value.ToString());
+            var propertyValue = property.Value.ToString();
+            if (string.IsNullOrWhiteSpace(propertyValue))
+                return string.Empty;
+
+            var value = JsonConvert.DeserializeObject<JToken>(propertyValue);
             if (value == null)
                 return string.Empty;
 
@@ -65,10 +69,14 @@ namespace Our.Umbraco.InnerContent.PropertyEditors
         public override object ConvertDbToEditor(Property property, PropertyType propertyType, IDataTypeService dataTypeService)
         {
             // Convert / validate value
-            if (property.Value == null || string.IsNullOrWhiteSpace(property.Value.ToString()))
+            if (property.Value == null)
                 return string.Empty;
 
-            var value = JsonConvert.DeserializeObject<JToken>(property.Value.ToString());
+            var propertyValue = property.Value.ToString();
+            if (string.IsNullOrWhiteSpace(propertyValue))
+                return string.Empty;
+
+            var value = JsonConvert.DeserializeObject<JToken>(propertyValue);
             if (value == null)
                 return string.Empty;
 
