@@ -102,10 +102,15 @@ namespace Our.Umbraco.InnerContent.Helpers
 
         internal static IContentType GetContentTypeFromItem(JObject item)
         {
+            var contentTypeGuid = GetContentTypeGuidFromItem(item);
+            if (contentTypeGuid.HasValue && contentTypeGuid.Value != Guid.Empty)
+                return ApplicationContext.Current.Services.ContentTypeService.GetContentType(contentTypeGuid.Value);
+
             var contentTypeAlias = GetContentTypeAliasFromItem(item);
-            return !contentTypeAlias.IsNullOrWhiteSpace()
-                ? ApplicationContext.Current.Services.ContentTypeService.GetContentType(contentTypeAlias)
-                : null;
+            if (string.IsNullOrWhiteSpace(contentTypeAlias) == false)
+                return ApplicationContext.Current.Services.ContentTypeService.GetContentType(contentTypeAlias);
+
+            return null;
         }
 
         internal static PublishedContentType GetPublishedContentTypeFromItem(JObject item)

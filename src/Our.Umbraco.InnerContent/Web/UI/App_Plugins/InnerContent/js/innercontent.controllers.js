@@ -37,11 +37,6 @@ angular.module("umbraco").controller("Our.Umbraco.InnerContent.Controllers.DocTy
 
         innerContentService.getAllContentTypes().then(function (docTypes) {
             $scope.model.docTypes = docTypes;
-
-            // Sometimes changes in Inner Content require
-            // the stored config models to be updated so we 
-            // pass the models through to be pre processed
-            innerContentService.preProcessModels(undefined, $scope.model.value, docTypes);
         });
 
         if (!$scope.model.value) {
@@ -77,12 +72,6 @@ angular.module("umbraco").controller("Our.Umbraco.InnerContent.Controllers.DocTy
 
         innerContentService.getAllContentTypes().then(function (docTypes) {
             $scope.model.docTypes = docTypes;
-
-            // Sometimes changes in Inner Content require
-            // the stored config models to be updated so we 
-            // pass the models through to be pre processed
-            innerContentService.preProcessModels(undefined, $scope.model.value, docTypes);
-
         });
 
         if (!$scope.model.value) {
@@ -492,92 +481,6 @@ angular.module("umbraco").factory('innerContentService', [
             return self.createEditorModel(contentType).then(function (editorModel) {
                 return self.createDbModel(editorModel);
             });
-        }
-
-        self.preProcessModels = function (dbModels, configContentTypes, docTypes) {
-
-            var contentTypeAliases = [];
-
-            // Pre v1.0.4 we stored the doc type alias
-            // but as of 1.0.4 we switched to using the guid
-            // so we remap any models which store the alias
-            // to now use the guid instead
-
-            var fixDbModels = false;
-
-            if (dbModels) {
-                _.forEach(dbModels, function (m) {
-                    if (m.hasOwnProperty("icContentTypeAlias")) {
-                        contentTypeAliases.push(m.icContentTypeAlias);
-                        fixDbModels = true;
-                        return true;
-                    }
-                    return false;
-                });
-            }
-
-            var doFixDbModels = function (dbModels, docTypes) {
-                _.forEach(dbModels, function (itm) {
-                    if (itm.hasOwnProperty("icContentTypeAlias")) {
-                        var dt = _.find(docTypes, function (itm2) {
-                            return itm2.alias.toLowerCase() === itm.icContentTypeAlias.toLowerCase();
-                        });
-                        itm.icContentTypeGuid = dt.guid;
-                        delete itm.icContentTypeAlias;
-                    }
-                });
-            }
-
-            var fixConfigContentTypes = false;
-
-            if (configContentTypes) {
-                _.forEach(configContentTypes, function (ct) {
-                    if (ct.hasOwnProperty("icContentTypeAlias")) {
-                        contentTypeAliases.push(ct.icContentTypeAlias);
-                        fixConfigContentTypes = true;
-                        return true;
-                    }
-                    return false;
-                });
-            }
-
-            var doFixConfigContentTypes = function (contentTypes, docTypes) {
-                _.forEach(contentTypes, function (itm) {
-                    if (itm.hasOwnProperty("icContentTypeAlias")) {
-                        var dt = _.find(docTypes, function (itm2) {
-                            return itm2.alias.toLowerCase() === itm.icContentTypeAlias.toLowerCase();
-                        });
-                        itm.icContentTypeGuid = dt.guid;
-                        delete itm.icContentTypeAlias;
-                    }
-                });
-            }
-
-            contentTypeAliases = _.uniq(contentTypeAliases);
-
-            if (fixDbModels || fixConfigContentTypes) {
-                if (docTypes) {
-                    if (fixDbModels) {
-                        doFixDbModels(dbModels, docTypes);
-                    }
-                    if (fixConfigContentTypes) {
-                        doFixConfigContentTypes(configContentTypes, docTypes);
-                    }
-                } else {
-                    // If we don't have a list of content types, go get them
-                    // but only get ones we know we need to fix
-                    icResources.getContentTypesByAlias(contentTypeAliases).then(function (docTypes2) {
-                        if (fixDbModels) {
-                            doFixDbModels(dbModels, docTypes2);
-                        }
-                        if (fixConfigContentTypes) {
-                            doFixConfigContentTypes(configContentTypes, docTypes2);
-                        }
-                    });
-                }
-
-            }
-
         }
 
         self.compareCurrentUmbracoVersion = function compareCurrentUmbracoVersion(v, options) {
