@@ -69,7 +69,7 @@ namespace Our.Umbraco.InnerContent.PropertyEditors
                     try
                     {
                         // Create a fake property using the property abd stored value
-                        var prop = new Property(propType, item[propKey] == null ? null : item[propKey].ToString());
+                        var prop = new Property(propType, item[propKey]?.ToString());
 
                         // Lookup the property editor
                         var propEditor = PropertyEditorResolver.Current.GetByAlias(propType.PropertyEditorAlias);
@@ -136,7 +136,7 @@ namespace Our.Umbraco.InnerContent.PropertyEditors
                     try
                     {
                         // Create a fake property using the property abd stored value
-                        var prop = new Property(propType, item[propKey] == null ? null : item[propKey].ToString());
+                        var prop = new Property(propType, item[propKey]?.ToString());
 
                         // Lookup the property editor
                         var propEditor = PropertyEditorResolver.Current.GetByAlias(propType.PropertyEditorAlias);
@@ -157,7 +157,6 @@ namespace Our.Umbraco.InnerContent.PropertyEditors
                         item[propKey] = null;
                     }
                 }
-
             }
 
             // Process children
@@ -222,7 +221,6 @@ namespace Our.Umbraco.InnerContent.PropertyEditors
                     // Store the value back
                     item[propKey] = (newValue == null) ? null : JToken.FromObject(newValue);
                 }
-
             }
 
             // Process children

@@ -300,7 +300,7 @@ angular.module('umbraco.directives').directive('innerContentUnsavedChanges', [
             scope.canConfirmClose = false;
             scope.showConfirmClose = false;
 
-            // This is by no means ideal as we are overriding a core method to prevent te overlay closing
+            // This is by no means ideal as we are overriding a core method to prevent the overlay closing
             // put without coding a custom overlay, I couldn't think of a better way of doing it. We'll
             // have to keep a close eye on the overlay api to ensure the method name doesn't change, but
             // for now it works.
@@ -316,6 +316,7 @@ angular.module('umbraco.directives').directive('innerContentUnsavedChanges', [
             if (scope.canConfirmClose) {
                 overlayScope.oldCloseOverLay = overlayScope.closeOverLay;
                 overlayScope.closeOverLay = function () {
+                    // TODO: Find out why this throws an error with nested IC editors. (`$dirty` is undefined) [LK:2018-02-28]
                     if (overlayScope.overlayForm.$dirty) {
                         scope.showConfirmClose = true;
                     } else {
