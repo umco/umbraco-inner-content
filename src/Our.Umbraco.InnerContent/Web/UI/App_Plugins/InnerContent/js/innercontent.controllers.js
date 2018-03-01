@@ -362,7 +362,8 @@ angular.module("umbraco").factory('innerContentService', [
         var self = {};
 
         var getScaffold = function (contentType) {
-            return icResources.getContentTypeScaffoldByGuid(contentType.icContentTypeGuid).then(function (scaffold) {
+
+            var processScaffold = function (scaffold) {
 
                 // remove all tabs except the specified tab
                 if (contentType.hasOwnProperty("icTabAlias")) {
@@ -386,7 +387,11 @@ angular.module("umbraco").factory('innerContentService', [
 
                 return scaffold;
 
-            });
+            };
+
+            return contentType.hasOwnProperty("icContentTypeGuid")
+                ? icResources.getContentTypeScaffoldByGuid(contentType.icContentTypeGuid).then(processScaffold)
+                : contentResource.getScaffold(-20, contentType.icContentTypeAlias).then(processScaffold);
         }
 
         self.populateName = function (itm, idx, contentTypes) {
