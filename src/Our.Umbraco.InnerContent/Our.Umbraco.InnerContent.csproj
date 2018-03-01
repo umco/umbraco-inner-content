@@ -80,13 +80,18 @@
   <ItemGroup>
     <Compile Include="Bootstrap.cs" />
     <Compile Include="Converters\InnerContentValueConverter.cs" />
+    <Compile Include="Helpers\ContentTypeCacheHelper.cs" />
     <Compile Include="Helpers\InnerContentHelper.cs" />
     <Compile Include="InnerContentConstants.cs" />
     <Compile Include="Models\DetachedPublishedContent.cs" />
     <Compile Include="Models\DetachedPublishedProperty.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Properties\VersionInfo.cs" />
+    <Compile Include="PropertyEditors\InnerContentPreValueEditor.cs" />
+    <Compile Include="PropertyEditors\InnerContentPropertyEditor.cs" />
     <Compile Include="PropertyEditors\InnerContentPropertyValueEditorWrapper.cs" />
+    <Compile Include="PropertyEditors\SimpleInnerContentPropertyEditor.cs" />
+    <Compile Include="PropertyEditors\SimpleInnerContentPreValueEditor.cs" />
     <Compile Include="PropertyEditors\SimpleInnerContentPropertyValueEditor.cs" />
     <Compile Include="Web\Controllers\InnerContentApiController.cs" />
     <Compile Include="Web\WebApi\Filters\UseInternalActionFilterAttribute.cs" />

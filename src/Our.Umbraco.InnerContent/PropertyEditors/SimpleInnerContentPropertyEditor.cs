@@ -1,0 +1,37 @@
+﻿using System.Collections.Generic;
+using Umbraco.Core.PropertyEditors;
+
+namespace Our.Umbraco.InnerContent.PropertyEditors
+{
+    public abstract class SimpleInnerContentPropertyEditor : InnerContentPropertyEditor
+    {
+        private IDictionary<string, object> defaultPreValues;
+        public override IDictionary<string, object> DefaultPreValues
+        {
+            get { return this.defaultPreValues; }
+            set { this.defaultPreValues = value; }
+        }
+
+        public SimpleInnerContentPropertyEditor()
+            : base()
+        {
+            this.defaultPreValues = new Dictionary<string, object>
+            {
+                { "contentTypes", "" },
+                { "maxItems", 0 },
+                { "singleItemMode", "0" },
+                { "disablePreview", "0" }
+            };
+        }
+
+        protected override PreValueEditor CreatePreValueEditor()
+        {
+            return new SimpleInnerContentPreValueEditor();
+        }
+
+        protected override PropertyValueEditor CreateValueEditor()
+        {
+            return new SimpleInnerContentPropertyValueEditor(base.CreateValueEditor());
+        }
+    }
+}
