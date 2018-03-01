@@ -81,6 +81,7 @@
     <Compile Include="Bootstrap.cs" />
     <Compile Include="Converters\InnerContentValueConverter.cs" />
     <Compile Include="Helpers\InnerContentHelper.cs" />
+    <Compile Include="Helpers\MigrationHelper.cs" />
     <Compile Include="InnerContentConstants.cs" />
     <Compile Include="Models\DetachedPublishedContent.cs" />
     <Compile Include="Models\DetachedPublishedProperty.cs" />
