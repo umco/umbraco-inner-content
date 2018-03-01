@@ -1,5 +1,6 @@
 ﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using Umbraco.Core;
 using Umbraco.Core.Models;
 using Umbraco.Core.Models.Editors;
 using Umbraco.Core.PropertyEditors;
@@ -51,7 +52,7 @@ namespace Our.Umbraco.InnerContent.PropertyEditors
             {
                 if (jObj[InnerContentConstants.ContentTypeAliasPropertyKey] != null)
                 {
-                    ConvertInnerContentDbToString(jObj);
+                    ConvertInnerContentDbToString(jObj, dataTypeService);
                 }
                 else
                 {
@@ -104,7 +105,7 @@ namespace Our.Umbraco.InnerContent.PropertyEditors
             {
                 if (jObj[InnerContentConstants.ContentTypeAliasPropertyKey] != null)
                 {
-                    ConvertInnerContentDbToEditor(jObj);
+                    ConvertInnerContentDbToEditor(jObj, dataTypeService);
                 }
                 else
                 {
@@ -150,7 +151,7 @@ namespace Our.Umbraco.InnerContent.PropertyEditors
             {
                 if (jObj[InnerContentConstants.ContentTypeAliasPropertyKey] != null)
                 {
-                    ConvertInnerContentEditorToDb(jObj);
+                    ConvertInnerContentEditorToDb(jObj, ApplicationContext.Current.Services.DataTypeService);
                 }
                 else
                 {

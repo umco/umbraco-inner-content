@@ -7,6 +7,7 @@ using Umbraco.Core;
 using Umbraco.Core.Models;
 using Umbraco.Core.Models.Editors;
 using Umbraco.Core.PropertyEditors;
+using Umbraco.Core.Services;
 using Umbraco.Web.PropertyEditors;
 
 namespace Our.Umbraco.InnerContent.PropertyEditors
@@ -34,15 +35,15 @@ namespace Our.Umbraco.InnerContent.PropertyEditors
 
         #region Db to String
 
-        protected void ConvertInnerContentDbToString(JArray items)
+        protected void ConvertInnerContentDbToString(JArray items, IDataTypeService dataTypeService)
         {
             foreach (var item in items)
             {
-                ConvertInnerContentDbToString(item as JObject);
+                ConvertInnerContentDbToString(item as JObject, dataTypeService);
             }
         }
 
-        protected void ConvertInnerContentDbToString(JObject item)
+        protected void ConvertInnerContentDbToString(JObject item, IDataTypeService dataTypeService)
         {
             if (item == null)
                 return;
@@ -75,8 +76,7 @@ namespace Our.Umbraco.InnerContent.PropertyEditors
                         var propEditor = PropertyEditorResolver.Current.GetByAlias(propType.PropertyEditorAlias);
 
                         // Get the editor to do it's conversion, and store it back
-                        item[propKey] = propEditor.ValueEditor.ConvertDbToString(prop, propType,
-                            ApplicationContext.Current.Services.DataTypeService);
+                        item[propKey] = propEditor.ValueEditor.ConvertDbToString(prop, propType, dataTypeService);
                     }
                     catch (InvalidOperationException)
                     {
@@ -93,7 +93,7 @@ namespace Our.Umbraco.InnerContent.PropertyEditors
             var childrenProp = item.Properties().FirstOrDefault(x => x.Name == "children");
             if (childrenProp != null)
             {
-                ConvertInnerContentDbToString(childrenProp.Value.Value<JArray>());
+                ConvertInnerContentDbToString(childrenProp.Value.Value<JArray>(), dataTypeService);
             }
         }
 
@@ -101,15 +101,15 @@ namespace Our.Umbraco.InnerContent.PropertyEditors
 
         #region DB to Editor
 
-        protected void ConvertInnerContentDbToEditor(JArray items)
+        protected void ConvertInnerContentDbToEditor(JArray items, IDataTypeService dataTypeService)
         {
             foreach (var item in items)
             {
-                ConvertInnerContentDbToEditor(item as JObject);
+                ConvertInnerContentDbToEditor(item as JObject, dataTypeService);
             }
         }
 
-        protected void ConvertInnerContentDbToEditor(JObject item)
+        protected void ConvertInnerContentDbToEditor(JObject item, IDataTypeService dataTypeService)
         {
             if (item == null)
                 return;
@@ -142,8 +142,7 @@ namespace Our.Umbraco.InnerContent.PropertyEditors
                         var propEditor = PropertyEditorResolver.Current.GetByAlias(propType.PropertyEditorAlias);
 
                         // Get the editor to do it's conversion
-                        var newValue = propEditor.ValueEditor.ConvertDbToEditor(prop, propType,
-                            ApplicationContext.Current.Services.DataTypeService);
+                        var newValue = propEditor.ValueEditor.ConvertDbToEditor(prop, propType, dataTypeService);
 
                         // Store the value back
                         item[propKey] = (newValue == null) ? null : JToken.FromObject(newValue);
@@ -163,7 +162,7 @@ namespace Our.Umbraco.InnerContent.PropertyEditors
             var childrenProp = item.Properties().FirstOrDefault(x => x.Name == "children");
             if (childrenProp != null)
             {
-                ConvertInnerContentDbToEditor(childrenProp.Value.Value<JArray>());
+                ConvertInnerContentDbToEditor(childrenProp.Value.Value<JArray>(), dataTypeService);
             }
         }
 
@@ -171,15 +170,15 @@ namespace Our.Umbraco.InnerContent.PropertyEditors
 
         #region Editor to Db
 
-        protected void ConvertInnerContentEditorToDb(JArray items)
+        protected void ConvertInnerContentEditorToDb(JArray items, IDataTypeService dataTypeService)
         {
             foreach (var item in items)
             {
-                ConvertInnerContentEditorToDb(item as JObject);
+                ConvertInnerContentEditorToDb(item as JObject, dataTypeService);
             }
         }
 
-        protected void ConvertInnerContentEditorToDb(JObject item)
+        protected void ConvertInnerContentEditorToDb(JObject item, IDataTypeService dataTypeService)
         {
             if (item == null)
                 return;
@@ -204,8 +203,7 @@ namespace Our.Umbraco.InnerContent.PropertyEditors
                 else
                 {
                     // Fetch the property types prevalue
-                    var propPreValues = ApplicationContext.Current.Services.DataTypeService.GetPreValuesCollectionByDataTypeId(
-                            propType.DataTypeDefinitionId);
+                    var propPreValues = dataTypeService.GetPreValuesCollectionByDataTypeId(propType.DataTypeDefinitionId);
 
                     // Lookup the property editor
                     var propEditor = PropertyEditorResolver.Current.GetByAlias(propType.PropertyEditorAlias);
@@ -227,7 +225,7 @@ namespace Our.Umbraco.InnerContent.PropertyEditors
             var childrenProp = item.Properties().FirstOrDefault(x => x.Name == "children");
             if (childrenProp != null)
             {
-                ConvertInnerContentEditorToDb(childrenProp.Value.Value<JArray>());
+                ConvertInnerContentEditorToDb(childrenProp.Value.Value<JArray>(), dataTypeService);
             }
         }
 
