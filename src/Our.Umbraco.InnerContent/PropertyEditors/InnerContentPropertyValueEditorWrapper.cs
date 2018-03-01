@@ -235,7 +235,11 @@ namespace Our.Umbraco.InnerContent.PropertyEditors
 
         private static bool IsSystemPropertyKey(string propKey)
         {
-            return propKey == "name" || propKey == "children" || propKey == "key" || propKey == "icon" || propKey == InnerContentConstants.ContentTypeAliasPropertyKey;
+            return propKey == "name"
+                || propKey == "children"
+                || propKey == "key"
+                || propKey == "icon"
+                || propKey == InnerContentConstants.ContentTypeAliasPropertyKey;
         }
 
         #endregion
