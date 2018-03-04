@@ -3,7 +3,7 @@ using Umbraco.Core.PropertyEditors;
 
 namespace Our.Umbraco.InnerContent.PropertyEditors
 {
-    public abstract class SimpleInnerContentPropertyEditor : InnerContentPropertyEditor
+    public abstract class SimpleInnerContentPropertyEditor : PropertyEditor
     {
         private IDictionary<string, object> defaultPreValues;
         public override IDictionary<string, object> DefaultPreValues
@@ -17,10 +17,7 @@ namespace Our.Umbraco.InnerContent.PropertyEditors
         {
             this.defaultPreValues = new Dictionary<string, object>
             {
-                { "contentTypes", "" },
-                { "maxItems", 0 },
-                { "singleItemMode", "0" },
-                { "disablePreview", "0" }
+                { "contentTypes", string.Empty }
             };
         }
 
