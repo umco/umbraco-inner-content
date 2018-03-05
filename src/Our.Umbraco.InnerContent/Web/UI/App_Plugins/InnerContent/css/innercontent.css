@@ -1,5 +1,5 @@
 ﻿/*
-    Doc Type Picker
+    Inner Content - Doc Type Picker
 */
 .inner-content__doctypepicker table input, .inner-content__doctypepicker table select {
     width: 100%;
@@ -23,7 +23,7 @@
     width: 1px;
 }
 
-.inner-content-overlay > .umb-overlay-right > .umb-overlay__form > .umb-overlay-container{
+.inner-content-overlay > .umb-overlay-right > .umb-overlay__form > .umb-overlay-container {
     padding: 0;
     position: static;
 }

@@ -1,11 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
-using Newtonsoft.Json.Linq;
 using System.Linq;
+using Newtonsoft.Json.Linq;
 using Our.Umbraco.InnerContent.Models;
 using Umbraco.Core;
+using Umbraco.Core.Cache;
 using Umbraco.Core.Models;
 using Umbraco.Core.Models.PublishedContent;
+using Umbraco.Core.Services;
 using Umbraco.Web;
 
 namespace Our.Umbraco.InnerContent.Helpers
@@ -21,17 +23,13 @@ namespace Our.Umbraco.InnerContent.Helpers
             return items.Select((x, i) => ConvertInnerContentToPublishedContent((JObject)x, parentNode, i, level, preview)).ToList();
         }
 
-        public static IPublishedContent ConvertInnerContentToPublishedContent(JObject item, 
+        public static IPublishedContent ConvertInnerContentToPublishedContent(JObject item,
             IPublishedContent parentNode = null,
             int sortOrder = 0,
             int level = 0,
             bool preview = false)
         {
-            var contentTypeAlias = GetContentTypeAliasFromItem(item);
-            if (string.IsNullOrEmpty(contentTypeAlias))
-                return null;
-
-            var publishedContentType = PublishedContentType.Get(PublishedItemType.Content, contentTypeAlias);
+            var publishedContentType = GetPublishedContentTypeFromItem(item);
             if (publishedContentType == null)
                 return null;
 
@@ -47,19 +45,9 @@ namespace Our.Umbraco.InnerContent.Helpers
                 }
             }
 
-            // Parse out the name manually
-            object nameObj;
-            if (propValues.TryGetValue("name", out nameObj))
-            {
-                // Do nothing, we just want to parse out the name if we can
-            }
-
-            // Parse out key manually
-            object keyObj;
-            if (propValues.TryGetValue("key", out keyObj))
-            {
-                // Do nothing, we just want to parse out the key if we can
-            }
+            // Manually parse out the special properties
+            propValues.TryGetValue("name", out object nameObj);
+            propValues.TryGetValue("key", out object keyObj);
 
             // Get the current request node we are embedded in
             var pcr = UmbracoContext.Current.PublishedContentRequest;
@@ -83,13 +71,19 @@ namespace Our.Umbraco.InnerContent.Helpers
                 node.SetChildren(children);
             }
 
+            if (PublishedContentModelFactoryResolver.HasCurrent && PublishedContentModelFactoryResolver.Current.HasValue)
+            {
+                // Let the current model factory create a typed model to wrap our model
+                return PublishedContentModelFactoryResolver.Current.Factory.CreateModel(node);
+            }
+
             return node;
         }
 
         internal static PreValueCollection GetPreValuesCollectionByDataTypeId(int dtdId)
         {
-            var preValueCollection = (PreValueCollection)ApplicationContext.Current.ApplicationCache.RuntimeCache.GetCacheItem(
-                string.Concat("Our.Umbraco.InnerContent.GetPreValuesCollectionByDataTypeId_", dtdId),
+            var preValueCollection = ApplicationContext.Current.ApplicationCache.RuntimeCache.GetCacheItem<PreValueCollection>(
+                string.Format(InnerContentConstants.PreValuesCacheKey, dtdId),
                 () => ApplicationContext.Current.Services.DataTypeService.GetPreValuesCollectionByDataTypeId(dtdId));
 
             return preValueCollection;
@@ -101,12 +95,64 @@ namespace Our.Umbraco.InnerContent.Helpers
             return contentTypeAliasProperty?.ToObject<string>();
         }
 
+        internal static Guid? GetContentTypeGuidFromItem(JObject item)
+        {
+            var contentTypeGuidProperty = item?[InnerContentConstants.ContentTypeGuidPropertyKey];
+            return contentTypeGuidProperty?.ToObject<Guid?>();
+        }
+
         internal static IContentType GetContentTypeFromItem(JObject item)
         {
+            var contentTypeService = ApplicationContext.Current.Services.ContentTypeService;
+
+            var contentTypeGuid = GetContentTypeGuidFromItem(item);
+            if (contentTypeGuid.HasValue && contentTypeGuid.Value != Guid.Empty)
+                return contentTypeService.GetContentType(contentTypeGuid.Value);
+
             var contentTypeAlias = GetContentTypeAliasFromItem(item);
-            return !contentTypeAlias.IsNullOrWhiteSpace()
-                ? ApplicationContext.Current.Services.ContentTypeService.GetContentType(contentTypeAlias)
-                : null;
+            if (string.IsNullOrWhiteSpace(contentTypeAlias) == false)
+            {
+                // Future-proofing - setting the GUID, queried from the alias
+                SetContentTypeGuid(item, contentTypeAlias, contentTypeService);
+
+                return contentTypeService.GetContentType(contentTypeAlias);
+            }
+
+            return null;
+        }
+
+        internal static void SetContentTypeGuid(JObject item, string contentTypeAlias, IContentTypeService contentTypeService)
+        {
+            if (ContentTypeCacheHelper.TryGetGuid(contentTypeAlias, out Guid key, contentTypeService))
+            {
+                item[InnerContentConstants.ContentTypeGuidPropertyKey] = key.ToString();
+            }
+        }
+
+        internal static PublishedContentType GetPublishedContentTypeFromItem(JObject item)
+        {
+            var contentTypeAlias = string.Empty;
+
+            // First we check if the item has a content-type GUID...
+            var contentTypeGuid = GetContentTypeGuidFromItem(item);
+            if (contentTypeGuid.HasValue)
+            {
+                // HACK: If Umbraco's `PublishedContentType.Get` method supported a GUID parameter,
+                // we could use that method directly, however it only supports the content-type alias (as of v7.4.0)
+                // See: https://github.com/umbraco/Umbraco-CMS/blob/release-7.4.0/src/Umbraco.Core/Models/PublishedContent/PublishedContentType.cs#L133
+                // Our workaround is to cache a content-type GUID => alias lookup.
+
+                ContentTypeCacheHelper.TryGetAlias(contentTypeGuid.Value, out contentTypeAlias, ApplicationContext.Current.Services.ContentTypeService);
+            }
+
+            // If we don't have the content-type alias at this point, check if we can get it from the item
+            if (string.IsNullOrEmpty(contentTypeAlias))
+                contentTypeAlias = GetContentTypeAliasFromItem(item);
+
+            if (string.IsNullOrEmpty(contentTypeAlias))
+                return null;
+
+            return PublishedContentType.Get(PublishedItemType.Content, contentTypeAlias);
         }
     }
 }

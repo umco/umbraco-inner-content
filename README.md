@@ -26,7 +26,8 @@ We also have a [MyGet package repository](https://www.myget.org/gallery/umbraco-
 
 If you prefer, you can compile  Inner Content yourself, you'll need:
 
-* Visual Studio 2015 (or above)
+* [Visual Studio 2017 (or above, including Community Editions)](https://www.visualstudio.com/downloads/)
+* Microsoft Build Tools 2015 (aka [MSBuild 15](https://www.microsoft.com/en-us/download/details.aspx?id=48159))
 
 To clone it locally click the "Clone in Windows" button above or run the following git commands.
 
@@ -38,7 +39,15 @@ To clone it locally click the "Clone in Windows" button above or run the followi
 
 ## Known Issues
 
-* _[TBC]_
+- _[TBC]_
+
+---
+
+## Implementations
+
+Umbraco packages that use Inner Content as a dependency library.
+
+- [Stacked Content](https://github.com/umco/umbraco-stacked-content)
 
 ---
 
@@ -46,9 +55,9 @@ To clone it locally click the "Clone in Windows" button above or run the followi
 
 Anyone and everyone is welcome to contribute. Please take a moment to review the [guidelines for contributing](CONTRIBUTING.md).
 
-* [Bug reports](CONTRIBUTING.md#bugs)
-* [Feature requests](CONTRIBUTING.md#features)
-* [Pull requests](CONTRIBUTING.md#pull-requests)
+- [Bug reports](CONTRIBUTING.md#bugs)
+- [Feature requests](CONTRIBUTING.md#features)
+- [Pull requests](CONTRIBUTING.md#pull-requests)
 
 ---
 
@@ -56,12 +65,12 @@ Anyone and everyone is welcome to contribute. Please take a moment to review the
 
 Have a question?
 
-* [Raise an issue](https://github.com/umco/umbraco-inner-content/issues) on GitHub
+- [Raise an issue](https://github.com/umco/umbraco-inner-content/issues) on GitHub
 
 ## Dev Team
 
-* [Matt Brailsford](https://github.com/mattbrailsford)
-* [Lee Kelleher](https://github.com/leekelleher)
+- [Matt Brailsford](https://github.com/mattbrailsford)
+- [Lee Kelleher](https://github.com/leekelleher)
 
 ## License
 

@@ -15,8 +15,7 @@ namespace Our.Umbraco.InnerContent.Models
 
         public DetachedPublishedProperty(PublishedPropertyType propertyType, object value)
             : this(propertyType, value, false)
-        {
-        }
+        { }
 
         public DetachedPublishedProperty(PublishedPropertyType propertyType, object value, bool isPreview)
         {
