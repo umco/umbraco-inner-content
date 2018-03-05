@@ -125,7 +125,7 @@ namespace Our.Umbraco.InnerContent.Helpers
         {
             if (ContentTypeCacheHelper.TryGetGuid(contentTypeAlias, out Guid key, contentTypeService))
             {
-                item["icContentTypeGuid"] = key.ToString();
+                item[InnerContentConstants.ContentTypeGuidPropertyKey] = key.ToString();
             }
         }
 
