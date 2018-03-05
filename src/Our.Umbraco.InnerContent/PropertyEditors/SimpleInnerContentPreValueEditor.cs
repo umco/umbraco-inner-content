@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using Newtonsoft.Json.Linq;
+using Umbraco.Core.IO;
 using Umbraco.Core.Models;
 using Umbraco.Core.PropertyEditors;
 
@@ -7,8 +8,18 @@ namespace Our.Umbraco.InnerContent.PropertyEditors
 {
     public class SimpleInnerContentPreValueEditor : InnerContentPreValueEditor
     {
-        [PreValueField("contentTypes", "Content Types", "~/App_Plugins/InnerContent/views/innercontent.doctypepicker.html", Description = "Select the content types to use as the data blueprint.")]
-        public string[] ContentTypes { get; set; }
+        public SimpleInnerContentPreValueEditor()
+            : base()
+        {
+            // This ensures that the "contentTypes" field is always at the top of the prevalue fields.
+            Fields.Insert(0, new PreValueField
+            {
+                Key = InnerContentConstants.ContentTypesPreValueKey,
+                Name = "Content Types",
+                View = IOHelper.ResolveUrl("~/App_Plugins/InnerContent/views/innercontent.doctypepicker.html"),
+                Description = "Select the content types to use as the data blueprint."
+            });
+        }
 
         public override IDictionary<string, object> ConvertDbToEditor(IDictionary<string, object> defaultPreVals, PreValueCollection persistedPreVals)
         {
