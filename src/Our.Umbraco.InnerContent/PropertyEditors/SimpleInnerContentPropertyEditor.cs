@@ -17,7 +17,7 @@ namespace Our.Umbraco.InnerContent.PropertyEditors
         {
             this.defaultPreValues = new Dictionary<string, object>
             {
-                { "contentTypes", string.Empty }
+                { InnerContentConstants.ContentTypesPreValueKey, string.Empty }
             };
         }
 

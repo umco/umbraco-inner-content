@@ -15,7 +15,7 @@ namespace Our.Umbraco.InnerContent.PropertyEditors
             if (persistedPreVals.IsDictionaryBased)
             {
                 var dict = persistedPreVals.PreValuesAsDictionary;
-                if (dict.TryGetValue("contentTypes", out PreValue contentTypes) && string.IsNullOrWhiteSpace(contentTypes.Value) == false)
+                if (dict.TryGetValue(InnerContentConstants.ContentTypesPreValueKey, out PreValue contentTypes) && string.IsNullOrWhiteSpace(contentTypes.Value) == false)
                 {
                     var items = JArray.Parse(contentTypes.Value);
                     if (TryEnsureContentTypeGuids(items))
