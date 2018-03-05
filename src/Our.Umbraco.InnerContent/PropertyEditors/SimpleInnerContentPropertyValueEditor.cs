@@ -50,7 +50,7 @@ namespace Our.Umbraco.InnerContent.PropertyEditors
 
             if (token is JObject jObj)
             {
-                if (jObj[InnerContentConstants.ContentTypeAliasPropertyKey] != null)
+                if (jObj[InnerContentConstants.ContentTypeGuidPropertyKey] != null || jObj[InnerContentConstants.ContentTypeAliasPropertyKey] != null)
                 {
                     ConvertInnerContentDbToString(jObj, dataTypeService);
                 }
@@ -103,7 +103,7 @@ namespace Our.Umbraco.InnerContent.PropertyEditors
 
             if (token is JObject jObj)
             {
-                if (jObj[InnerContentConstants.ContentTypeAliasPropertyKey] != null)
+                if (jObj[InnerContentConstants.ContentTypeGuidPropertyKey] != null || jObj[InnerContentConstants.ContentTypeAliasPropertyKey] != null)
                 {
                     ConvertInnerContentDbToEditor(jObj, dataTypeService);
                 }
@@ -149,7 +149,7 @@ namespace Our.Umbraco.InnerContent.PropertyEditors
 
             if (token is JObject jObj)
             {
-                if (jObj[InnerContentConstants.ContentTypeAliasPropertyKey] != null)
+                if (jObj[InnerContentConstants.ContentTypeGuidPropertyKey] != null || jObj[InnerContentConstants.ContentTypeAliasPropertyKey] != null)
                 {
                     ConvertInnerContentEditorToDb(jObj, ApplicationContext.Current.Services.DataTypeService);
                 }

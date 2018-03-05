@@ -7,6 +7,7 @@ using Umbraco.Core;
 using Umbraco.Core.Cache;
 using Umbraco.Core.Models;
 using Umbraco.Core.Models.PublishedContent;
+using Umbraco.Core.Services;
 using Umbraco.Web;
 
 namespace Our.Umbraco.InnerContent.Helpers
@@ -102,10 +103,30 @@ namespace Our.Umbraco.InnerContent.Helpers
 
         internal static IContentType GetContentTypeFromItem(JObject item)
         {
+            var contentTypeService = ApplicationContext.Current.Services.ContentTypeService;
+
+            var contentTypeGuid = GetContentTypeGuidFromItem(item);
+            if (contentTypeGuid.HasValue && contentTypeGuid.Value != Guid.Empty)
+                return contentTypeService.GetContentType(contentTypeGuid.Value);
+
             var contentTypeAlias = GetContentTypeAliasFromItem(item);
-            return !contentTypeAlias.IsNullOrWhiteSpace()
-                ? ApplicationContext.Current.Services.ContentTypeService.GetContentType(contentTypeAlias)
-                : null;
+            if (string.IsNullOrWhiteSpace(contentTypeAlias) == false)
+            {
+                // Future-proofing - setting the GUID, queried from the alias
+                SetContentTypeGuid(item, contentTypeAlias, contentTypeService);
+
+                return contentTypeService.GetContentType(contentTypeAlias);
+            }
+
+            return null;
+        }
+
+        internal static void SetContentTypeGuid(JObject item, string contentTypeAlias, IContentTypeService contentTypeService)
+        {
+            if (ContentTypeCacheHelper.TryGetGuid(contentTypeAlias, out Guid key, contentTypeService))
+            {
+                item[InnerContentConstants.ContentTypeGuidPropertyKey] = key.ToString();
+            }
         }
 
         internal static PublishedContentType GetPublishedContentTypeFromItem(JObject item)
@@ -114,16 +135,14 @@ namespace Our.Umbraco.InnerContent.Helpers
 
             // First we check if the item has a content-type GUID...
             var contentTypeGuid = GetContentTypeGuidFromItem(item);
-            if (contentTypeGuid != null && contentTypeGuid.HasValue && contentTypeGuid.Value != Guid.Empty)
+            if (contentTypeGuid.HasValue)
             {
                 // HACK: If Umbraco's `PublishedContentType.Get` method supported a GUID parameter,
                 // we could use that method directly, however it only supports the content-type alias (as of v7.4.0)
                 // See: https://github.com/umbraco/Umbraco-CMS/blob/release-7.4.0/src/Umbraco.Core/Models/PublishedContent/PublishedContentType.cs#L133
                 // Our workaround is to cache a content-type GUID => alias lookup.
 
-                contentTypeAlias = ApplicationContext.Current.ApplicationCache.StaticCache.GetCacheItem<string>(
-                    string.Format(InnerContentConstants.ContentTypeAliasByGuidCacheKey, contentTypeGuid.Value),
-                    () => ApplicationContext.Current.Services.ContentTypeService.GetContentType(contentTypeGuid.Value).Alias);
+                ContentTypeCacheHelper.TryGetAlias(contentTypeGuid.Value, out contentTypeAlias, ApplicationContext.Current.Services.ContentTypeService);
             }
 
             // If we don't have the content-type alias at this point, check if we can get it from the item

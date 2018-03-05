@@ -8,6 +8,6 @@
 
         internal const string PreValuesCacheKey = "Our.Umbraco.InnerContent.GetPreValuesCollectionByDataTypeId_{0}";
 
-        internal const string ContentTypeAliasByGuidCacheKey = "Our.Umbraco.InnerContent.GetContentTypeAliasByGuid_{0}";
+        internal const string ContentTypesPreValueKey = "contentTypes";
     }
 }
