@@ -143,7 +143,7 @@ angular.module('umbraco.directives').directive('innerContentOverlay', [
 
             scope.contentTypePickerOverlay = {
                 view: "itempicker",
-                filter: false,
+                filter: true,
                 title: "Insert Content",
                 show: false,
                 submit: function (model) {
