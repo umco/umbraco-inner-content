@@ -32,18 +32,19 @@ namespace Our.Umbraco.InnerContent.Web.Controllers
         [HttpGet]
         public IEnumerable<object> GetContentTypesByGuid([ModelBinder] Guid[] guids)
         {
-            return Services.ContentTypeService.GetAllContentTypes()
-                .Where(x => guids == null || guids.Contains(x.Key))
-                .OrderBy(x => x.SortOrder)
-                .Select(x => new
-                {
-                    id = x.Id,
-                    guid = x.Key,
-                    name = x.Name,
-                    alias = x.Alias,
-                    icon = string.IsNullOrWhiteSpace(x.Icon) || x.Icon == ".sprTreeFolder" ? "icon-folder" : x.Icon,
-                    tabs = x.CompositionPropertyGroups.Select(y => y.Name).Distinct()
-                });
+            var contentTypes = Services.ContentTypeService.GetAllContentTypes(guids).OrderBy(x => x.SortOrder).ToList();
+            var blueprints = Services.ContentService.GetBlueprintsForContentTypes(contentTypes.Select(x => x.Id).ToArray()).ToArray();
+
+            // NOTE: Using an anonymous class, as the `ContentTypeBasic` type is heavier than what we need (for our requirements)
+            return contentTypes.Select(ct => new
+            {
+                name = ct.Name, // TODO: localize the name (in case of dictionary items), e.g. `localizedTextService.UmbracoDictionaryTranslate`
+                description = ct.Description, // TODO: localize the description (in case of dictionary items), e.g. `localizedTextService.UmbracoDictionaryTranslate`
+                key = ct.Key,
+                icon = string.IsNullOrWhiteSpace(ct.Icon) || ct.Icon == ".sprTreeFolder" ? "icon-document" : ct.Icon,
+                blueprints = blueprints.Where(bp => bp.ContentTypeId == ct.Id).ToDictionary(bp => bp.Id, bp => bp.Name)
+                // TODO: tabs = ct.CompositionPropertyGroups.Select(y => y.Name).Distinct()
+            });
         }
 
         [HttpGet]
@@ -75,10 +76,17 @@ namespace Our.Umbraco.InnerContent.Web.Controllers
 
         [HttpGet]
         [UseInternalActionFilter("Umbraco.Web.WebApi.Filters.OutgoingEditorModelEventAttribute", onActionExecuted: true)]
-        public ContentItemDisplay GetContentTypeScaffoldByGuid(Guid guid)
+        public ContentItemDisplay GetContentTypeScaffoldByGuid(Guid contentTypeGuid, int blueprintId = 0)
         {
-            var contentType = Services.ContentTypeService.GetContentType(guid);
-            return new ContentController().GetEmpty(contentType.Alias, -20);
+            var controller = new ContentController();
+
+            if (blueprintId > 0)
+            {
+                return controller.GetEmpty(blueprintId, -20);
+            }
+
+            var contentType = Services.ContentTypeService.GetContentType(contentTypeGuid);
+            return controller.GetEmpty(contentType.Alias, -20);
         }
     }
 }

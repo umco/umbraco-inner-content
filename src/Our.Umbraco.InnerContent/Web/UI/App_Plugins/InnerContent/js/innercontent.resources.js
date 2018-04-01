@@ -40,12 +40,12 @@
                     'Failed to retrieve content type icons'
                 );
             },
-            getContentTypeScaffoldByGuid: function (guid) {
+            getContentTypeScaffoldByGuid: function (contentTypeGuid, blueprintId) {
                 return umbRequestHelper.resourcePromise(
                     $http({
                         url: "/umbraco/backoffice/InnerContent/InnerContentApi/GetContentTypeScaffoldByGuid",
                         method: "GET",
-                        params: { guid: guid }
+                        params: { contentTypeGuid: contentTypeGuid, blueprintId: blueprintId }
                     }),
                     'Failed to retrieve content type scaffold'
                 );
