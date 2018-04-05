@@ -81,11 +81,8 @@ namespace Our.Umbraco.InnerContent.PropertyEditors
             // Process value
             ConvertDbToEditorRecursive(value, dataTypeService);
 
-            // Update the value on the property
-            property.Value = JsonConvert.SerializeObject(value);
-
-            // Pass the call down
-            return base.ConvertDbToEditor(property, propertyType, dataTypeService);
+            // Return the JObject, Angular can handle it directly
+            return value;
         }
 
         protected void ConvertDbToEditorRecursive(JToken token, IDataTypeService dataTypeService)
