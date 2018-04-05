@@ -117,12 +117,16 @@ namespace Our.Umbraco.InnerContent.PropertyEditors
         public override object ConvertEditorToDb(ContentPropertyData editorValue, object currentValue)
         {
             // Convert / validate value
-            if (editorValue.Value == null || string.IsNullOrWhiteSpace(editorValue.Value.ToString()))
-                return null;
+            if (editorValue.Value == null)
+                return string.Empty;
 
-            var value = JsonConvert.DeserializeObject<JToken>(editorValue.Value.ToString());
+            var dbValue = editorValue.Value.ToString();
+            if (string.IsNullOrWhiteSpace(dbValue))
+                return string.Empty;
+
+            var value = JsonConvert.DeserializeObject<JToken>(dbValue);
             if (value == null || (value is JArray && ((JArray)value).Count == 0))
-                return null;
+                return string.Empty;
 
             // Process value
             ConvertEditorToDbRecursive(value, currentValue);
