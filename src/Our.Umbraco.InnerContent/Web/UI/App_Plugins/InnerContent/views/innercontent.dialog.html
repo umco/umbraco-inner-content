@@ -7,7 +7,7 @@
             <umb-tab id="tab{{tab.id}}" ng-repeat="tab in item.tabs" rel="{{tab.id}}">
 
                 <umb-property ng-repeat="property in tab.properties" property="property">
-                    <umb-editor model="property"></umb-editor>
+                    <umb-property-editor model="property"></umb-property-editor>
                 </umb-property>
 
             </umb-tab>
