@@ -31,11 +31,8 @@ namespace Our.Umbraco.InnerContent.PropertyEditors
             // Process value
             ConvertDbToStringRecursive(value, dataTypeService);
 
-            // Update the value on the property
-            property.Value = JsonConvert.SerializeObject(value);
-
-            // Pass the call down
-            return base.ConvertDbToString(property, propertyType, dataTypeService);
+            // Return the serialized value
+            return JsonConvert.SerializeObject(value);
         }
 
         protected void ConvertDbToStringRecursive(JToken token, IDataTypeService dataTypeService)
