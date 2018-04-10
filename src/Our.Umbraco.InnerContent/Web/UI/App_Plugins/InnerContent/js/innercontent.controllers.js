@@ -302,10 +302,10 @@ angular.module('umbraco.directives').directive('innerContentOverlay', [
                     var guids = scope.config.contentTypes.map(function (itm) {
                         return itm.icContentTypeGuid;
                     });
-                    innerContentService.getContentTypesByGuid(guids).then(function (docTypes) {
+                    innerContentService.getContentTypesByGuid(guids).then(function (contentTypes) {
 
                         // Cache items in the PE's config so we only request these once per PE instance
-                        scope.config.contentTypePickerItems = docTypes;
+                        scope.config.contentTypePickerItems = contentTypes;
 
                         initOpen();
 
