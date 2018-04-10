@@ -38,13 +38,16 @@ namespace Our.Umbraco.InnerContent.Web.Controllers
             // NOTE: Using an anonymous class, as the `ContentTypeBasic` type is heavier than what we need (for our requirements)
             return contentTypes.Select(ct => new
             {
-                name = ct.Name, // TODO: localize the name (in case of dictionary items), e.g. `localizedTextService.UmbracoDictionaryTranslate`
-                description = ct.Description, // TODO: localize the description (in case of dictionary items), e.g. `localizedTextService.UmbracoDictionaryTranslate`
+                // TODO: localize the name and description (in case of dictionary items)
+                // Umbraco core uses `localizedTextService.UmbracoDictionaryTranslate`, but this is currently marked as internal.
+                // https://github.com/umbraco/Umbraco-CMS/blob/release-7.7.0/src/Umbraco.Core/Services/LocalizedTextServiceExtensions.cs#L76
+
+                name = ct.Name,
+                description = ct.Description,
                 guid = ct.Key,
                 key = ct.Key,
                 icon = string.IsNullOrWhiteSpace(ct.Icon) || ct.Icon == ".sprTreeFolder" ? "icon-document" : ct.Icon,
                 blueprints = blueprints.Where(bp => bp.ContentTypeId == ct.Id).ToDictionary(bp => bp.Id, bp => bp.Name)
-                // TODO: tabs = ct.CompositionPropertyGroups.Select(y => y.Name).Distinct()
             });
         }
 
