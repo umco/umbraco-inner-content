@@ -176,7 +176,7 @@ angular.module('umbraco.directives').directive('innerContentOverlay', [
             // Helper function to createEditorModel but at the same time
             // cache the scaffold so that if we create another item of the same
             // content type, we don't need to fetch the scaffold again
-            var createEditorModel = function (contentType, blueprintId, dbModel) {
+            var createEditorModel = function (contentType, dbModel, blueprintId) {
 
                 var process = function (editorModel, dbModel2) {
                     var n = angular.copy(editorModel);
@@ -189,7 +189,7 @@ angular.module('umbraco.directives').directive('innerContentOverlay', [
                     var res = process(scope.config.editorModels[cacheKey], dbModel);
                     return $q.when(res);
                 } else {
-                    return innerContentService.createEditorModel(contentType, blueprintId).then(function (em) {
+                    return innerContentService.createEditorModel(contentType, dbModel, blueprintId).then(function (em) {
                         scope.config.editorModels[cacheKey] = em;
                         var res = process(scope.config.editorModels[cacheKey], dbModel);
                         return res;
@@ -206,7 +206,7 @@ angular.module('umbraco.directives').directive('innerContentOverlay', [
                 submit: function (model) {
                     var ct = getContentType(model.selectedItem.key);
                     var bp = model.selectedItem.blueprint;
-                    createEditorModel(ct, bp).then(function (em) {
+                    createEditorModel(ct, null, bp).then(function (em) {
                         scope.currentItem = em;
                         scope.closeContentTypePickerOverlay();
                         scope.openContentEditorOverlay();
@@ -244,7 +244,7 @@ angular.module('umbraco.directives').directive('innerContentOverlay', [
 
                 if (scope.contentTypePickerOverlay.availableItems.length === 1 && _.isEmpty(scope.contentTypePickerOverlay.availableItems[0].blueprints)) {
                     var ct = getContentType(scope.contentTypePickerOverlay.availableItems[0].key);
-                    createEditorModel(ct, -1).then(function (em) {
+                    createEditorModel(ct).then(function (em) {
                         scope.currentItem = em;
                         scope.openContentEditorOverlay();
                     });
@@ -285,7 +285,7 @@ angular.module('umbraco.directives').directive('innerContentOverlay', [
                     scope.openContentTypePickerOverlay();
                 } else {
                     var ct = getContentType(scope.config.data.model.icContentTypeGuid);
-                    createEditorModel(ct, -1, scope.config.data.model).then(function (em) {
+                    createEditorModel(ct, scope.config.data.model).then(function (em) {
                         scope.currentItem = em;
                         scope.openContentEditorOverlay();
                     });
@@ -480,7 +480,7 @@ angular.module("umbraco").factory('innerContentService', [
             return icResources.getContentTypeIconsByGuid(guids);
         }
 
-        self.createEditorModel = function (contentType, blueprintId, dbModel) {
+        self.createEditorModel = function (contentType, dbModel, blueprintId) {
 
             return getScaffold(contentType, blueprintId).then(function (scaffold) {
 
@@ -542,7 +542,7 @@ angular.module("umbraco").factory('innerContentService', [
         }
 
         self.createDefaultDbModel = function (contentType) {
-            return self.createEditorModel(contentType, -1).then(function (editorModel) {
+            return self.createEditorModel(contentType).then(function (editorModel) {
                 return self.createDbModel(editorModel);
             });
         }
