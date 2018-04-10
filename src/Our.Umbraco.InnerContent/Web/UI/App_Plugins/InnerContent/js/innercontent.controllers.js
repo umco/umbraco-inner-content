@@ -408,7 +408,8 @@ angular.module("umbraco").factory('innerContentService', [
         var self = {};
 
         var getScaffold = function (contentType, blueprintId) {
-            return icResources.getContentTypeScaffoldByGuid(contentType.icContentTypeGuid, blueprintId).then(function (scaffold) {
+
+            var processScaffold = function (scaffold) {
 
                 // remove all tabs except the specified tab
                 if (contentType.hasOwnProperty("icTabAlias")) {
@@ -432,7 +433,13 @@ angular.module("umbraco").factory('innerContentService', [
 
                 return scaffold;
 
-            });
+            };
+
+            if (blueprintId > 0) {
+                return icResources.getContentTypeScaffoldByBlueprintId(blueprintId).then(processScaffold);
+            } else {
+                return icResources.getContentTypeScaffoldByGuid(contentType.icContentTypeGuid).then(processScaffold);
+            }
         }
 
         self.populateName = function (itm, idx, contentTypes) {

@@ -40,14 +40,24 @@
                     'Failed to retrieve content type icons'
                 );
             },
-            getContentTypeScaffoldByGuid: function (contentTypeGuid, blueprintId) {
+            getContentTypeScaffoldByGuid: function (guid) {
                 return umbRequestHelper.resourcePromise(
                     $http({
                         url: "/umbraco/backoffice/InnerContent/InnerContentApi/GetContentTypeScaffoldByGuid",
                         method: "GET",
-                        params: { contentTypeGuid: contentTypeGuid, blueprintId: blueprintId }
+                        params: { guid: guid }
                     }),
-                    'Failed to retrieve content type scaffold'
+                    'Failed to retrieve content type scaffold by Guid'
+                );
+            },
+            getContentTypeScaffoldByBlueprintId: function (blueprintId) {
+                return umbRequestHelper.resourcePromise(
+                    $http({
+                        url: "/umbraco/backoffice/InnerContent/InnerContentApi/GetContentTypeScaffoldByBlueprintId",
+                        method: "GET",
+                        params: { blueprintId: blueprintId }
+                    }),
+                    'Failed to retrieve content type scaffold by blueprint Id'
                 );
             }
         };

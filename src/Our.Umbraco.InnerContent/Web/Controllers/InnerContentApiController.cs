@@ -76,17 +76,17 @@ namespace Our.Umbraco.InnerContent.Web.Controllers
 
         [HttpGet]
         [UseInternalActionFilter("Umbraco.Web.WebApi.Filters.OutgoingEditorModelEventAttribute", onActionExecuted: true)]
-        public ContentItemDisplay GetContentTypeScaffoldByGuid(Guid contentTypeGuid, int blueprintId = 0)
+        public ContentItemDisplay GetContentTypeScaffoldByGuid(Guid guid)
         {
-            var controller = new ContentController();
+            var contentType = Services.ContentTypeService.GetContentType(guid);
+            return new ContentController().GetEmpty(contentType.Alias, -20);
+        }
 
-            if (blueprintId > 0)
-            {
-                return controller.GetEmpty(blueprintId, -20);
-            }
-
-            var contentType = Services.ContentTypeService.GetContentType(contentTypeGuid);
-            return controller.GetEmpty(contentType.Alias, -20);
+        [HttpGet]
+        [UseInternalActionFilter("Umbraco.Web.WebApi.Filters.OutgoingEditorModelEventAttribute", onActionExecuted: true)]
+        public ContentItemDisplay GetContentTypeScaffoldByBlueprintId(int blueprintId)
+        {
+            return new ContentController().GetEmpty(blueprintId, -20);
         }
     }
 }
