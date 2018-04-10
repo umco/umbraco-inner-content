@@ -40,6 +40,7 @@ namespace Our.Umbraco.InnerContent.Web.Controllers
             {
                 name = ct.Name, // TODO: localize the name (in case of dictionary items), e.g. `localizedTextService.UmbracoDictionaryTranslate`
                 description = ct.Description, // TODO: localize the description (in case of dictionary items), e.g. `localizedTextService.UmbracoDictionaryTranslate`
+                guid = ct.Key,
                 key = ct.Key,
                 icon = string.IsNullOrWhiteSpace(ct.Icon) || ct.Icon == ".sprTreeFolder" ? "icon-document" : ct.Icon,
                 blueprints = blueprints.Where(bp => bp.ContentTypeId == ct.Id).ToDictionary(bp => bp.Id, bp => bp.Name)
