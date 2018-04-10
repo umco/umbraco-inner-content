@@ -167,9 +167,9 @@ angular.module('umbraco.directives').directive('innerContentOverlay', [
             scope.config.editorModels = scope.config.editorModels || {};
             scope.currentItem = null;
 
-            var getContentType = function (key) {
+            var getContentType = function (guid) {
                 return _.find(scope.config.contentTypes, function (ct) {
-                    return ct.icContentTypeGuid.toLowerCase() === key.toLowerCase();
+                    return ct.icContentTypeGuid.toLowerCase() === guid.toLowerCase();
                 });
             }
 
