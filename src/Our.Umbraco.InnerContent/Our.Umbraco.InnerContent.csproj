@@ -30,24 +30,12 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="ClientDependency.Core, Version=1.8.4.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\ClientDependency.1.8.4\lib\net45\ClientDependency.Core.dll</HintPath>
+    <Reference Include="interfaces, Version=1.0.6470.38233, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\UmbracoCms.Core.7.7.0\lib\net45\interfaces.dll</HintPath>
       <Private>False</Private>
     </Reference>
-    <Reference Include="interfaces">
-      <HintPath>..\packages\UmbracoCms.Core.7.4.0\lib\interfaces.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
-    <Reference Include="log4net, Version=1.2.11.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\UmbracoCms.Core.7.4.0\lib\log4net.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
-    <Reference Include="MiniProfiler, Version=2.1.0.0, Culture=neutral, PublicKeyToken=b44f9351044011a3, processorArchitecture=MSIL">
-      <HintPath>..\packages\MiniProfiler.2.1.0\lib\net40\MiniProfiler.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
-    <Reference Include="Newtonsoft.Json, Version=6.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
-      <HintPath>..\packages\Newtonsoft.Json.6.0.8\lib\net45\Newtonsoft.Json.dll</HintPath>
+    <Reference Include="Newtonsoft.Json, Version=10.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newtonsoft.Json.10.0.2\lib\net45\Newtonsoft.Json.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="Semver, Version=1.1.2.0, Culture=neutral, processorArchitecture=MSIL">
@@ -68,12 +56,12 @@
     </Reference>
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Xml" />
-    <Reference Include="umbraco, Version=1.0.5885.31230, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\UmbracoCms.Core.7.4.0\lib\umbraco.dll</HintPath>
+    <Reference Include="umbraco, Version=1.0.6470.38242, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\UmbracoCms.Core.7.7.0\lib\net45\umbraco.dll</HintPath>
       <Private>False</Private>
     </Reference>
-    <Reference Include="Umbraco.Core, Version=1.0.5885.31226, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\UmbracoCms.Core.7.4.0\lib\Umbraco.Core.dll</HintPath>
+    <Reference Include="Umbraco.Core, Version=1.0.6470.38234, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\UmbracoCms.Core.7.7.0\lib\net45\Umbraco.Core.dll</HintPath>
       <Private>False</Private>
     </Reference>
   </ItemGroup>
@@ -104,6 +92,7 @@
     <Content Include="Web\UI\App_Plugins\InnerContent\css\innercontent.css" />
     <Content Include="Web\UI\App_Plugins\InnerContent\js\innercontent.controllers.js" />
     <Content Include="Web\UI\App_Plugins\InnerContent\js\innercontent.resources.js" />
+    <Content Include="Web\UI\App_Plugins\InnerContent\views\innercontent.create.html" />
     <Content Include="Web\UI\App_Plugins\InnerContent\views\innercontent.dialog.html" />
     <Content Include="Web\UI\App_Plugins\InnerContent\views\innercontent.unsavedchanges.html" />
     <Content Include="Web\UI\App_Plugins\InnerContent\views\innercontent.overlay.html" />
