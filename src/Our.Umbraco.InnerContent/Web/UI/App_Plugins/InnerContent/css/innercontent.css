@@ -31,3 +31,7 @@
 .inner-content-dialog > .nav-tabs {
     margin: -31px 0 0 20px;
 }
+
+.inner-content-pane {
+    margin: 30px 20px;
+}
