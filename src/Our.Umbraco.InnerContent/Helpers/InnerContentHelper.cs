@@ -154,5 +154,42 @@ namespace Our.Umbraco.InnerContent.Helpers
 
             return PublishedContentType.Get(PublishedItemType.Content, contentTypeAlias);
         }
+
+        internal static IContent ConvertInnerContentToBlueprint(JObject item, int userId = 0)
+        {
+            var contentType = GetContentTypeFromItem(item);
+
+            // creates a fast lookup of the property types
+            var propertyTypes = contentType.PropertyTypes.ToDictionary(x => x.Alias, x => x, StringComparer.InvariantCultureIgnoreCase);
+
+            var propValues = item.ToObject<Dictionary<string, object>>();
+            var properties = new List<Property>();
+
+            foreach (var jProp in propValues)
+            {
+                if (propertyTypes.ContainsKey(jProp.Key) == false)
+                    continue;
+
+                var propType = propertyTypes[jProp.Key];
+                if (propType != null)
+                {
+                    // TODO: Check if we need to call `ConvertEditorToDb`?
+                    properties.Add(new Property(propType, jProp.Value));
+                }
+            }
+
+            // Manually parse out the special properties
+            propValues.TryGetValue("name", out object name);
+            propValues.TryGetValue("key", out object key);
+
+            return new Content(name?.ToString(), -1, contentType, new PropertyCollection(properties))
+            {
+                Key = key == null ? Guid.Empty : Guid.Parse(key.ToString()),
+                ParentId = -1,
+                Path = "-1",
+                CreatorId = userId,
+                WriterId = userId
+            };
+        }
     }
 }
