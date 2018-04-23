@@ -202,7 +202,7 @@ angular.module('umbraco.directives').directive('innerContentOverlay', [
             };
 
             scope.openContentEditorOverlay = function () {
-                scope.contentEditorOverlay.title = "Edit item";
+                scope.contentEditorOverlay.title = "Edit " + scope.currentItem.contentTypeName;
                 scope.contentEditorOverlay.dialogData = { item: scope.currentItem };
                 scope.contentEditorOverlay.show = true;
             };
