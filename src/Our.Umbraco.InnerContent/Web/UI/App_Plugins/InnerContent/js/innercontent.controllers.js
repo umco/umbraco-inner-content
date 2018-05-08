@@ -400,10 +400,10 @@ angular.module("umbraco").factory('innerContentService', [
     "$q",
     "$interpolate",
     "contentResource",
-
+    "localStorageService",
     "Our.Umbraco.InnerContent.Resources.InnerContentResources",
 
-    function ($q, $interpolate, contentResource, icResources) {
+    function ($q, $interpolate, contentResource, localStorageService, icResources) {
 
         var self = {};
 
@@ -600,6 +600,34 @@ angular.module("umbraco").factory('innerContentService', [
 
             return 0;
 
+        }
+
+        self.canCopyContent = function () {
+            return localStorageService.isSupported;
+        };
+
+        self.canPasteContent = function () {
+            return localStorageService.isSupported;
+        };
+
+        self.setCopiedContent = function (itm) {
+            if (itm && itm.icContentTypeGuid) {
+                localStorageService.set("icContentTypeGuid", itm.icContentTypeGuid);
+                itm.key = undefined;
+                localStorageService.set("icContentJson", itm);
+                return true;
+            }
+            return false;
+        }
+
+        self.getCopiedContent = function () {
+            var itm = localStorageService.get("icContentJson");
+            itm.key = self.generateUid();
+            return itm;
+        }
+
+        self.getCopiedContentTypeGuid = function () {
+            return localStorageService.get("icContentTypeGuid");
         }
 
         // Helpful methods
