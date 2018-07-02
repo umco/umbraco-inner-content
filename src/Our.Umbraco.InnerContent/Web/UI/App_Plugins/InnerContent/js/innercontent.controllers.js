@@ -141,16 +141,19 @@ angular.module("umbraco").controller("Our.Umbraco.InnerContent.Controllers.Inner
 angular.module("umbraco").controller("Our.Umbraco.InnerContent.Controllers.InnerContentDialogController",
     [
         "$scope",
-        "$rootScope",
-        "$interpolate",
+        "overlayHelper",
 
-        function ($scope, $rootScope) {
+        function ($scope, overlayHelper) {
             $scope.item = $scope.model.dialogData.item;
 
             // Set a nodeContext property as nested property editors
             // can use this to know what doc type this node is etc
             // NC + DTGE do the same
             $scope.nodeContext = $scope.item;
+
+            // When using doctype compositions, the tab Id may conflict with any nested inner-content items.
+            // This attempts to make the tab ID to be unique.
+            $scope.tabIdSuffix = "_" + $scope.item.contentTypeAlias + "_" + overlayHelper.getNumberOfOverlays();
         }
     ]);
 
