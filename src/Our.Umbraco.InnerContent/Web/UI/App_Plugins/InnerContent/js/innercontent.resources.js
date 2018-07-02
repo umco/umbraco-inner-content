@@ -1,4 +1,4 @@
-﻿angular.module('umbraco.resources').factory('Our.Umbraco.InnerContent.Resources.InnerContentResources',
+﻿angular.module("umbraco.resources").factory("Our.Umbraco.InnerContent.Resources.InnerContentResources",
     function ($q, $http, umbRequestHelper) {
         return {
             getAllContentTypes: function () {
@@ -7,7 +7,7 @@
                         url: "/umbraco/backoffice/InnerContent/InnerContentApi/GetAllContentTypes",
                         method: "GET"
                     }),
-                    'Failed to retrieve content types'
+                    "Failed to retrieve content types"
                 );
             },
             getContentTypesByGuid: function (guids) {
@@ -17,7 +17,7 @@
                         method: "GET",
                         params: { guids: guids }
                     }),
-                    'Failed to retrieve content types'
+                    "Failed to retrieve content types"
                 );
             },
             getContentTypesByAlias: function (aliases) {
@@ -27,7 +27,7 @@
                         method: "GET",
                         params: { aliases: aliases }
                     }),
-                    'Failed to retrieve content types'
+                    "Failed to retrieve content types"
                 );
             },
             getContentTypeIconsByGuid: function (guids) {
@@ -37,7 +37,7 @@
                         method: "GET",
                         params: { guids: guids }
                     }),
-                    'Failed to retrieve content type icons'
+                    "Failed to retrieve content type icons"
                 );
             },
             getContentTypeScaffoldByGuid: function (guid) {
@@ -47,7 +47,7 @@
                         method: "GET",
                         params: { guid: guid }
                     }),
-                    'Failed to retrieve content type scaffold by Guid'
+                    "Failed to retrieve content type scaffold by Guid"
                 );
             },
             getContentTypeScaffoldByBlueprintId: function (blueprintId) {
@@ -57,7 +57,7 @@
                         method: "GET",
                         params: { blueprintId: blueprintId }
                     }),
-                    'Failed to retrieve content type scaffold by blueprint Id'
+                    "Failed to retrieve content type scaffold by blueprint Id"
                 );
             }
         };
