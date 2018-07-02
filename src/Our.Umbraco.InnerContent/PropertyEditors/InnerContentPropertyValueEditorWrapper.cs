@@ -22,9 +22,10 @@ namespace Our.Umbraco.InnerContent.PropertyEditors
         {
             base.ConfigureForDisplay(preValues);
 
-            if (preValues.PreValuesAsDictionary.ContainsKey("hideLabel"))
+            var asDictionary = preValues.PreValuesAsDictionary.ToDictionary(x => x.Key, x => x.Value.Value);
+            if (asDictionary.ContainsKey("hideLabel"))
             {
-                var boolAttempt = preValues.PreValuesAsDictionary["hideLabel"].Value.TryConvertTo<bool>();
+                var boolAttempt = asDictionary["hideLabel"].TryConvertTo<bool>();
                 if (boolAttempt.Success)
                 {
                     HideLabel = boolAttempt.Result;
@@ -80,7 +81,7 @@ namespace Our.Umbraco.InnerContent.PropertyEditors
                     catch (InvalidOperationException)
                     {
                         // https://github.com/umco/umbraco-nested-content/issues/111
-                        // Catch any invalid cast operations as likely means courier failed due to missing
+                        // Catch any invalid cast operations as likely means Courier failed due to missing
                         // or trashed item so couldn't convert a guid back to an int
 
                         item[propKey] = null;

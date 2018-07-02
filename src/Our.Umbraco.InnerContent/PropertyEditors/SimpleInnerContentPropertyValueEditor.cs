@@ -29,19 +29,22 @@ namespace Our.Umbraco.InnerContent.PropertyEditors
                 return string.Empty;
 
             // Process value
-            ConvertDbToStringRecursive(value, dataTypeService);
+            ConvertDbToStringRecursive(value, property, propertyType, dataTypeService);
 
-            // Return the serialized value
-            return JsonConvert.SerializeObject(value);
+            // Update the value on the property
+            property.Value = JsonConvert.SerializeObject(value);
+
+            // Pass the call down
+            return base.ConvertDbToString(property, propertyType, dataTypeService);
         }
 
-        protected void ConvertDbToStringRecursive(JToken token, IDataTypeService dataTypeService)
+        protected void ConvertDbToStringRecursive(JToken token, Property property, PropertyType propertyType, IDataTypeService dataTypeService)
         {
             if (token is JArray jArr)
             {
                 foreach (var item in jArr)
                 {
-                    ConvertDbToStringRecursive(item, dataTypeService);
+                    ConvertDbToStringRecursive(item, property, propertyType, dataTypeService);
                 }
             }
 
@@ -57,7 +60,7 @@ namespace Our.Umbraco.InnerContent.PropertyEditors
                     {
                         if (kvp.Value is JArray || kvp.Value is JObject)
                         {
-                            ConvertDbToStringRecursive(kvp.Value, dataTypeService);
+                            ConvertDbToStringRecursive(kvp.Value, property, propertyType, dataTypeService);
                         }
                     }
                 }
@@ -79,19 +82,22 @@ namespace Our.Umbraco.InnerContent.PropertyEditors
                 return string.Empty;
 
             // Process value
-            ConvertDbToEditorRecursive(value, dataTypeService);
+            ConvertDbToEditorRecursive(value, property, propertyType, dataTypeService);
 
-            // Return the JObject, Angular can handle it directly
-            return value;
+            // Update the value on the property
+            property.Value = JsonConvert.SerializeObject(value);
+
+            // Pass the call down
+            return base.ConvertDbToEditor(property, propertyType, dataTypeService);
         }
 
-        protected void ConvertDbToEditorRecursive(JToken token, IDataTypeService dataTypeService)
+        protected void ConvertDbToEditorRecursive(JToken token, Property property, PropertyType propertyType, IDataTypeService dataTypeService)
         {
             if (token is JArray jArr)
             {
                 foreach (var item in jArr)
                 {
-                    ConvertDbToEditorRecursive(item, dataTypeService);
+                    ConvertDbToEditorRecursive(item, property, propertyType, dataTypeService);
                 }
             }
 
@@ -107,7 +113,7 @@ namespace Our.Umbraco.InnerContent.PropertyEditors
                     {
                         if (kvp.Value is JArray || kvp.Value is JObject)
                         {
-                            ConvertDbToEditorRecursive(kvp.Value, dataTypeService);
+                            ConvertDbToEditorRecursive(kvp.Value, property, propertyType, dataTypeService);
                         }
                     }
                 }
@@ -117,31 +123,27 @@ namespace Our.Umbraco.InnerContent.PropertyEditors
         public override object ConvertEditorToDb(ContentPropertyData editorValue, object currentValue)
         {
             // Convert / validate value
-            if (editorValue.Value == null)
-                return string.Empty;
+            if (editorValue.Value == null || string.IsNullOrWhiteSpace(editorValue.Value.ToString()))
+                return null;
 
-            var dbValue = editorValue.Value.ToString();
-            if (string.IsNullOrWhiteSpace(dbValue))
-                return string.Empty;
-
-            var value = JsonConvert.DeserializeObject<JToken>(dbValue);
+            var value = JsonConvert.DeserializeObject<JToken>(editorValue.Value.ToString());
             if (value == null || (value is JArray && ((JArray)value).Count == 0))
-                return string.Empty;
+                return null;
 
             // Process value
-            ConvertEditorToDbRecursive(value, currentValue);
+            ConvertEditorToDbRecursive(value, editorValue, currentValue);
 
             // Return value
             return JsonConvert.SerializeObject(value);
         }
 
-        protected void ConvertEditorToDbRecursive(JToken token, object currentValue)
+        protected void ConvertEditorToDbRecursive(JToken token, ContentPropertyData editorValue, object currentValue)
         {
             if (token is JArray jArr)
             {
                 foreach (var item in jArr)
                 {
-                    ConvertEditorToDbRecursive(item, currentValue);
+                    ConvertEditorToDbRecursive(item, editorValue, currentValue);
                 }
             }
 
@@ -157,7 +159,7 @@ namespace Our.Umbraco.InnerContent.PropertyEditors
                     {
                         if (kvp.Value is JArray || kvp.Value is JObject)
                         {
-                            ConvertEditorToDbRecursive(kvp.Value, currentValue);
+                            ConvertEditorToDbRecursive(kvp.Value, editorValue, currentValue);
                         }
                     }
                 }
