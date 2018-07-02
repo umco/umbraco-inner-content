@@ -30,7 +30,7 @@ angular.module("umbraco").controller("Our.Umbraco.InnerContent.Controllers.DocTy
         }
 
         $scope.sortableOptions = {
-            axis: 'y',
+            axis: "y",
             cursor: "move",
             handle: ".icon-navigation"
         };
@@ -65,7 +65,7 @@ angular.module("umbraco").controller("Our.Umbraco.InnerContent.Controllers.DocTy
         }
 
         $scope.sortableOptions = {
-            axis: 'y',
+            axis: "y",
             cursor: "move",
             handle: ".icon-navigation"
         };
@@ -99,7 +99,7 @@ angular.module("umbraco").controller("Our.Umbraco.InnerContent.Controllers.Inner
     ]);
 
 // Directives
-angular.module('umbraco.directives').directive('innerContentOverlay', [
+angular.module("umbraco.directives").directive("innerContentOverlay", [
 
     "$q",
     "innerContentService",
@@ -264,9 +264,9 @@ angular.module('umbraco.directives').directive('innerContentOverlay', [
         }
 
         var directive = {
-            restrict: 'E',
+            restrict: "E",
             replace: true,
-            templateUrl: Umbraco.Sys.ServerVariables.umbracoSettings.appPluginsPath + '/innercontent/views/innercontent.overlay.html',
+            templateUrl: Umbraco.Sys.ServerVariables.umbracoSettings.appPluginsPath + "/innercontent/views/innercontent.overlay.html",
             scope: {
                 config: "="
             },
@@ -278,7 +278,7 @@ angular.module('umbraco.directives').directive('innerContentOverlay', [
     }
 ]);
 
-angular.module('umbraco.directives').directive('innerContentUnsavedChanges', [
+angular.module("umbraco.directives").directive("innerContentUnsavedChanges", [
 
     "$rootScope",
 
@@ -326,9 +326,9 @@ angular.module('umbraco.directives').directive('innerContentUnsavedChanges', [
         }
 
         var directive = {
-            restrict: 'E',
+            restrict: "E",
             replace: true,
-            templateUrl: Umbraco.Sys.ServerVariables.umbracoSettings.appPluginsPath + '/innercontent/views/innercontent.unsavedchanges.html',
+            templateUrl: Umbraco.Sys.ServerVariables.umbracoSettings.appPluginsPath + "/innercontent/views/innercontent.unsavedchanges.html",
             link: link
         };
 
@@ -338,7 +338,7 @@ angular.module('umbraco.directives').directive('innerContentUnsavedChanges', [
 ]);
 
 // Services
-angular.module("umbraco").factory('innerContentService', [
+angular.module("umbraco").factory("innerContentService", [
 
     "$q",
     "$interpolate",
@@ -491,8 +491,8 @@ angular.module("umbraco").factory('innerContentService', [
 
             var lexicographical = options && options.lexicographical,
                 zeroExtend = options && options.zeroExtend,
-                v1parts = v1.split('.'),
-                v2parts = v2.split('.');
+                v1parts = v1.split("."),
+                v2parts = v2.split(".");
 
             function isValidPart(x) {
                 return (lexicographical ? /^\d+[A-Za-z]*$/ : /^\d+$/).test(x);
@@ -539,15 +539,15 @@ angular.module("umbraco").factory('innerContentService', [
         }
 
         // Helpful methods
-        var lut = []; for (var i = 0; i < 256; i++) { lut[i] = (i < 16 ? '0' : '') + (i).toString(16); }
+        var lut = []; for (var i = 0; i < 256; i++) { lut[i] = (i < 16 ? "0" : "") + (i).toString(16); }
         self.generateUid = function () {
             var d0 = Math.random() * 0xffffffff | 0;
             var d1 = Math.random() * 0xffffffff | 0;
             var d2 = Math.random() * 0xffffffff | 0;
             var d3 = Math.random() * 0xffffffff | 0;
-            return lut[d0 & 0xff] + lut[d0 >> 8 & 0xff] + lut[d0 >> 16 & 0xff] + lut[d0 >> 24 & 0xff] + '-' +
-                lut[d1 & 0xff] + lut[d1 >> 8 & 0xff] + '-' + lut[d1 >> 16 & 0x0f | 0x40] + lut[d1 >> 24 & 0xff] + '-' +
-                lut[d2 & 0x3f | 0x80] + lut[d2 >> 8 & 0xff] + '-' + lut[d2 >> 16 & 0xff] + lut[d2 >> 24 & 0xff] +
+            return lut[d0 & 0xff] + lut[d0 >> 8 & 0xff] + lut[d0 >> 16 & 0xff] + lut[d0 >> 24 & 0xff] + "-" +
+                lut[d1 & 0xff] + lut[d1 >> 8 & 0xff] + "-" + lut[d1 >> 16 & 0x0f | 0x40] + lut[d1 >> 24 & 0xff] + "-" +
+                lut[d2 & 0x3f | 0x80] + lut[d2 >> 8 & 0xff] + "-" + lut[d2 >> 16 & 0xff] + lut[d2 >> 24 & 0xff] +
                 lut[d3 & 0xff] + lut[d3 >> 8 & 0xff] + lut[d3 >> 16 & 0xff] + lut[d3 >> 24 & 0xff];
         }
 
