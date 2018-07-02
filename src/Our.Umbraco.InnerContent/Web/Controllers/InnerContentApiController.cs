@@ -3,7 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Web.Http;
 using System.Web.Http.ModelBinding;
+using Newtonsoft.Json.Linq;
+using Our.Umbraco.InnerContent.Helpers;
 using Our.Umbraco.InnerContent.Web.WebApi.Filters;
+using Umbraco.Core.Services;
 using Umbraco.Web.Editors;
 using Umbraco.Web.Models.ContentEditing;
 using Umbraco.Web.Mvc;
@@ -91,6 +94,19 @@ namespace Our.Umbraco.InnerContent.Web.Controllers
         public ContentItemDisplay GetContentTypeScaffoldByBlueprintId(int blueprintId)
         {
             return new ContentController().GetEmpty(blueprintId, -20);
+        }
+
+        [HttpPost]
+        public SimpleNotificationModel CreateBlueprintFromContent([FromBody] JObject item, int userId = 0)
+        {
+            var blueprint = InnerContentHelper.ConvertInnerContentToBlueprint(item, userId);
+
+            Services.ContentService.SaveBlueprint(blueprint, userId);
+
+            return new SimpleNotificationModel(new Notification(
+                Services.TextService.Localize("blueprints/createdBlueprintHeading"),
+                Services.TextService.Localize("blueprints/createdBlueprintMessage", new[] { blueprint.Name }),
+                global::Umbraco.Web.UI.SpeechBubbleIcon.Success));
         }
     }
 }
