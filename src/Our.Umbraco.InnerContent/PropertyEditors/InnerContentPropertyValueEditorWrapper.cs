@@ -81,7 +81,7 @@ namespace Our.Umbraco.InnerContent.PropertyEditors
                     catch (InvalidOperationException)
                     {
                         // https://github.com/umco/umbraco-nested-content/issues/111
-                        // Catch any invalid cast operations as likely means courier failed due to missing
+                        // Catch any invalid cast operations as likely means Courier failed due to missing
                         // or trashed item so couldn't convert a guid back to an int
 
                         item[propKey] = null;
