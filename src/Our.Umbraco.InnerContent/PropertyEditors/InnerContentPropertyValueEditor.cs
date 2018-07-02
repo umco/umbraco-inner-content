@@ -12,9 +12,9 @@ using Umbraco.Web.PropertyEditors;
 
 namespace Our.Umbraco.InnerContent.PropertyEditors
 {
-    public abstract class InnerContentPropertyValueEditorWrapper : PropertyValueEditorWrapper
+    public abstract class InnerContentPropertyValueEditor : PropertyValueEditorWrapper
     {
-        protected InnerContentPropertyValueEditorWrapper(PropertyValueEditor wrapped)
+        protected InnerContentPropertyValueEditor(PropertyValueEditor wrapped)
             : base(wrapped)
         { }
 
