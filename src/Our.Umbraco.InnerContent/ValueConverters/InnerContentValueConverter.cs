@@ -4,7 +4,7 @@ using Our.Umbraco.InnerContent.Helpers;
 using Umbraco.Core.Models;
 using Umbraco.Core.PropertyEditors;
 
-namespace Our.Umbraco.InnerContent.Converters
+namespace Our.Umbraco.InnerContent.ValueConverters
 {
     public abstract class InnerContentValueConverter : PropertyValueConverterBase
     {
