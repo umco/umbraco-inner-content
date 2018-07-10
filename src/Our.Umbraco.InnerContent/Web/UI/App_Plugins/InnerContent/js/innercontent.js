@@ -206,6 +206,7 @@ angular.module("umbraco.directives").directive("innerContentOverlay", [
                 title: "Insert Content",
                 show: false,
                 hideSubmitButton: true,
+                closeButtonLabelKey: "general_cancel",
                 submit: function (model) {
                     var ct = getContentType(model.selectedItem.key);
                     var bp = model.selectedItem.blueprint;
@@ -223,6 +224,8 @@ angular.module("umbraco.directives").directive("innerContentOverlay", [
             scope.contentEditorOverlay = {
                 view: Umbraco.Sys.ServerVariables.umbracoSettings.appPluginsPath + "/innercontent/views/innercontent.dialog.html",
                 show: false,
+                submitButtonLabelKey: "bulk_done",
+                closeButtonLabelKey: "general_cancel",
                 submit: function (model) {
                     if (scope.config.callback) {
                         // Convert model to basic model

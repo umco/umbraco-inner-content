@@ -22,10 +22,10 @@ namespace Our.Umbraco.InnerContent.PropertyEditors
         {
             base.ConfigureForDisplay(preValues);
 
-            var asDictionary = preValues.PreValuesAsDictionary.ToDictionary(x => x.Key, x => x.Value.Value);
+            var asDictionary = preValues.PreValuesAsDictionary;
             if (asDictionary.ContainsKey("hideLabel"))
             {
-                var boolAttempt = asDictionary["hideLabel"].TryConvertTo<bool>();
+                var boolAttempt = asDictionary["hideLabel"].Value.TryConvertTo<bool>();
                 if (boolAttempt.Success)
                 {
                     HideLabel = boolAttempt.Result;
