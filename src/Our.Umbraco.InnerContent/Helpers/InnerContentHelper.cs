@@ -23,7 +23,8 @@ namespace Our.Umbraco.InnerContent.Helpers
             return items.Select((x, i) => ConvertInnerContentToPublishedContent((JObject)x, parentNode, i, level, preview)).ToList();
         }
 
-        public static IPublishedContent ConvertInnerContentToPublishedContent(JObject item,
+        public static IPublishedContent ConvertInnerContentToPublishedContent(
+            JObject item,
             IPublishedContent parentNode = null,
             int sortOrder = 0,
             int level = 0,
