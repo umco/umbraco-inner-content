@@ -12,7 +12,7 @@ angular.module("umbraco").controller("Our.Umbraco.InnerContent.Controllers.DocTy
                 icTabAlias: "",
                 nameTemplate: ""
             });
-        }
+        };
 
         $scope.selectedDocTypeTabs = function (cfg) {
             var dt = _.find($scope.model.docTypes, function (itm) {
@@ -23,11 +23,11 @@ angular.module("umbraco").controller("Our.Umbraco.InnerContent.Controllers.DocTy
                 cfg.icTabAlias = tabs[0];
             }
             return tabs;
-        }
+        };
 
         $scope.remove = function (index) {
             $scope.model.value.splice(index, 1);
-        }
+        };
 
         $scope.sortableOptions = {
             axis: "y",
@@ -58,11 +58,11 @@ angular.module("umbraco").controller("Our.Umbraco.InnerContent.Controllers.DocTy
                 icContentTypeGuid: "",
                 nameTemplate: ""
             });
-        }
+        };
 
         $scope.remove = function (index) {
             $scope.model.value.splice(index, 1);
-        }
+        };
 
         $scope.sortableOptions = {
             axis: "y",
@@ -174,7 +174,7 @@ angular.module("umbraco.directives").directive("innerContentOverlay", [
                 return _.find(scope.config.contentTypes, function (ct) {
                     return ct.icContentTypeGuid.toLowerCase() === guid.toLowerCase();
                 });
-            }
+            };
 
             // Helper function to createEditorModel but at the same time
             // cache the scaffold so that if we create another item of the same
@@ -185,7 +185,7 @@ angular.module("umbraco.directives").directive("innerContentOverlay", [
                     var n = angular.copy(editorModel);
                     n.key = innerContentService.generateUid(); // Create new ID for item
                     return innerContentService.extendEditorModel(n, dbModel2);
-                }
+                };
 
                 var cacheKey = contentType.icContentTypeGuid + ":" + blueprintId;
                 if (scope.config.editorModels.hasOwnProperty(cacheKey)) {
@@ -199,7 +199,7 @@ angular.module("umbraco.directives").directive("innerContentOverlay", [
                     });
                 }
 
-            }
+            };
 
             scope.contentTypePickerOverlay = {
                 view: Umbraco.Sys.ServerVariables.umbracoSettings.appPluginsPath + "/innercontent/views/innercontent.create.html",
@@ -297,7 +297,7 @@ angular.module("umbraco.directives").directive("innerContentOverlay", [
                     });
                 }
 
-            }
+            };
 
             // Initialize
             if (scope.config) {
@@ -374,17 +374,17 @@ angular.module("umbraco.directives").directive("innerContentUnsavedChanges", [
                     } else {
                         overlayScope.oldCloseOverLay.apply(overlayScope);
                     }
-                }
+                };
             }
 
             scope.confirmClose = function () {
                 scope.showConfirmClose = false;
                 overlayScope.oldCloseOverLay.apply(overlayScope);
-            }
+            };
 
             scope.cancelClose = function () {
                 scope.showConfirmClose = false;
-            }
+            };
 
         }
 
@@ -446,7 +446,7 @@ angular.module("umbraco").factory("innerContentService", [
             } else {
                 return icResources.getContentTypeScaffoldByGuid(contentType.icContentTypeGuid).then(process);
             }
-        }
+        };
 
         self.populateName = function (itm, idx, contentTypes) {
 
@@ -472,19 +472,19 @@ angular.module("umbraco").factory("innerContentService", [
                 delete itm.$index;
             }
 
-        }
+        };
 
         self.getAllContentTypes = function () {
             return icResources.getAllContentTypes();
-        }
+        };
 
         self.getContentTypesByGuid = function (guids) {
             return icResources.getContentTypesByGuid(guids);
-        }
+        };
 
         self.getContentTypeIconsByGuid = function (guids) {
             return icResources.getContentTypeIconsByGuid(guids);
-        }
+        };
 
         self.createEditorModel = function (contentType, dbModel, blueprintId) {
 
@@ -498,7 +498,7 @@ angular.module("umbraco").factory("innerContentService", [
 
             });
 
-        }
+        };
 
         self.extendEditorModel = function (editorModel, dbModel) {
 
@@ -523,7 +523,7 @@ angular.module("umbraco").factory("innerContentService", [
 
             return editorModel;
 
-        }
+        };
 
         self.createDbModel = function (model) {
 
@@ -545,17 +545,17 @@ angular.module("umbraco").factory("innerContentService", [
             }
 
             return dbModel;
-        }
+        };
 
         self.createDefaultDbModel = function (contentType) {
             return self.createEditorModel(contentType).then(function (editorModel) {
                 return self.createDbModel(editorModel);
             });
-        }
+        };
 
         self.compareCurrentUmbracoVersion = function compareCurrentUmbracoVersion(v, options) {
             return this.compareVersions(Umbraco.Sys.ServerVariables.application.version, v, options);
-        }
+        };
 
         self.compareVersions = function compareVersions(v1, v2, options) {
 
@@ -606,7 +606,7 @@ angular.module("umbraco").factory("innerContentService", [
 
             return 0;
 
-        }
+        };
 
         self.canCopyContent = function () {
             return localStorageService.isSupported;
@@ -624,20 +624,20 @@ angular.module("umbraco").factory("innerContentService", [
                 return true;
             }
             return false;
-        }
+        };
 
         self.getCopiedContent = function () {
             var itm = localStorageService.get("icContentJson");
             itm.key = self.generateUid();
             return itm;
-        }
+        };
 
         self.getCopiedContentTypeGuid = function () {
             return localStorageService.get("icContentTypeGuid");
-        }
+        };
 
         // Helpful methods
-        var lut = []; for (var i = 0; i < 256; i++) { lut[i] = (i < 16 ? "0" : "") + (i).toString(16); }
+        var lut = []; for (var i = 0; i < 256; i++) { lut[i] = (i < 16 ? "0" : "") + i.toString(16); }
         self.generateUid = function () {
             var d0 = Math.random() * 0xffffffff | 0;
             var d1 = Math.random() * 0xffffffff | 0;
@@ -647,7 +647,7 @@ angular.module("umbraco").factory("innerContentService", [
                 lut[d1 & 0xff] + lut[d1 >> 8 & 0xff] + "-" + lut[d1 >> 16 & 0x0f | 0x40] + lut[d1 >> 24 & 0xff] + "-" +
                 lut[d2 & 0x3f | 0x80] + lut[d2 >> 8 & 0xff] + "-" + lut[d2 >> 16 & 0xff] + lut[d2 >> 24 & 0xff] +
                 lut[d3 & 0xff] + lut[d3 >> 8 & 0xff] + lut[d3 >> 16 & 0xff] + lut[d3 >> 24 & 0xff];
-        }
+        };
 
         return self;
     }
