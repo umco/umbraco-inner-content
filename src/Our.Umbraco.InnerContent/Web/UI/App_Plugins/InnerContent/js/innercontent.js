@@ -661,7 +661,7 @@ angular.module("umbraco.resources").factory("Our.Umbraco.InnerContent.Resources.
             getAllContentTypes: function () {
                 return umbRequestHelper.resourcePromise(
                     $http({
-                        url: "/umbraco/backoffice/InnerContent/InnerContentApi/GetAllContentTypes",
+                        url: umbRequestHelper.convertVirtualToAbsolutePath("~/umbraco/backoffice/InnerContent/InnerContentApi/GetAllContentTypes"),
                         method: "GET"
                     }),
                     "Failed to retrieve content types"
@@ -670,7 +670,7 @@ angular.module("umbraco.resources").factory("Our.Umbraco.InnerContent.Resources.
             getContentTypesByGuid: function (guids) {
                 return umbRequestHelper.resourcePromise(
                     $http({
-                        url: "/umbraco/backoffice/InnerContent/InnerContentApi/GetContentTypesByGuid",
+                        url: umbRequestHelper.convertVirtualToAbsolutePath("~/umbraco/backoffice/InnerContent/InnerContentApi/GetContentTypesByGuid"),
                         method: "GET",
                         params: { guids: guids }
                     }),
@@ -680,7 +680,7 @@ angular.module("umbraco.resources").factory("Our.Umbraco.InnerContent.Resources.
             getContentTypesByAlias: function (aliases) {
                 return umbRequestHelper.resourcePromise(
                     $http({
-                        url: "/umbraco/backoffice/InnerContent/InnerContentApi/GetContentTypesByAlias",
+                        url: umbRequestHelper.convertVirtualToAbsolutePath("~/umbraco/backoffice/InnerContent/InnerContentApi/GetContentTypesByAlias"),
                         method: "GET",
                         params: { aliases: aliases }
                     }),
@@ -690,7 +690,7 @@ angular.module("umbraco.resources").factory("Our.Umbraco.InnerContent.Resources.
             getContentTypeIconsByGuid: function (guids) {
                 return umbRequestHelper.resourcePromise(
                     $http({
-                        url: "/umbraco/backoffice/InnerContent/InnerContentApi/GetContentTypeIconsByGuid",
+                        url: umbRequestHelper.convertVirtualToAbsolutePath("~/umbraco/backoffice/InnerContent/InnerContentApi/GetContentTypeIconsByGuid"),
                         method: "GET",
                         params: { guids: guids }
                     }),
@@ -700,7 +700,7 @@ angular.module("umbraco.resources").factory("Our.Umbraco.InnerContent.Resources.
             getContentTypeScaffoldByGuid: function (guid) {
                 return umbRequestHelper.resourcePromise(
                     $http({
-                        url: "/umbraco/backoffice/InnerContent/InnerContentApi/GetContentTypeScaffoldByGuid",
+                        url: umbRequestHelper.convertVirtualToAbsolutePath("~/umbraco/backoffice/InnerContent/InnerContentApi/GetContentTypeScaffoldByGuid"),
                         method: "GET",
                         params: { guid: guid }
                     }),
@@ -710,7 +710,7 @@ angular.module("umbraco.resources").factory("Our.Umbraco.InnerContent.Resources.
             getContentTypeScaffoldByBlueprintId: function (blueprintId) {
                 return umbRequestHelper.resourcePromise(
                     $http({
-                        url: "/umbraco/backoffice/InnerContent/InnerContentApi/GetContentTypeScaffoldByBlueprintId",
+                        url: umbRequestHelper.convertVirtualToAbsolutePath("~/umbraco/backoffice/InnerContent/InnerContentApi/GetContentTypeScaffoldByBlueprintId"),
                         method: "GET",
                         params: { blueprintId: blueprintId }
                     }),
