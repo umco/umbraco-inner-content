@@ -1,22 +1,22 @@
 ﻿/*
     Inner Content - Doc Type Picker
 */
-.inner-content__doctypepicker table input, .inner-content__doctypepicker table select {
+
+.inner-content__doctypepicker table input,
+.inner-content__doctypepicker table select {
     width: 100%;
     padding-right: 0;
 }
 
-.inner-content__doctypepicker table td.icon-navigation, .inner-content__doctypepicker i.inner-content__help-icon {
+.inner-content__doctypepicker table td.icon-navigation,
+.inner-content__doctypepicker i.inner-content__help-icon {
     vertical-align: middle;
     color: #CCC;
 }
 
-.inner-content__doctypepicker table td.icon-navigation:hover, .inner-content__doctypepicker i.inner-content__help-icon:hover {
+.inner-content__doctypepicker table td.icon-navigation:hover,
+.inner-content__doctypepicker i.inner-content__help-icon:hover {
     color: #343434;
-}
-
-.inner-content__doctypepicker i.inner-content__help-icon {
-    margin-left: 10px;
 }
 
 .inner-content__doctypepicker table .td-min {

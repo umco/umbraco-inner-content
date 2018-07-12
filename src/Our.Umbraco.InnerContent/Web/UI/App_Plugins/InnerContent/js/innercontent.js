@@ -9,6 +9,9 @@ angular.module("umbraco").controller("Our.Umbraco.InnerContent.Controllers.DocTy
         var vm = this;
         vm.add = add;
         vm.remove = remove;
+        vm.tooltipMouseOver = tooltipMouseOver;
+        vm.tooltipMouseLeave = tooltipMouseLeave;
+
         vm.sortableOptions = {
             axis: "y",
             containment: "parent",
@@ -20,6 +23,12 @@ angular.module("umbraco").controller("Our.Umbraco.InnerContent.Controllers.DocTy
             stop: function (e, ui) {
                 setDirty();
             }
+        };
+
+        vm.tooltip = {
+            show: false,
+            event: null,
+            content: null
         };
 
         innerContentService.getAllContentTypes().then(function (docTypes) {
@@ -36,14 +45,29 @@ angular.module("umbraco").controller("Our.Umbraco.InnerContent.Controllers.DocTy
                 icContentTypeGuid: "",
                 nameTemplate: ""
             });
+            setDirty();
         };
 
         function remove(index) {
             $scope.model.value.splice(index, 1);
+            setDirty();
         };
 
+        function tooltipMouseOver($event) {
+            vm.tooltip = {
+                show: true,
+                event: $event,
+                content: $event.currentTarget.dataset.tooltip
+            };
         };
 
+        function tooltipMouseLeave() {
+            vm.tooltip = {
+                show: false,
+                event: null,
+                content: null
+            };
+        };
 
         function setDirty() {
             if ($scope.propertyForm) {

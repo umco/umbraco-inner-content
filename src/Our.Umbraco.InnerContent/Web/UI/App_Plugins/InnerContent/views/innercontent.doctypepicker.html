@@ -9,6 +9,10 @@
                     </th>
                     <th>
                         Name Template
+                        <i class="icon icon-help-alt inner-content__help-icon"
+                           data-tooltip="Enter an angularjs expression to evaluate against each item for its name."
+                           ng-mouseover="vm.tooltipMouseOver($event)"
+                           ng-mouseleave="vm.tooltipMouseLeave()"></i>
                     </th>
                     <th class="td-min" ng-show="model.value.length > 1" />
                 </tr>
@@ -31,14 +35,9 @@
         </table>
         <div>
             <a href="" class="btn" ng-click="vm.add()">Add</a>
-            <i class="icon icon-help-alt medium inner-content__help-icon" ng-click="showHelpText = !showHelpText"></i>
         </div>
     </div>
-    <br />
-    <div class="inner-content__help-text" ng-show="showHelpText">
-        <p>
-            <b>Name template:</b><br />
-            Enter an angular expression to evaluate against each item for its name.
-        </p>
-    </div>
+    <umb-tooltip ng-if="vm.tooltip.show" event="vm.tooltip.event">
+        {{vm.tooltip.content}}
+    </umb-tooltip>
 </div>
