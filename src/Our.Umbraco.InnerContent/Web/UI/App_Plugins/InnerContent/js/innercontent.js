@@ -6,31 +6,50 @@ angular.module("umbraco").controller("Our.Umbraco.InnerContent.Controllers.DocTy
 
     function ($scope, innerContentService) {
 
-        $scope.add = function () {
+        var vm = this;
+        vm.add = add;
+        vm.remove = remove;
+        vm.sortableOptions = {
+            axis: "y",
+            containment: "parent",
+            cursor: "move",
+            handle: ".icon-navigation",
+            opacity: 0.7,
+            scroll: true,
+            tolerance: "pointer",
+            stop: function (e, ui) {
+                setDirty();
+            }
+        };
+
+        innerContentService.getAllContentTypes().then(function (docTypes) {
+            vm.docTypes = docTypes;
+        });
+
+        if (!$scope.model.value) {
+            $scope.model.value = [];
+            add();
+        }
+
+        function add() {
             $scope.model.value.push({
                 icContentTypeGuid: "",
                 nameTemplate: ""
             });
         };
 
-        $scope.remove = function (index) {
+        function remove(index) {
             $scope.model.value.splice(index, 1);
         };
 
-        $scope.sortableOptions = {
-            axis: "y",
-            cursor: "move",
-            handle: ".icon-navigation"
         };
 
-        innerContentService.getAllContentTypes().then(function (docTypes) {
-            $scope.model.docTypes = docTypes;
-        });
 
-        if (!$scope.model.value) {
-            $scope.model.value = [];
-            $scope.add();
-        }
+        function setDirty() {
+            if ($scope.propertyForm) {
+                $scope.propertyForm.$setDirty();
+            }
+        };
     }
 ]);
 
