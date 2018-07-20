@@ -1,6 +1,4 @@
-﻿/*
-    Inner Content - Doc Type Picker
-*/
+﻿/* Inner Content - Doc Type Picker */
 
 .inner-content__doctypepicker table input,
 .inner-content__doctypepicker table select {
@@ -22,6 +20,9 @@
 .inner-content__doctypepicker table .td-min {
     width: 1px;
 }
+
+
+/* Inner Content - Content Overlay Panel */
 
 .inner-content-overlay > .umb-overlay-right > .umb-overlay__form > .umb-overlay-container {
     padding: 0;

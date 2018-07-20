@@ -81,10 +81,9 @@ angular.module("umbraco").controller("Our.Umbraco.InnerContent.Controllers.DocTy
 angular.module("umbraco").controller("Our.Umbraco.InnerContent.Controllers.InnerContentCreateController",
     [
         "$scope",
-        "$rootScope",
         "blueprintConfig",
 
-        function ($scope, $rootScope, blueprintConfig) {
+        function ($scope, blueprintConfig) {
 
             function initialize() {
 
@@ -364,8 +363,7 @@ angular.module("umbraco.directives").directive("innerContentUnsavedChanges", [
             if (scope.canConfirmClose) {
                 overlayScope.oldCloseOverLay = overlayScope.closeOverLay;
                 overlayScope.closeOverLay = function () {
-                    // TODO: Find out why this throws an error with nested IC editors. (`$dirty` is undefined) [LK:2018-02-28]
-                    if (overlayScope.overlayForm.$dirty) {
+                    if (overlayScope.overlayForm && overlayScope.overlayForm.$dirty) {
                         scope.showConfirmClose = true;
                     } else {
                         overlayScope.oldCloseOverLay.apply(overlayScope);
@@ -399,13 +397,11 @@ angular.module("umbraco.directives").directive("innerContentUnsavedChanges", [
 // Services
 angular.module("umbraco").factory("innerContentService", [
 
-    "$q",
     "$interpolate",
-    "contentResource",
     "localStorageService",
     "Our.Umbraco.InnerContent.Resources.InnerContentResources",
 
-    function ($q, $interpolate, contentResource, localStorageService, icResources) {
+    function ($interpolate, localStorageService, icResources) {
 
         var self = {};
 
@@ -651,8 +647,12 @@ angular.module("umbraco").factory("innerContentService", [
 ]);
 
 // Resources
-angular.module("umbraco.resources").factory("Our.Umbraco.InnerContent.Resources.InnerContentResources",
-    function ($q, $http, umbRequestHelper) {
+angular.module("umbraco.resources").factory("Our.Umbraco.InnerContent.Resources.InnerContentResources", [
+
+    "$http",
+    "umbRequestHelper",
+
+    function ($http, umbRequestHelper) {
         return {
             getAllContentTypes: function () {
                 return umbRequestHelper.resourcePromise(
@@ -712,6 +712,18 @@ angular.module("umbraco.resources").factory("Our.Umbraco.InnerContent.Resources.
                     }),
                     "Failed to retrieve content type scaffold by blueprint Id"
                 );
+            },
+            createBlueprintFromContent: function (data, userId) {
+                return umbRequestHelper.resourcePromise(
+                    $http({
+                        url: umbRequestHelper.convertVirtualToAbsolutePath("~/umbraco/backoffice/InnerContent/InnerContentApi/CreateBlueprintFromContent"),
+                        method: "POST",
+                        params: { userId: userId },
+                        data: data
+                    }),
+                    "Failed to create blueprint from content"
+                );
             }
         };
-    });
+    }
+]);
