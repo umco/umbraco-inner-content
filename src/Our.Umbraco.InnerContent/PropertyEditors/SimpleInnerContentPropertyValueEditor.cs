@@ -8,7 +8,7 @@ using Umbraco.Core.Services;
 
 namespace Our.Umbraco.InnerContent.PropertyEditors
 {
-    public class SimpleInnerContentPropertyValueEditor : InnerContentPropertyValueEditorWrapper
+    public class SimpleInnerContentPropertyValueEditor : InnerContentPropertyValueEditor
     {
         public SimpleInnerContentPropertyValueEditor(PropertyValueEditor wrapped)
             : base(wrapped)

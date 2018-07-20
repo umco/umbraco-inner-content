@@ -1,51 +1,4 @@
 ﻿// Prevalue Editors
-angular.module("umbraco").controller("Our.Umbraco.InnerContent.Controllers.DocTypeTabPickerController", [
-
-    "$scope",
-    "innerContentService",
-
-    function ($scope, innerContentService) {
-
-        $scope.add = function () {
-            $scope.model.value.push({
-                icContentTypeGuid: "",
-                icTabAlias: "",
-                nameTemplate: ""
-            });
-        }
-
-        $scope.selectedDocTypeTabs = function (cfg) {
-            var dt = _.find($scope.model.docTypes, function (itm) {
-                return itm.guid.toLowerCase() === cfg.icContentTypeGuid.toLowerCase();
-            });
-            var tabs = dt ? dt.tabs : [];
-            if (!_.contains(tabs, cfg.icTabAlias)) {
-                cfg.icTabAlias = tabs[0];
-            }
-            return tabs;
-        }
-
-        $scope.remove = function (index) {
-            $scope.model.value.splice(index, 1);
-        }
-
-        $scope.sortableOptions = {
-            axis: "y",
-            cursor: "move",
-            handle: ".icon-navigation"
-        };
-
-        innerContentService.getAllContentTypes().then(function (docTypes) {
-            $scope.model.docTypes = docTypes;
-        });
-
-        if (!$scope.model.value) {
-            $scope.model.value = [];
-            $scope.add();
-        }
-    }
-]);
-
 angular.module("umbraco").controller("Our.Umbraco.InnerContent.Controllers.DocTypePickerController", [
 
     "$scope",
@@ -53,48 +6,149 @@ angular.module("umbraco").controller("Our.Umbraco.InnerContent.Controllers.DocTy
 
     function ($scope, innerContentService) {
 
-        $scope.add = function () {
-            $scope.model.value.push({
-                icContentTypeGuid: "",
-                nameTemplate: ""
-            });
-        }
+        var vm = this;
+        vm.add = add;
+        vm.remove = remove;
+        vm.tooltipMouseOver = tooltipMouseOver;
+        vm.tooltipMouseLeave = tooltipMouseLeave;
 
-        $scope.remove = function (index) {
-            $scope.model.value.splice(index, 1);
-        }
-
-        $scope.sortableOptions = {
+        vm.sortableOptions = {
             axis: "y",
+            containment: "parent",
             cursor: "move",
-            handle: ".icon-navigation"
+            handle: ".icon-navigation",
+            opacity: 0.7,
+            scroll: true,
+            tolerance: "pointer",
+            stop: function (e, ui) {
+                setDirty();
+            }
+        };
+
+        vm.tooltip = {
+            show: false,
+            event: null,
+            content: null
         };
 
         innerContentService.getAllContentTypes().then(function (docTypes) {
-            $scope.model.docTypes = docTypes;
+            vm.docTypes = docTypes;
         });
 
         if (!$scope.model.value) {
             $scope.model.value = [];
-            $scope.add();
+            add();
         }
+
+        function add() {
+            $scope.model.value.push({
+                icContentTypeGuid: "",
+                nameTemplate: ""
+            });
+            setDirty();
+        };
+
+        function remove(index) {
+            $scope.model.value.splice(index, 1);
+            setDirty();
+        };
+
+        function tooltipMouseOver($event) {
+            vm.tooltip = {
+                show: true,
+                event: $event,
+                content: $event.currentTarget.dataset.tooltip
+            };
+        };
+
+        function tooltipMouseLeave() {
+            vm.tooltip = {
+                show: false,
+                event: null,
+                content: null
+            };
+        };
+
+        function setDirty() {
+            if ($scope.propertyForm) {
+                $scope.propertyForm.$setDirty();
+            }
+        };
     }
 ]);
 
 // Property Editors
+angular.module("umbraco").controller("Our.Umbraco.InnerContent.Controllers.InnerContentCreateController",
+    [
+        "$scope",
+        "blueprintConfig",
+
+        function ($scope, blueprintConfig) {
+
+            function initialize() {
+
+                $scope.allowedTypes = $scope.model.availableItems;
+                $scope.allowBlank = blueprintConfig.allowBlank;
+
+                if ($scope.allowedTypes.length === 1) {
+                    $scope.selectedDocType = $scope.allowedTypes[0];
+                    $scope.selectContentType = false;
+                    $scope.selectBlueprint = true;
+                } else {
+                    $scope.selectContentType = true;
+                    $scope.selectBlueprint = false;
+                }
+            };
+
+            function createBlank(docTypeKey) {
+                $scope.model.selectedItem = { "key": docTypeKey, "blueprint": null };
+                $scope.model.submit($scope.model);
+            };
+
+            function createOrSelectBlueprintIfAny(docType) {
+                var blueprintIds = _.keys(docType.blueprints || {});
+                $scope.selectedDocType = docType;
+                if (blueprintIds.length) {
+                    if (blueprintConfig.skipSelect) {
+                        createFromBlueprint(docType.key, blueprintIds[0]);
+                    } else {
+                        $scope.selectContentType = false;
+                        $scope.selectBlueprint = true;
+                    }
+                } else {
+                    createBlank(docType.key);
+                }
+            };
+
+            function createFromBlueprint(docTypeKey, blueprintId) {
+                $scope.model.selectedItem = { "key": docTypeKey, "blueprint": blueprintId };
+                $scope.model.submit($scope.model);
+            };
+
+            $scope.createBlank = createBlank;
+            $scope.createOrSelectBlueprintIfAny = createOrSelectBlueprintIfAny;
+            $scope.createFromBlueprint = createFromBlueprint;
+
+            initialize();
+        }
+    ]);
+
 angular.module("umbraco").controller("Our.Umbraco.InnerContent.Controllers.InnerContentDialogController",
     [
         "$scope",
-        "$rootScope",
-        "$interpolate",
+        "overlayHelper",
 
-        function ($scope, $rootScope) {
+        function ($scope, overlayHelper) {
             $scope.item = $scope.model.dialogData.item;
 
             // Set a nodeContext property as nested property editors
             // can use this to know what doc type this node is etc
             // NC + DTGE do the same
             $scope.nodeContext = $scope.item;
+
+            // When using doctype compositions, the tab Id may conflict with any nested inner-content items.
+            // This attempts to make the tab ID to be unique.
+            $scope.tabIdSuffix = "_" + $scope.item.contentTypeAlias + "_" + overlayHelper.getNumberOfOverlays();
         }
     ]);
 
@@ -115,41 +169,43 @@ angular.module("umbraco.directives").directive("innerContentOverlay", [
                 return _.find(scope.config.contentTypes, function (ct) {
                     return ct.icContentTypeGuid.toLowerCase() === guid.toLowerCase();
                 });
-            }
+            };
 
             // Helper function to createEditorModel but at the same time
             // cache the scaffold so that if we create another item of the same
             // content type, we don't need to fetch the scaffold again
-            var createEditorModel = function (contentType, dbModel) {
+            var createEditorModel = function (contentType, dbModel, blueprintId) {
 
                 var process = function (editorModel, dbModel2) {
                     var n = angular.copy(editorModel);
                     n.key = innerContentService.generateUid(); // Create new ID for item
                     return innerContentService.extendEditorModel(n, dbModel2);
-                }
+                };
 
-                if (scope.config.editorModels.hasOwnProperty(contentType.icContentTypeGuid)) {
-                    var res = process(scope.config.editorModels[contentType.icContentTypeGuid], dbModel);
+                var cacheKey = contentType.icContentTypeGuid + ":" + blueprintId;
+                if (scope.config.editorModels.hasOwnProperty(cacheKey)) {
+                    var res = process(scope.config.editorModels[cacheKey], dbModel);
                     return $q.when(res);
                 } else {
-                    return innerContentService.createEditorModel(contentType).then(function (em) {
-                        scope.config.editorModels[contentType.icContentTypeGuid] = em;
-                        var res = process(scope.config.editorModels[contentType.icContentTypeGuid], dbModel);
+                    return innerContentService.createEditorModel(contentType, dbModel, blueprintId).then(function (em) {
+                        scope.config.editorModels[cacheKey] = em;
+                        var res = process(scope.config.editorModels[cacheKey], dbModel);
                         return res;
                     });
                 }
 
-            }
+            };
 
             scope.contentTypePickerOverlay = {
-                view: "itempicker",
-                filter: false,
+                view: Umbraco.Sys.ServerVariables.umbracoSettings.appPluginsPath + "/innercontent/views/innercontent.create.html",
                 title: "Insert Content",
                 show: false,
+                hideSubmitButton: true,
                 closeButtonLabelKey: "general_cancel",
                 submit: function (model) {
-                    var ct = getContentType(model.selectedItem.guid);
-                    createEditorModel(ct).then(function (em) {
+                    var ct = getContentType(model.selectedItem.key);
+                    var bp = model.selectedItem.blueprint;
+                    createEditorModel(ct, null, bp).then(function (em) {
                         scope.currentItem = em;
                         scope.closeContentTypePickerOverlay();
                         scope.openContentEditorOverlay();
@@ -187,8 +243,8 @@ angular.module("umbraco.directives").directive("innerContentOverlay", [
                     return;
                 }
 
-                if (scope.contentTypePickerOverlay.availableItems.length === 1) {
-                    var ct = getContentType(scope.contentTypePickerOverlay.availableItems[0].guid);
+                if (scope.contentTypePickerOverlay.availableItems.length === 1 && _.isEmpty(scope.contentTypePickerOverlay.availableItems[0].blueprints)) {
+                    var ct = getContentType(scope.contentTypePickerOverlay.availableItems[0].key);
                     createEditorModel(ct).then(function (em) {
                         scope.currentItem = em;
                         scope.openContentEditorOverlay();
@@ -236,7 +292,7 @@ angular.module("umbraco.directives").directive("innerContentOverlay", [
                     });
                 }
 
-            }
+            };
 
             // Initialize
             if (scope.config) {
@@ -247,11 +303,10 @@ angular.module("umbraco.directives").directive("innerContentOverlay", [
                     var guids = scope.config.contentTypes.map(function (itm) {
                         return itm.icContentTypeGuid;
                     });
-
-                    innerContentService.getContentTypesByGuid(guids).then(function (docTypes) {
+                    innerContentService.getContentTypesByGuid(guids).then(function (contentTypes) {
 
                         // Cache items in the PE's config so we only request these once per PE instance
-                        scope.config.contentTypePickerItems = docTypes;
+                        scope.config.contentTypePickerItems = contentTypes;
 
                         initOpen();
 
@@ -308,23 +363,22 @@ angular.module("umbraco.directives").directive("innerContentUnsavedChanges", [
             if (scope.canConfirmClose) {
                 overlayScope.oldCloseOverLay = overlayScope.closeOverLay;
                 overlayScope.closeOverLay = function () {
-                    // TODO: Find out why this throws an error with nested IC editors. (`$dirty` is undefined) [LK:2018-02-28]
-                    if (overlayScope.overlayForm.$dirty) {
+                    if (overlayScope.overlayForm && overlayScope.overlayForm.$dirty) {
                         scope.showConfirmClose = true;
                     } else {
                         overlayScope.oldCloseOverLay.apply(overlayScope);
                     }
-                }
+                };
             }
 
             scope.confirmClose = function () {
                 scope.showConfirmClose = false;
                 overlayScope.oldCloseOverLay.apply(overlayScope);
-            }
+            };
 
             scope.cancelClose = function () {
                 scope.showConfirmClose = false;
-            }
+            };
 
         }
 
@@ -343,18 +397,17 @@ angular.module("umbraco.directives").directive("innerContentUnsavedChanges", [
 // Services
 angular.module("umbraco").factory("innerContentService", [
 
-    "$q",
     "$interpolate",
-    "contentResource",
-
+    "localStorageService",
     "Our.Umbraco.InnerContent.Resources.InnerContentResources",
 
-    function ($q, $interpolate, contentResource, icResources) {
+    function ($interpolate, localStorageService, icResources) {
 
         var self = {};
 
-        var getScaffold = function (contentType) {
-            return icResources.getContentTypeScaffoldByGuid(contentType.icContentTypeGuid).then(function (scaffold) {
+        var getScaffold = function (contentType, blueprintId) {
+
+            var process = function (scaffold) {
 
                 // remove all tabs except the specified tab
                 if (contentType.hasOwnProperty("icTabAlias")) {
@@ -378,8 +431,14 @@ angular.module("umbraco").factory("innerContentService", [
 
                 return scaffold;
 
-            });
-        }
+            };
+
+            if (blueprintId > 0) {
+                return icResources.getContentTypeScaffoldByBlueprintId(blueprintId).then(process);
+            } else {
+                return icResources.getContentTypeScaffoldByGuid(contentType.icContentTypeGuid).then(process);
+            }
+        };
 
         self.populateName = function (itm, idx, contentTypes) {
 
@@ -405,23 +464,23 @@ angular.module("umbraco").factory("innerContentService", [
                 delete itm.$index;
             }
 
-        }
+        };
 
         self.getAllContentTypes = function () {
             return icResources.getAllContentTypes();
-        }
+        };
 
         self.getContentTypesByGuid = function (guids) {
             return icResources.getContentTypesByGuid(guids);
-        }
+        };
 
         self.getContentTypeIconsByGuid = function (guids) {
             return icResources.getContentTypeIconsByGuid(guids);
-        }
+        };
 
-        self.createEditorModel = function (contentType, dbModel) {
+        self.createEditorModel = function (contentType, dbModel, blueprintId) {
 
-            return getScaffold(contentType).then(function (scaffold) {
+            return getScaffold(contentType, blueprintId).then(function (scaffold) {
 
                 scaffold.key = self.generateUid();
                 scaffold.icContentTypeGuid = contentType.icContentTypeGuid;
@@ -431,7 +490,7 @@ angular.module("umbraco").factory("innerContentService", [
 
             });
 
-        }
+        };
 
         self.extendEditorModel = function (editorModel, dbModel) {
 
@@ -456,7 +515,7 @@ angular.module("umbraco").factory("innerContentService", [
 
             return editorModel;
 
-        }
+        };
 
         self.createDbModel = function (model) {
 
@@ -478,17 +537,17 @@ angular.module("umbraco").factory("innerContentService", [
             }
 
             return dbModel;
-        }
+        };
 
         self.createDefaultDbModel = function (contentType) {
             return self.createEditorModel(contentType).then(function (editorModel) {
                 return self.createDbModel(editorModel);
             });
-        }
+        };
 
         self.compareCurrentUmbracoVersion = function compareCurrentUmbracoVersion(v, options) {
             return this.compareVersions(Umbraco.Sys.ServerVariables.application.version, v, options);
-        }
+        };
 
         self.compareVersions = function compareVersions(v1, v2, options) {
 
@@ -539,10 +598,38 @@ angular.module("umbraco").factory("innerContentService", [
 
             return 0;
 
-        }
+        };
+
+        self.canCopyContent = function () {
+            return localStorageService.isSupported;
+        };
+
+        self.canPasteContent = function () {
+            return localStorageService.isSupported;
+        };
+
+        self.setCopiedContent = function (itm) {
+            if (itm && itm.icContentTypeGuid) {
+                localStorageService.set("icContentTypeGuid", itm.icContentTypeGuid);
+                itm.key = undefined;
+                localStorageService.set("icContentJson", itm);
+                return true;
+            }
+            return false;
+        };
+
+        self.getCopiedContent = function () {
+            var itm = localStorageService.get("icContentJson");
+            itm.key = self.generateUid();
+            return itm;
+        };
+
+        self.getCopiedContentTypeGuid = function () {
+            return localStorageService.get("icContentTypeGuid");
+        };
 
         // Helpful methods
-        var lut = []; for (var i = 0; i < 256; i++) { lut[i] = (i < 16 ? "0" : "") + (i).toString(16); }
+        var lut = []; for (var i = 0; i < 256; i++) { lut[i] = (i < 16 ? "0" : "") + i.toString(16); }
         self.generateUid = function () {
             var d0 = Math.random() * 0xffffffff | 0;
             var d1 = Math.random() * 0xffffffff | 0;
@@ -552,9 +639,91 @@ angular.module("umbraco").factory("innerContentService", [
                 lut[d1 & 0xff] + lut[d1 >> 8 & 0xff] + "-" + lut[d1 >> 16 & 0x0f | 0x40] + lut[d1 >> 24 & 0xff] + "-" +
                 lut[d2 & 0x3f | 0x80] + lut[d2 >> 8 & 0xff] + "-" + lut[d2 >> 16 & 0xff] + lut[d2 >> 24 & 0xff] +
                 lut[d3 & 0xff] + lut[d3 >> 8 & 0xff] + lut[d3 >> 16 & 0xff] + lut[d3 >> 24 & 0xff];
-        }
+        };
 
         return self;
     }
 
+]);
+
+// Resources
+angular.module("umbraco.resources").factory("Our.Umbraco.InnerContent.Resources.InnerContentResources", [
+
+    "$http",
+    "umbRequestHelper",
+
+    function ($http, umbRequestHelper) {
+        return {
+            getAllContentTypes: function () {
+                return umbRequestHelper.resourcePromise(
+                    $http({
+                        url: umbRequestHelper.convertVirtualToAbsolutePath("~/umbraco/backoffice/InnerContent/InnerContentApi/GetAllContentTypes"),
+                        method: "GET"
+                    }),
+                    "Failed to retrieve content types"
+                );
+            },
+            getContentTypesByGuid: function (guids) {
+                return umbRequestHelper.resourcePromise(
+                    $http({
+                        url: umbRequestHelper.convertVirtualToAbsolutePath("~/umbraco/backoffice/InnerContent/InnerContentApi/GetContentTypesByGuid"),
+                        method: "GET",
+                        params: { guids: guids }
+                    }),
+                    "Failed to retrieve content types"
+                );
+            },
+            getContentTypesByAlias: function (aliases) {
+                return umbRequestHelper.resourcePromise(
+                    $http({
+                        url: umbRequestHelper.convertVirtualToAbsolutePath("~/umbraco/backoffice/InnerContent/InnerContentApi/GetContentTypesByAlias"),
+                        method: "GET",
+                        params: { aliases: aliases }
+                    }),
+                    "Failed to retrieve content types"
+                );
+            },
+            getContentTypeIconsByGuid: function (guids) {
+                return umbRequestHelper.resourcePromise(
+                    $http({
+                        url: umbRequestHelper.convertVirtualToAbsolutePath("~/umbraco/backoffice/InnerContent/InnerContentApi/GetContentTypeIconsByGuid"),
+                        method: "GET",
+                        params: { guids: guids }
+                    }),
+                    "Failed to retrieve content type icons"
+                );
+            },
+            getContentTypeScaffoldByGuid: function (guid) {
+                return umbRequestHelper.resourcePromise(
+                    $http({
+                        url: umbRequestHelper.convertVirtualToAbsolutePath("~/umbraco/backoffice/InnerContent/InnerContentApi/GetContentTypeScaffoldByGuid"),
+                        method: "GET",
+                        params: { guid: guid }
+                    }),
+                    "Failed to retrieve content type scaffold by Guid"
+                );
+            },
+            getContentTypeScaffoldByBlueprintId: function (blueprintId) {
+                return umbRequestHelper.resourcePromise(
+                    $http({
+                        url: umbRequestHelper.convertVirtualToAbsolutePath("~/umbraco/backoffice/InnerContent/InnerContentApi/GetContentTypeScaffoldByBlueprintId"),
+                        method: "GET",
+                        params: { blueprintId: blueprintId }
+                    }),
+                    "Failed to retrieve content type scaffold by blueprint Id"
+                );
+            },
+            createBlueprintFromContent: function (data, userId) {
+                return umbRequestHelper.resourcePromise(
+                    $http({
+                        url: umbRequestHelper.convertVirtualToAbsolutePath("~/umbraco/backoffice/InnerContent/InnerContentApi/CreateBlueprintFromContent"),
+                        method: "POST",
+                        params: { userId: userId },
+                        data: data
+                    }),
+                    "Failed to create blueprint from content"
+                );
+            }
+        };
+    }
 ]);

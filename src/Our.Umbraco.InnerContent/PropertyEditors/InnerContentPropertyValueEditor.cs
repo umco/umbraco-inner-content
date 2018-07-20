@@ -12,9 +12,9 @@ using Umbraco.Web.PropertyEditors;
 
 namespace Our.Umbraco.InnerContent.PropertyEditors
 {
-    public abstract class InnerContentPropertyValueEditorWrapper : PropertyValueEditorWrapper
+    public abstract class InnerContentPropertyValueEditor : PropertyValueEditorWrapper
     {
-        protected InnerContentPropertyValueEditorWrapper(PropertyValueEditor wrapped)
+        protected InnerContentPropertyValueEditor(PropertyValueEditor wrapped)
             : base(wrapped)
         { }
 
@@ -22,14 +22,9 @@ namespace Our.Umbraco.InnerContent.PropertyEditors
         {
             base.ConfigureForDisplay(preValues);
 
-            var asDictionary = preValues.PreValuesAsDictionary;
-            if (asDictionary.ContainsKey("hideLabel"))
+            if (preValues.PreValuesAsDictionary.ContainsKey("hideLabel"))
             {
-                var boolAttempt = asDictionary["hideLabel"].Value.TryConvertTo<bool>();
-                if (boolAttempt.Success)
-                {
-                    HideLabel = boolAttempt.Result;
-                }
+                HideLabel = preValues.PreValuesAsDictionary["hideLabel"].Value == "1";
             }
         }
 
@@ -76,7 +71,7 @@ namespace Our.Umbraco.InnerContent.PropertyEditors
                         var propEditor = PropertyEditorResolver.Current.GetByAlias(propType.PropertyEditorAlias);
 
                         // Get the editor to do it's conversion, and store it back
-                        item[propKey] = propEditor.ValueEditor.ConvertDbToString(prop, propType, dataTypeService);
+                        item[propKey] = propEditor?.ValueEditor?.ConvertDbToString(prop, propType, dataTypeService);
                     }
                     catch (InvalidOperationException)
                     {
@@ -122,7 +117,7 @@ namespace Our.Umbraco.InnerContent.PropertyEditors
 
             foreach (var propKey in propValueKeys)
             {
-                var propType = contentType.CompositionPropertyTypes.FirstOrDefault(x => x.Alias == propKey);
+                var propType = contentType.CompositionPropertyTypes.FirstOrDefault(x => x.Alias.InvariantEquals(propKey));
                 if (propType == null)
                 {
                     if (IsSystemPropertyKey(propKey) == false)
@@ -142,7 +137,7 @@ namespace Our.Umbraco.InnerContent.PropertyEditors
                         var propEditor = PropertyEditorResolver.Current.GetByAlias(propType.PropertyEditorAlias);
 
                         // Get the editor to do it's conversion
-                        var newValue = propEditor.ValueEditor.ConvertDbToEditor(prop, propType, dataTypeService);
+                        var newValue = propEditor?.ValueEditor?.ConvertDbToEditor(prop, propType, dataTypeService);
 
                         // Store the value back
                         item[propKey] = (newValue == null) ? null : JToken.FromObject(newValue);
@@ -150,7 +145,7 @@ namespace Our.Umbraco.InnerContent.PropertyEditors
                     catch (InvalidOperationException)
                     {
                         // https://github.com/umco/umbraco-nested-content/issues/111
-                        // Catch any invalid cast operations as likely means courier failed due to missing
+                        // Catch any invalid cast operations as likely means Courier failed due to missing
                         // or trashed item so couldn't convert a guid back to an int
 
                         item[propKey] = null;
@@ -159,7 +154,7 @@ namespace Our.Umbraco.InnerContent.PropertyEditors
             }
 
             // Process children
-            var childrenProp = item.Properties().FirstOrDefault(x => x.Name == "children");
+            var childrenProp = item.Properties().FirstOrDefault(x => x.Name.InvariantEquals("children"));
             if (childrenProp != null)
             {
                 ConvertInnerContentDbToEditor(childrenProp.Value.Value<JArray>(), dataTypeService);
