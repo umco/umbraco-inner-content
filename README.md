@@ -48,6 +48,7 @@ To clone it locally click the "Clone in Windows" button above or run the followi
 Umbraco packages that use Inner Content as a dependency library.
 
 - [Stacked Content](https://github.com/umco/umbraco-stacked-content)
+- [Content List](https://github.com/umco/umbraco-content-list)
 
 ---
 
