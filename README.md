@@ -4,7 +4,7 @@
 [![NuGet release](https://img.shields.io/nuget/v/Our.Umbraco.InnerContent.svg)](https://www.nuget.org/packages/Our.Umbraco.InnerContent)
 
 
-A helper library for Umbraco Doc Type based property editors providing overlays and conversion helpers.
+A helper library for Umbraco Content Type based property editors providing overlays and conversion helpers.
 
 ## Getting Started
 
@@ -39,7 +39,7 @@ To clone it locally click the "Clone in Windows" button above or run the followi
 
 ## Known Issues
 
-- _[TBC]_
+- _**Please note that the following property aliases are reserved and can not be used in your Content Types:**_ "`name`", "`key`", "`children`" and "`icon`".
 
 ---
 
@@ -48,6 +48,7 @@ To clone it locally click the "Clone in Windows" button above or run the followi
 Umbraco packages that use Inner Content as a dependency library.
 
 - [Stacked Content](https://github.com/umco/umbraco-stacked-content)
+- [Content List](https://github.com/umco/umbraco-content-list)
 
 ---
 

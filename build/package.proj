@@ -18,7 +18,7 @@
 	<PropertyGroup>
 		<ProjectName>Our.Umbraco.InnerContent</ProjectName>
 		<PackageName>Inner Content</PackageName>
-		<MinUmbracoVersion>7.4.0</MinUmbracoVersion>
+		<MinUmbracoVersion>7.7.0</MinUmbracoVersion>
 		<Readme>Inner Content is a helper package for other Doc Type based property editors</Readme>
 		<AuthorName>Matt Brailsford, Lee Kelleher</AuthorName>
 		<AuthorUrl>https://github.com/umco/umbraco-inner-content/graphs/contributors</AuthorUrl>
