@@ -20,7 +20,7 @@ namespace Our.Umbraco.InnerContent.Web.Controllers
         public IEnumerable<object> GetAllContentTypes()
         {
             return Services.ContentTypeService.GetAllContentTypes()
-                .OrderBy(x => x.SortOrder)
+                .OrderBy(x => x.Name)
                 .Select(x => new
                 {
                     id = x.Id,

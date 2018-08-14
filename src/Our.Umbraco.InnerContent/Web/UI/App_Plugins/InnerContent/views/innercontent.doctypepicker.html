@@ -21,7 +21,7 @@
                 <tr ng-repeat="config in model.value">
                     <td class="icon icon-navigation"></td>
                     <td>
-                        <select ng-options="dt.guid as dt.name for dt in vm.docTypes | orderBy: 'name'"
+                        <select ng-options="dt.guid as dt.name for dt in vm.docTypes"
                                 ng-model="config.icContentTypeGuid" required></select>
                     </td>
                     <td>
