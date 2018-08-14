@@ -35,7 +35,7 @@ namespace Our.Umbraco.InnerContent.Web.Controllers
         [HttpGet]
         public IEnumerable<object> GetContentTypesByGuid([ModelBinder] Guid[] guids)
         {
-            var contentTypes = Services.ContentTypeService.GetAllContentTypes(guids).OrderBy(x => x.SortOrder).ToList();
+            var contentTypes = Services.ContentTypeService.GetAllContentTypes(guids).OrderBy(x => Array.IndexOf(guids, x.Key)).ToList();
             var blueprints = Services.ContentService.GetBlueprintsForContentTypes(contentTypes.Select(x => x.Id).ToArray()).ToArray();
 
             // NOTE: Using an anonymous class, as the `ContentTypeBasic` type is heavier than what we need (for our requirements)
