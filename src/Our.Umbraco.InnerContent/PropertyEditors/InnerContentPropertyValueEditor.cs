@@ -22,9 +22,9 @@ namespace Our.Umbraco.InnerContent.PropertyEditors
         {
             base.ConfigureForDisplay(preValues);
 
-            if (preValues.PreValuesAsDictionary.ContainsKey("hideLabel"))
+            if (preValues.PreValuesAsDictionary.ContainsKey(InnerContentConstants.HideLabelPreValueKey))
             {
-                HideLabel = preValues.PreValuesAsDictionary["hideLabel"].Value == "1";
+                HideLabel = preValues.PreValuesAsDictionary[InnerContentConstants.HideLabelPreValueKey].Value == "1";
             }
         }
 

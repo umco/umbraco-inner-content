@@ -67,6 +67,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Bootstrap.cs" />
+    <Compile Include="Extensions\PreValueFieldExtensions.cs" />
     <Compile Include="ValueConverters\InnerContentValueConverter.cs" />
     <Compile Include="Helpers\ContentTypeCacheHelper.cs" />
     <Compile Include="Helpers\InnerContentHelper.cs" />
