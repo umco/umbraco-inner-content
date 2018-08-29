@@ -187,7 +187,7 @@ angular.module("umbraco.directives").directive("innerContentOverlay", [
                     var res = process(scope.config.editorModels[cacheKey], dbModel);
                     return $q.when(res);
                 } else {
-                    return innerContentService.createEditorModel(contentType, dbModel, blueprintId).then(function (em) {
+                    return innerContentService.createEditorModel(contentType, null, blueprintId).then(function (em) {
                         scope.config.editorModels[cacheKey] = em;
                         var res = process(scope.config.editorModels[cacheKey], dbModel);
                         return res;
