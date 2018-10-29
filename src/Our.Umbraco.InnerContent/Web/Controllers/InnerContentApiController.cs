@@ -14,7 +14,7 @@ using Umbraco.Web.Mvc;
 namespace Our.Umbraco.InnerContent.Web.Controllers
 {
     [PluginController("InnerContent")]
-    public class InnerContentApiController : UmbracoAuthorizedJsonController
+    public class InnerContentApiController : InnerContentBaseController
     {
         [HttpGet]
         public IEnumerable<object> GetAllContentTypes()
@@ -25,7 +25,7 @@ namespace Our.Umbraco.InnerContent.Web.Controllers
                 {
                     id = x.Id,
                     guid = x.Key,
-                    name = x.Name,
+                    name = TranslateItem(x.Name),
                     alias = x.Alias,
                     icon = string.IsNullOrWhiteSpace(x.Icon) || x.Icon == ".sprTreeFolder" ? "icon-folder" : x.Icon,
                     tabs = x.CompositionPropertyGroups.Select(y => y.Name).Distinct()
@@ -45,7 +45,7 @@ namespace Our.Umbraco.InnerContent.Web.Controllers
                 // Umbraco core uses `localizedTextService.UmbracoDictionaryTranslate`, but this is currently marked as internal.
                 // https://github.com/umbraco/Umbraco-CMS/blob/release-7.7.0/src/Umbraco.Core/Services/LocalizedTextServiceExtensions.cs#L76
 
-                name = ct.Name,
+                name = TranslateItem(ct.Name),
                 description = ct.Description,
                 guid = ct.Key,
                 key = ct.Key,
@@ -64,7 +64,7 @@ namespace Our.Umbraco.InnerContent.Web.Controllers
                 {
                     id = x.Id,
                     guid = x.Key,
-                    name = x.Name,
+                    name = TranslateItem(x.Name),
                     alias = x.Alias,
                     icon = string.IsNullOrWhiteSpace(x.Icon) || x.Icon == ".sprTreeFolder" ? "icon-folder" : x.Icon,
                     tabs = x.CompositionPropertyGroups.Select(y => y.Name).Distinct()
