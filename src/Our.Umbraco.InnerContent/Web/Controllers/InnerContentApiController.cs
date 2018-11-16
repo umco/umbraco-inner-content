@@ -6,6 +6,8 @@ using System.Web.Http.ModelBinding;
 using Newtonsoft.Json.Linq;
 using Our.Umbraco.InnerContent.Helpers;
 using Our.Umbraco.InnerContent.Web.WebApi.Filters;
+using Umbraco.Core;
+using Umbraco.Core.Dictionary;
 using Umbraco.Core.Services;
 using Umbraco.Web.Editors;
 using Umbraco.Web.Models.ContentEditing;
@@ -14,7 +16,7 @@ using Umbraco.Web.Mvc;
 namespace Our.Umbraco.InnerContent.Web.Controllers
 {
     [PluginController("InnerContent")]
-    public class InnerContentApiController : InnerContentBaseController
+    public class InnerContentApiController : UmbracoAuthorizedJsonController
     {
         [HttpGet]
         public IEnumerable<object> GetAllContentTypes()
@@ -107,6 +109,31 @@ namespace Our.Umbraco.InnerContent.Web.Controllers
                 Services.TextService.Localize("blueprints/createdBlueprintHeading"),
                 Services.TextService.Localize("blueprints/createdBlueprintMessage", new[] { blueprint.Name }),
                 global::Umbraco.Web.UI.SpeechBubbleIcon.Success));
+        }
+
+        private static ICultureDictionary _cultureDictionary;
+        private static ICultureDictionary CultureDictionary
+        {
+            get
+            {
+                return
+                    _cultureDictionary ??
+                    (_cultureDictionary = CultureDictionaryFactoryResolver.Current.Factory.CreateDictionary());
+            }
+        }
+
+        public string TranslateItem(string text)
+        {
+            if (text == null)
+            {
+                return null;
+            }
+
+            if (text.StartsWith("#") == false)
+                return text;
+
+            text = text.Substring(1);
+            return CultureDictionary[text].IfNullOrWhiteSpace(text);
         }
     }
 }

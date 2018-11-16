@@ -81,7 +81,6 @@
     <Compile Include="PropertyEditors\SimpleInnerContentPropertyEditor.cs" />
     <Compile Include="PropertyEditors\SimpleInnerContentPreValueEditor.cs" />
     <Compile Include="PropertyEditors\SimpleInnerContentPropertyValueEditor.cs" />
-    <Compile Include="Web\Controllers\InnerContentBaseController.cs" />
     <Compile Include="Web\Controllers\InnerContentApiController.cs" />
     <Compile Include="Web\WebApi\Filters\UseInternalActionFilterAttribute.cs" />
   </ItemGroup>
