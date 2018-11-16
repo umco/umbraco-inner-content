@@ -6,6 +6,8 @@ using System.Web.Http.ModelBinding;
 using Newtonsoft.Json.Linq;
 using Our.Umbraco.InnerContent.Helpers;
 using Our.Umbraco.InnerContent.Web.WebApi.Filters;
+using Umbraco.Core;
+using Umbraco.Core.Dictionary;
 using Umbraco.Core.Services;
 using Umbraco.Web.Editors;
 using Umbraco.Web.Models.ContentEditing;
@@ -25,7 +27,7 @@ namespace Our.Umbraco.InnerContent.Web.Controllers
                 {
                     id = x.Id,
                     guid = x.Key,
-                    name = x.Name,
+                    name = TranslateItem(x.Name),
                     alias = x.Alias,
                     icon = string.IsNullOrWhiteSpace(x.Icon) || x.Icon == ".sprTreeFolder" ? "icon-folder" : x.Icon,
                     tabs = x.CompositionPropertyGroups.Select(y => y.Name).Distinct()
@@ -45,7 +47,7 @@ namespace Our.Umbraco.InnerContent.Web.Controllers
                 // Umbraco core uses `localizedTextService.UmbracoDictionaryTranslate`, but this is currently marked as internal.
                 // https://github.com/umbraco/Umbraco-CMS/blob/release-7.7.0/src/Umbraco.Core/Services/LocalizedTextServiceExtensions.cs#L76
 
-                name = ct.Name,
+                name = TranslateItem(ct.Name),
                 description = ct.Description,
                 guid = ct.Key,
                 key = ct.Key,
@@ -64,7 +66,7 @@ namespace Our.Umbraco.InnerContent.Web.Controllers
                 {
                     id = x.Id,
                     guid = x.Key,
-                    name = x.Name,
+                    name = TranslateItem(x.Name),
                     alias = x.Alias,
                     icon = string.IsNullOrWhiteSpace(x.Icon) || x.Icon == ".sprTreeFolder" ? "icon-folder" : x.Icon,
                     tabs = x.CompositionPropertyGroups.Select(y => y.Name).Distinct()
@@ -107,6 +109,31 @@ namespace Our.Umbraco.InnerContent.Web.Controllers
                 Services.TextService.Localize("blueprints/createdBlueprintHeading"),
                 Services.TextService.Localize("blueprints/createdBlueprintMessage", new[] { blueprint.Name }),
                 global::Umbraco.Web.UI.SpeechBubbleIcon.Success));
+        }
+
+        private static ICultureDictionary _cultureDictionary;
+        private static ICultureDictionary CultureDictionary
+        {
+            get
+            {
+                return
+                    _cultureDictionary ??
+                    (_cultureDictionary = CultureDictionaryFactoryResolver.Current.Factory.CreateDictionary());
+            }
+        }
+
+        public string TranslateItem(string text)
+        {
+            if (text == null)
+            {
+                return null;
+            }
+
+            if (text.StartsWith("#") == false)
+                return text;
+
+            text = text.Substring(1);
+            return CultureDictionary[text].IfNullOrWhiteSpace(text);
         }
     }
 }
