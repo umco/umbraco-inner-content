@@ -27,7 +27,7 @@ namespace Our.Umbraco.InnerContent.Web.Controllers
                 {
                     id = x.Id,
                     guid = x.Key,
-                    name = TranslateItem(x.Name),
+                    name = UmbracoDictionaryTranslate(x.Name),
                     alias = x.Alias,
                     icon = string.IsNullOrWhiteSpace(x.Icon) || x.Icon == ".sprTreeFolder" ? "icon-folder" : x.Icon,
                     tabs = x.CompositionPropertyGroups.Select(y => y.Name).Distinct()
@@ -43,11 +43,7 @@ namespace Our.Umbraco.InnerContent.Web.Controllers
             // NOTE: Using an anonymous class, as the `ContentTypeBasic` type is heavier than what we need (for our requirements)
             return contentTypes.Select(ct => new
             {
-                // TODO: localize the name and description (in case of dictionary items)
-                // Umbraco core uses `localizedTextService.UmbracoDictionaryTranslate`, but this is currently marked as internal.
-                // https://github.com/umbraco/Umbraco-CMS/blob/release-7.7.0/src/Umbraco.Core/Services/LocalizedTextServiceExtensions.cs#L76
-
-                name = TranslateItem(ct.Name),
+                name = UmbracoDictionaryTranslate(ct.Name),
                 description = ct.Description,
                 guid = ct.Key,
                 key = ct.Key,
@@ -66,7 +62,7 @@ namespace Our.Umbraco.InnerContent.Web.Controllers
                 {
                     id = x.Id,
                     guid = x.Key,
-                    name = TranslateItem(x.Name),
+                    name = UmbracoDictionaryTranslate(x.Name),
                     alias = x.Alias,
                     icon = string.IsNullOrWhiteSpace(x.Icon) || x.Icon == ".sprTreeFolder" ? "icon-folder" : x.Icon,
                     tabs = x.CompositionPropertyGroups.Select(y => y.Name).Distinct()
@@ -111,18 +107,9 @@ namespace Our.Umbraco.InnerContent.Web.Controllers
                 global::Umbraco.Web.UI.SpeechBubbleIcon.Success));
         }
 
-        private static ICultureDictionary _cultureDictionary;
-        private static ICultureDictionary CultureDictionary
-        {
-            get
-            {
-                return
-                    _cultureDictionary ??
-                    (_cultureDictionary = CultureDictionaryFactoryResolver.Current.Factory.CreateDictionary());
-            }
-        }
-
-        public string TranslateItem(string text)
+        // Umbraco core's `localizedTextService.UmbracoDictionaryTranslate` is internal. Until it's made public, we have to roll our own.
+        // https://github.com/umbraco/Umbraco-CMS/blob/release-7.7.0/src/Umbraco.Core/Services/LocalizedTextServiceExtensions.cs#L76
+        private string UmbracoDictionaryTranslate(string text)
         {
             if (text == null)
             {
@@ -130,10 +117,20 @@ namespace Our.Umbraco.InnerContent.Web.Controllers
             }
 
             if (text.StartsWith("#") == false)
+            {
                 return text;
+            }
 
             text = text.Substring(1);
-            return CultureDictionary[text].IfNullOrWhiteSpace(text);
+
+            if (_cultureDictionary == null)
+            {
+                _cultureDictionary = CultureDictionaryFactoryResolver.Current.Factory.CreateDictionary();
+            }
+
+            return _cultureDictionary[text].IfNullOrWhiteSpace(text);
         }
+
+        private static ICultureDictionary _cultureDictionary;
     }
 }
