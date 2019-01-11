@@ -17,7 +17,7 @@ namespace Our.Umbraco.InnerContent
                     return;
 
                 // NOTE: The properties for the JSON payload are available here: (Currently there isn't a public API to deserialize the payload)
-                // https://github.com/umbraco/Umbraco-CMS/blob/release-7.4.0/src/Umbraco.Web/Cache/DataTypeCacheRefresher.cs#L64-L68
+                // https://github.com/umbraco/Umbraco-CMS/blob/release-7.7.0/src/Umbraco.Web/Cache/DataTypeCacheRefresher.cs#L66-L70
                 var payload = JsonConvert.DeserializeAnonymousType((string)e.MessageObject, new[] { new { Id = default(int) } });
                 if (payload == null)
                     return;
@@ -34,7 +34,7 @@ namespace Our.Umbraco.InnerContent
                     return;
 
                 // NOTE: The properties for the JSON payload are available here: (Currently there isn't a public API to deserialize the payload)
-                // https://github.com/umbraco/Umbraco-CMS/blob/release-7.4.0/src/Umbraco.Web/Cache/ContentTypeCacheRefresher.cs#L93-L109
+                // https://github.com/umbraco/Umbraco-CMS/blob/release-7.7.0/src/Umbraco.Web/Cache/ContentTypeCacheRefresher.cs#L91-L109
                 var payload = JsonConvert.DeserializeAnonymousType((string)e.MessageObject, new[] { new { Id = default(int), AliasChanged = default(bool) } });
                 if (payload == null)
                     return;

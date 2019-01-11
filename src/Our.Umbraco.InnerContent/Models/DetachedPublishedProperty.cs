@@ -4,6 +4,8 @@ using Umbraco.Core.Models.PublishedContent;
 
 namespace Our.Umbraco.InnerContent.Models
 {
+    // NOTE: If Umbraco's `DetachedPublishedProperty` isn't currently publicly available.
+    // https://github.com/umbraco/Umbraco-CMS/blob/release-7.7.0/src/Umbraco.Web/Models/DetachedPublishedProperty.cs#L7
     public class DetachedPublishedProperty : IPublishedProperty
     {
         private readonly PublishedPropertyType _propertyType;
@@ -29,23 +31,17 @@ namespace Our.Umbraco.InnerContent.Models
             _xpathValue = new Lazy<object>(() => _propertyType.ConvertSourceToXPath(_sourceValue.Value, _isPreview));
         }
 
-        public string PropertyTypeAlias
-        {
-            get
-            {
-                return _propertyType.PropertyTypeAlias;
-            }
-        }
+        public string PropertyTypeAlias => _propertyType.PropertyTypeAlias;
 
         public bool HasValue
         {
             get { return DataValue != null && DataValue.ToString().Trim().Length > 0; }
         }
 
-        public object DataValue { get { return _rawValue; } }
+        public object DataValue => _rawValue;
 
-        public object Value { get { return _objectValue.Value; } }
+        public object Value => _objectValue.Value;
 
-        public object XPathValue { get { return _xpathValue.Value; } }
+        public object XPathValue => _xpathValue.Value;
     }
 }
