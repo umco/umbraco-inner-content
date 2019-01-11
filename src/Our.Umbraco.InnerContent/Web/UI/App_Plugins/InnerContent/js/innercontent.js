@@ -271,19 +271,25 @@ angular.module("umbraco.directives").directive("innerContentOverlay", [
             };
 
             scope.closeContentEditorOverlay = function () {
-                scope.overlayClasses = [];
+                resetOverlayClasses();
                 scope.contentEditorOverlay.show = false;
             };
 
             scope.closeAllOverlays = function () {
-                scope.overlayClasses = [];
+                resetOverlayClasses();
                 scope.closeContentTypePickerOverlay();
                 scope.closeContentEditorOverlay();
                 scope.config.show = false;
             };
 
+            function resetOverlayClasses() {
+                scope.overlayClasses = [];
+            };
+
             function setOverlayClasses() {
-                // Ensures that the "create" and "edit" classes don't conflict.
+                // When creating new blocks, the "create" class would be added, then editing it would 
+                // add the property-alias & content-type alias classes. But we no longer want the "create" class.
+                // We reduce the array down to the first time, e.g. the "overlay0" class.
                 if (scope.overlayClasses.length > 1) {
                     scope.overlayClasses.length = 1;
                 }
