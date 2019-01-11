@@ -156,14 +156,16 @@ angular.module("umbraco").controller("Our.Umbraco.InnerContent.Controllers.Inner
 angular.module("umbraco.directives").directive("innerContentOverlay", [
 
     "$q",
+    "overlayHelper",
     "innerContentService",
 
-    function ($q, innerContentService) {
+    function ($q, overlayHelper, innerContentService) {
 
         function link(scope, el, attr, ctrl) {
 
             scope.config.editorModels = scope.config.editorModels || {};
             scope.currentItem = null;
+            scope.overlayClasses = scope.overlayClasses || [];
 
             var getContentType = function (guid) {
                 return _.find(scope.config.contentTypes, function (ct) {
@@ -250,6 +252,7 @@ angular.module("umbraco.directives").directive("innerContentOverlay", [
                         scope.openContentEditorOverlay();
                     });
                 } else {
+                    setOverlayClasses("create");
                     scope.contentTypePickerOverlay.event = scope.config.event;
                     scope.contentTypePickerOverlay.show = true;
                 }
@@ -261,25 +264,47 @@ angular.module("umbraco.directives").directive("innerContentOverlay", [
             };
 
             scope.openContentEditorOverlay = function () {
+                setOverlayClasses(scope.config.propertyAlias, scope.currentItem.contentTypeAlias);
                 scope.contentEditorOverlay.title = "Edit " + scope.currentItem.contentTypeName;
                 scope.contentEditorOverlay.dialogData = { item: scope.currentItem };
                 scope.contentEditorOverlay.show = true;
             };
 
             scope.closeContentEditorOverlay = function () {
+                resetOverlayClasses();
                 scope.contentEditorOverlay.show = false;
             };
 
             scope.closeAllOverlays = function () {
+                resetOverlayClasses();
                 scope.closeContentTypePickerOverlay();
                 scope.closeContentEditorOverlay();
                 scope.config.show = false;
+            };
+
+            function resetOverlayClasses() {
+                scope.overlayClasses = [];
+            };
+
+            function setOverlayClasses() {
+                // When creating new blocks, the "create" class would be added, then editing it would 
+                // add the property-alias & content-type alias classes. But we no longer want the "create" class.
+                // We reduce the array down to the first time, e.g. the "overlay0" class.
+                if (scope.overlayClasses.length > 1) {
+                    scope.overlayClasses.length = 1;
+                }
+                for (var i = 0; i < arguments.length; i++) {
+                    scope.overlayClasses.push("inner-content-overlay--" + arguments[i]);
+                }
             };
 
             var initOpen = function () {
 
                 // Map scaffolds to content type picker list
                 scope.contentTypePickerOverlay.availableItems = scope.config.contentTypePickerItems;
+
+                // Set the overlay class for the overlay's (overlapping) index
+                setOverlayClasses("overlay" + overlayHelper.getNumberOfOverlays());
 
                 // Open relevant dialog
                 if (!scope.config.data || !scope.config.data.model) {
