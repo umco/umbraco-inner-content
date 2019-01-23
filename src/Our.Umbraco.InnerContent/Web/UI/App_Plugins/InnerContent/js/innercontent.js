@@ -7,10 +7,14 @@ angular.module("umbraco").controller("Our.Umbraco.InnerContent.Controllers.DocTy
     function ($scope, innerContentService) {
 
         var vm = this;
+        vm.docTypes = [];
+        vm.selectedDocTypes = [];
         vm.add = add;
         vm.remove = remove;
         vm.tooltipMouseOver = tooltipMouseOver;
         vm.tooltipMouseLeave = tooltipMouseLeave;
+        vm.getContentType = getContentType;
+        vm.openDocTypePicker = openDocTypePicker;
 
         vm.sortableOptions = {
             axis: "y",
@@ -33,23 +37,26 @@ angular.module("umbraco").controller("Our.Umbraco.InnerContent.Controllers.DocTy
 
         innerContentService.getAllContentTypes().then(function (docTypes) {
             vm.docTypes = docTypes;
+            updateSelectedDocTypes();
         });
 
         if (!$scope.model.value) {
             $scope.model.value = [];
-            add();
         }
 
         function add() {
-            $scope.model.value.push({
+            var newItem = {
                 icContentTypeGuid: "",
                 nameTemplate: ""
-            });
+            };
+            $scope.model.value.push(newItem);
+            openDocTypePicker(newItem);
             setDirty();
         };
 
         function remove(index) {
             $scope.model.value.splice(index, 1);
+            updateSelectedDocTypes();
             setDirty();
         };
 
@@ -66,6 +73,37 @@ angular.module("umbraco").controller("Our.Umbraco.InnerContent.Controllers.DocTy
                 show: false,
                 event: null,
                 content: null
+            };
+        };
+
+        function updateSelectedDocTypes() {
+            vm.selectedDocTypes = _.filter(vm.docTypes, function (i) {
+                var match = _.find($scope.model.value, function (c) {
+                    return c.icContentTypeGuid === i.guid;
+                });
+
+                return match !== undefined;
+            });
+        };
+
+        function getContentType(guid) {
+            return _.find(vm.docTypes, function (d) {
+                return d.guid === guid;
+            });
+        };
+
+        function openDocTypePicker(config) {
+            vm.docTypePicker = {
+                view: "itempicker",
+                availableItems: vm.docTypes,
+                selectedItems: vm.selectedDocTypes,
+                show: true,
+                submit: function (model) {
+                    config.icContentTypeGuid = model.selectedItem.guid;
+                    updateSelectedDocTypes();
+                    vm.docTypePicker.show = false;
+                    vm.docTypePicker = null;
+                }
             };
         };
 
