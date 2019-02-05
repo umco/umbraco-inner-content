@@ -86,9 +86,9 @@ angular.module("umbraco").controller("Our.Umbraco.InnerContent.Controllers.Inner
         function ($scope, blueprintConfig) {
 
             function initialize() {
-
                 $scope.allowedTypes = $scope.model.availableItems;
                 $scope.allowBlank = blueprintConfig.allowBlank;
+                $scope.enableFilter = $scope.model.enableFilter;
 
                 if ($scope.allowedTypes.length === 1) {
                     $scope.selectedDocType = $scope.allowedTypes[0];
@@ -162,7 +162,6 @@ angular.module("umbraco.directives").directive("innerContentOverlay", [
     function ($q, overlayHelper, innerContentService) {
 
         function link(scope, el, attr, ctrl) {
-
             scope.config.editorModels = scope.config.editorModels || {};
             scope.currentItem = null;
             scope.overlayClasses = scope.overlayClasses || [];
@@ -253,6 +252,7 @@ angular.module("umbraco.directives").directive("innerContentOverlay", [
                     });
                 } else {
                     setOverlayClasses("create");
+                    scope.contentTypePickerOverlay.enableFilter = scope.config.enableFilter;
                     scope.contentTypePickerOverlay.event = scope.config.event;
                     scope.contentTypePickerOverlay.show = true;
                 }
