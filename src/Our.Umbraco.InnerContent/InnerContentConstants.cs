@@ -11,5 +11,7 @@
         internal const string ContentTypesPreValueKey = "contentTypes";
 
         internal const string HideLabelPreValueKey = "hideLabel";
+
+        internal const string EnableFilterPreValueKey = "enableFilter";
     }
 }

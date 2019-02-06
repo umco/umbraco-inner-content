@@ -6,6 +6,8 @@ using System.Web.Http.ModelBinding;
 using Newtonsoft.Json.Linq;
 using Our.Umbraco.InnerContent.Helpers;
 using Our.Umbraco.InnerContent.Web.WebApi.Filters;
+using Umbraco.Core;
+using Umbraco.Core.Dictionary;
 using Umbraco.Core.Services;
 using Umbraco.Web.Editors;
 using Umbraco.Web.Models.ContentEditing;
@@ -25,7 +27,7 @@ namespace Our.Umbraco.InnerContent.Web.Controllers
                 {
                     id = x.Id,
                     guid = x.Key,
-                    name = x.Name,
+                    name = UmbracoDictionaryTranslate(x.Name),
                     alias = x.Alias,
                     icon = string.IsNullOrWhiteSpace(x.Icon) || x.Icon == ".sprTreeFolder" ? "icon-folder" : x.Icon,
                     tabs = x.CompositionPropertyGroups.Select(y => y.Name).Distinct()
@@ -41,11 +43,7 @@ namespace Our.Umbraco.InnerContent.Web.Controllers
             // NOTE: Using an anonymous class, as the `ContentTypeBasic` type is heavier than what we need (for our requirements)
             return contentTypes.Select(ct => new
             {
-                // TODO: localize the name and description (in case of dictionary items)
-                // Umbraco core uses `localizedTextService.UmbracoDictionaryTranslate`, but this is currently marked as internal.
-                // https://github.com/umbraco/Umbraco-CMS/blob/release-7.7.0/src/Umbraco.Core/Services/LocalizedTextServiceExtensions.cs#L76
-
-                name = ct.Name,
+                name = UmbracoDictionaryTranslate(ct.Name),
                 description = ct.Description,
                 guid = ct.Key,
                 key = ct.Key,
@@ -64,7 +62,7 @@ namespace Our.Umbraco.InnerContent.Web.Controllers
                 {
                     id = x.Id,
                     guid = x.Key,
-                    name = x.Name,
+                    name = UmbracoDictionaryTranslate(x.Name),
                     alias = x.Alias,
                     icon = string.IsNullOrWhiteSpace(x.Icon) || x.Icon == ".sprTreeFolder" ? "icon-folder" : x.Icon,
                     tabs = x.CompositionPropertyGroups.Select(y => y.Name).Distinct()
@@ -108,5 +106,31 @@ namespace Our.Umbraco.InnerContent.Web.Controllers
                 Services.TextService.Localize("blueprints/createdBlueprintMessage", new[] { blueprint.Name }),
                 global::Umbraco.Web.UI.SpeechBubbleIcon.Success));
         }
+
+        // Umbraco core's `localizedTextService.UmbracoDictionaryTranslate` is internal. Until it's made public, we have to roll our own.
+        // https://github.com/umbraco/Umbraco-CMS/blob/release-7.7.0/src/Umbraco.Core/Services/LocalizedTextServiceExtensions.cs#L76
+        private string UmbracoDictionaryTranslate(string text)
+        {
+            if (text == null)
+            {
+                return null;
+            }
+
+            if (text.StartsWith("#") == false)
+            {
+                return text;
+            }
+
+            text = text.Substring(1);
+
+            if (_cultureDictionary == null)
+            {
+                _cultureDictionary = CultureDictionaryFactoryResolver.Current.Factory.CreateDictionary();
+            }
+
+            return _cultureDictionary[text].IfNullOrWhiteSpace(text);
+        }
+
+        private static ICultureDictionary _cultureDictionary;
     }
 }

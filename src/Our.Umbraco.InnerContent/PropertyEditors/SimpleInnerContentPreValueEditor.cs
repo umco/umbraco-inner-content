@@ -11,13 +11,23 @@ namespace Our.Umbraco.InnerContent.PropertyEditors
         public SimpleInnerContentPreValueEditor()
             : base()
         {
-            // This ensures that the "contentTypes" field is always at the top of the prevalue fields.
-            Fields.Insert(0, new PreValueField
+            // This ensures that the "contentTypes" and "enableFilter" fields are always at the top of the prevalue fields.
+            Fields.InsertRange(0, new[]
             {
-                Key = InnerContentConstants.ContentTypesPreValueKey,
-                Name = "Content Types",
-                View = IOHelper.ResolveUrl("~/App_Plugins/InnerContent/views/innercontent.doctypepicker.html"),
-                Description = "Select the content types to use as the data blueprint."
+                new PreValueField
+                {
+                    Key = InnerContentConstants.ContentTypesPreValueKey,
+                    Name = "Content Types",
+                    View = IOHelper.ResolveUrl("~/App_Plugins/InnerContent/views/innercontent.doctypepicker.html"),
+                    Description = "Select the content types to use as the data blueprint."
+                },
+                new PreValueField
+                {
+                    Key = InnerContentConstants.EnableFilterPreValueKey,
+                    Name = "Enable Filter?",
+                    View = "boolean",
+                    Description = "Select to enable a filter bar at the top of the Content Type selection."
+                }
             });
         }
 
