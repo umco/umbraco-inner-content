@@ -469,6 +469,32 @@ angular.module("umbraco").factory("innerContentService", [
             return (test !== Object(test));
         };
 
+        // temp: until localStorageService is upgraded. New versions support dynamically changing storage type
+        var addToSessionStorage = function (key, value) {
+            if (value === undefined) {
+                value = null;
+            } else {
+                value = angular.toJson(value);
+            }
+
+            sessionStorage.setItem(key, value);
+        };
+
+        // temp: until localStorageService is upgraded. New versions support dynamically changing storage type
+        var getFromSessionStorage = function (key) {
+            var item = sessionStorage.getItem(key);
+
+            if (!item || item === 'null') {
+                return null;
+            }
+
+            try {
+                return JSON.parse(item);
+            } catch (e) {
+                return item;
+            }
+        };
+
         self.populateName = function (itm, idx, contentTypes) {
 
             var contentType = _.find(contentTypes, function (itm2) {
@@ -639,22 +665,22 @@ angular.module("umbraco").factory("innerContentService", [
 
         self.setCopiedContent = function (itm) {
             if (itm && itm.icContentTypeGuid) {
-                localStorageService.set("icContentTypeGuid", itm.icContentTypeGuid);
+                addToSessionStorage("icContentTypeGuid", itm.icContentTypeGuid);
                 itm.key = undefined;
-                localStorageService.set("icContentJson", itm);
+                addToSessionStorage("icContentJson", itm);
                 return true;
             }
             return false;
         };
 
         self.getCopiedContent = function () {
-            var itm = localStorageService.get("icContentJson");
+            var itm = getFromSessionStorage("icContentJson");
             itm.key = self.generateUid();
             return itm;
         };
 
         self.getCopiedContentTypeGuid = function () {
-            return localStorageService.get("icContentTypeGuid");
+            return getFromSessionStorage("icContentTypeGuid");
         };
 
         // Helpful methods
