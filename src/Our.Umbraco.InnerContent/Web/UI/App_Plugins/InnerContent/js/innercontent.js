@@ -465,6 +465,10 @@ angular.module("umbraco").factory("innerContentService", [
             }
         };
 
+        var isPrimitive = function (test) {
+            return (test !== Object(test));
+        };
+
         self.populateName = function (itm, idx, contentTypes) {
 
             var contentType = _.find(contentTypes, function (itm2) {
@@ -532,7 +536,7 @@ angular.module("umbraco").factory("innerContentService", [
                     for (var p = 0; p < tab.properties.length; p++) {
                         var prop = tab.properties[p];
                         if (dbModel.hasOwnProperty(prop.alias)) {
-                            prop.value = dbModel[prop.alias];
+                            prop.value = isPrimitive(dbModel[prop.alias]) ? dbModel[prop.alias] : angular.copy(dbModel[prop.alias]);
                         }
                     }
                 }
