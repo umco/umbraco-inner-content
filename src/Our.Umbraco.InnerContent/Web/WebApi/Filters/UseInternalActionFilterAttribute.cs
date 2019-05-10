@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Web.Http.Controllers;
 using System.Web.Http.Filters;
-using Umbraco.Core;
+using Umbraco.Core.Composing;
 using Umbraco.Core.Logging;
 
 namespace Our.Umbraco.InnerContent.Web.WebApi.Filters
@@ -15,11 +15,11 @@ namespace Our.Umbraco.InnerContent.Web.WebApi.Filters
     /// </remarks>
     internal class UseInternalActionFilterAttribute : ActionFilterAttribute
     {
-        private string _fullyQualifiedTypeName;
+        private readonly string _fullyQualifiedTypeName;
         private Type _internalType;
         private object _internalInstance;
-        private bool _runOnActionExecuting { get; set; }
-        private bool _runOnActionExecuted { get; set; }
+        private readonly bool _runOnActionExecuting;
+        private readonly bool _runOnActionExecuted;
 
         public UseInternalActionFilterAttribute(
             string fullyQualifiedTypeName,
@@ -79,7 +79,7 @@ namespace Our.Umbraco.InnerContent.Web.WebApi.Filters
             }
             catch (Exception ex)
             {
-                LogHelper.Error<UseInternalActionFilterAttribute>(methodName, ex);
+                Current.Logger.Error<UseInternalActionFilterAttribute>(methodName, ex);
             }
         }
     }

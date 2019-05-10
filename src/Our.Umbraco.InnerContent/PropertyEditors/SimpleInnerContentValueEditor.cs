@@ -1,6 +1,6 @@
 ﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using Umbraco.Core;
+using Umbraco.Core.Composing;
 using Umbraco.Core.Models;
 using Umbraco.Core.Models.Editors;
 using Umbraco.Core.PropertyEditors;
@@ -8,31 +8,31 @@ using Umbraco.Core.Services;
 
 namespace Our.Umbraco.InnerContent.PropertyEditors
 {
-    public class SimpleInnerContentPropertyValueEditor : InnerContentPropertyValueEditor
+    public class SimpleInnerContentValueEditor : InnerContentValueEditor
     {
-        public SimpleInnerContentPropertyValueEditor(PropertyValueEditor wrapped)
-            : base(wrapped)
+        public SimpleInnerContentValueEditor(DataEditorAttribute attribute)
+            : base(attribute)
         { }
 
-        public override string ConvertDbToString(Property property, PropertyType propertyType, IDataTypeService dataTypeService)
+        public override string ConvertDbToString(PropertyType propertyType, object value, IDataTypeService dataTypeService)
         {
             // Convert / validate value
-            if (property.Value == null)
-                return string.Empty;
-
-            var propertyValue = property.Value.ToString();
-            if (string.IsNullOrWhiteSpace(propertyValue))
-                return string.Empty;
-
-            var value = JsonConvert.DeserializeObject<JToken>(propertyValue);
             if (value == null)
                 return string.Empty;
 
+            var propertyValue = value.ToString();
+            if (string.IsNullOrWhiteSpace(propertyValue))
+                return string.Empty;
+
+            var token = JsonConvert.DeserializeObject<JToken>(propertyValue);
+            if (token == null)
+                return string.Empty;
+
             // Process value
-            ConvertDbToStringRecursive(value, dataTypeService);
+            ConvertDbToStringRecursive(token, dataTypeService);
 
             // Return the serialized value
-            return JsonConvert.SerializeObject(value);
+            return JsonConvert.SerializeObject(token);
         }
 
         protected void ConvertDbToStringRecursive(JToken token, IDataTypeService dataTypeService)
@@ -64,25 +64,27 @@ namespace Our.Umbraco.InnerContent.PropertyEditors
             }
         }
 
-        public override object ConvertDbToEditor(Property property, PropertyType propertyType, IDataTypeService dataTypeService)
+        public override object ToEditor(Property property, IDataTypeService dataTypeService, string culture = null, string segment = null)
         {
+            var value = property.GetValue(culture, segment);
+
             // Convert / validate value
-            if (property.Value == null)
-                return string.Empty;
-
-            var propertyValue = property.Value.ToString();
-            if (string.IsNullOrWhiteSpace(propertyValue))
-                return string.Empty;
-
-            var value = JsonConvert.DeserializeObject<JToken>(propertyValue);
             if (value == null)
                 return string.Empty;
 
+            var propertyValue = value.ToString();
+            if (string.IsNullOrWhiteSpace(propertyValue))
+                return string.Empty;
+
+            var token = JsonConvert.DeserializeObject<JToken>(propertyValue);
+            if (token == null)
+                return string.Empty;
+
             // Process value
-            ConvertDbToEditorRecursive(value, dataTypeService);
+            ConvertDbToEditorRecursive(token, dataTypeService);
 
             // Return the JObject, Angular can handle it directly
-            return value;
+            return token;
         }
 
         protected void ConvertDbToEditorRecursive(JToken token, IDataTypeService dataTypeService)
@@ -114,7 +116,7 @@ namespace Our.Umbraco.InnerContent.PropertyEditors
             }
         }
 
-        public override object ConvertEditorToDb(ContentPropertyData editorValue, object currentValue)
+        public override object FromEditor(ContentPropertyData editorValue, object currentValue)
         {
             // Convert / validate value
             if (editorValue.Value == null)
@@ -149,7 +151,7 @@ namespace Our.Umbraco.InnerContent.PropertyEditors
             {
                 if (jObj[InnerContentConstants.ContentTypeGuidPropertyKey] != null || jObj[InnerContentConstants.ContentTypeAliasPropertyKey] != null)
                 {
-                    ConvertInnerContentEditorToDb(jObj, ApplicationContext.Current.Services.DataTypeService);
+                    ConvertInnerContentEditorToDb(jObj, Current.Services.DataTypeService);
                 }
                 else
                 {

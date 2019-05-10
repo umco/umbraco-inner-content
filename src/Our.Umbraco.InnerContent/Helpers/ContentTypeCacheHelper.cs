@@ -35,7 +35,7 @@ namespace Our.Umbraco.InnerContent.Helpers
             // The alias isn't cached, we can attempt to get it via the content-type service, using the GUID.
             if (contentTypeService != null)
             {
-                var contentType = contentTypeService.GetContentType(key);
+                var contentType = contentTypeService.Get(key);
                 if (contentType != null)
                 {
                     TryAdd(contentType);
@@ -55,7 +55,7 @@ namespace Our.Umbraco.InnerContent.Helpers
             // The GUID isn't cached, we can attempt to get it via the content-type service, using the alias.
             if (contentTypeService != null)
             {
-                var contentType = contentTypeService.GetContentType(alias);
+                var contentType = contentTypeService.Get(alias);
                 if (contentType != null)
                 {
                     TryAdd(contentType);

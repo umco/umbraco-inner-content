@@ -1,11 +1,11 @@
 ﻿using Newtonsoft.Json.Linq;
 using Our.Umbraco.InnerContent.Helpers;
-using Umbraco.Core;
+using Umbraco.Core.Composing;
 using Umbraco.Core.PropertyEditors;
 
 namespace Our.Umbraco.InnerContent.PropertyEditors
 {
-    public class InnerContentPreValueEditor : PreValueEditor
+    public class InnerContentConfigurationEditor : ConfigurationEditor
     {
         protected bool TryEnsureContentTypeGuids(JArray items)
         {
@@ -24,7 +24,7 @@ namespace Our.Umbraco.InnerContent.PropertyEditors
                 if (contentTypeAlias == null)
                     continue;
 
-                InnerContentHelper.SetContentTypeGuid(item, contentTypeAlias.Value<string>(), ApplicationContext.Current.Services.ContentTypeService);
+                InnerContentHelper.SetContentTypeGuid(item, contentTypeAlias.Value<string>(), Current.Services.ContentTypeService);
                 ensured = true;
             }
 

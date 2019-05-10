@@ -1,30 +1,26 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using Newtonsoft.Json.Linq;
 using Our.Umbraco.InnerContent.Helpers;
 using Umbraco.Core;
+using Umbraco.Core.Composing;
 using Umbraco.Core.Models;
 using Umbraco.Core.Models.Editors;
 using Umbraco.Core.PropertyEditors;
 using Umbraco.Core.Services;
-using Umbraco.Web.PropertyEditors;
 
 namespace Our.Umbraco.InnerContent.PropertyEditors
 {
-    public abstract class InnerContentPropertyValueEditor : PropertyValueEditorWrapper
+    public abstract class InnerContentValueEditor : DataValueEditor
     {
-        protected InnerContentPropertyValueEditor(PropertyValueEditor wrapped)
-            : base(wrapped)
-        { }
-
-        public override void ConfigureForDisplay(PreValueCollection preValues)
+        public InnerContentValueEditor(DataEditorAttribute attribute)
+            : base(attribute)
         {
-            base.ConfigureForDisplay(preValues);
-
-            if (preValues.PreValuesAsDictionary.ContainsKey(InnerContentConstants.HideLabelPreValueKey))
+            // TODO: Parse out the configuration and check the "hide label" flag. [LK:2019-04-02]
+            // `InnerContentConstants.HideLabelPreValueKey === "1"`
+            if (Configuration != null)
             {
-                HideLabel = preValues.PreValuesAsDictionary[InnerContentConstants.HideLabelPreValueKey].Value == "1";
+                HideLabel = false; // TODO: Implement later! [LK:2019-04-02]
             }
         }
 
@@ -64,14 +60,19 @@ namespace Our.Umbraco.InnerContent.PropertyEditors
                 {
                     try
                     {
-                        // Create a fake property using the property abd stored value
-                        var prop = new Property(propType, item[propKey]?.ToString());
+                        //// Create a fake property using the property abd stored value
+                        //var prop = new Property(propType);
+                        //prop.SetValue(item[propKey]?.ToString());  
 
                         // Lookup the property editor
-                        var propEditor = PropertyEditorResolver.Current.GetByAlias(propType.PropertyEditorAlias);
+                        if (Current.PropertyEditors.TryGet(propType.PropertyEditorAlias, out IDataEditor propEditor))
+                        {
+                            // Get the editor to do it's conversion, and store it back
 
-                        // Get the editor to do it's conversion, and store it back
-                        item[propKey] = propEditor?.ValueEditor?.ConvertDbToString(prop, propType, dataTypeService);
+                            // TODO: Clarify if this is the correct way of doing this? [LK:2019-04-02]
+                            var valueEditor = propEditor.GetValueEditor();
+                            item[propKey] = valueEditor?.ConvertDbToString(propType, item[propKey]?.ToString(), dataTypeService);
+                        }
                     }
                     catch (InvalidOperationException)
                     {
@@ -131,16 +132,20 @@ namespace Our.Umbraco.InnerContent.PropertyEditors
                     try
                     {
                         // Create a fake property using the property abd stored value
-                        var prop = new Property(propType, item[propKey]?.ToString());
+                        var prop = new Property(propType);
+                        prop.SetValue(item[propKey]?.ToString()); // TODO: Check if this is the correct way to do this? Confused about the culture/segment bits. [LK:2019-04-02]
 
                         // Lookup the property editor
-                        var propEditor = PropertyEditorResolver.Current.GetByAlias(propType.PropertyEditorAlias);
+                        if (Current.PropertyEditors.TryGet(propType.PropertyEditorAlias, out IDataEditor propEditor))
+                        {
 
-                        // Get the editor to do it's conversion
-                        var newValue = propEditor?.ValueEditor?.ConvertDbToEditor(prop, propType, dataTypeService);
+                            // Get the editor to do it's conversion
+                            var valueEditor = propEditor.GetValueEditor();
+                            var newValue = valueEditor?.ToEditor(prop, dataTypeService);
 
-                        // Store the value back
-                        item[propKey] = (newValue == null) ? null : JToken.FromObject(newValue);
+                            // Store the value back
+                            item[propKey] = (newValue == null) ? null : JToken.FromObject(newValue);
+                        }
                     }
                     catch (InvalidOperationException)
                     {
@@ -198,21 +203,21 @@ namespace Our.Umbraco.InnerContent.PropertyEditors
                 else
                 {
                     // Fetch the property types prevalue
-                    var propPreValues = dataTypeService.GetPreValuesCollectionByDataTypeId(propType.DataTypeDefinitionId);
+                    var propPreValues = dataTypeService.GetDataType(propType.DataTypeId).Configuration;
 
                     // Lookup the property editor
-                    var propEditor = PropertyEditorResolver.Current.GetByAlias(propType.PropertyEditorAlias);
+                    if (Current.PropertyEditors.TryGet(propType.PropertyEditorAlias, out IDataEditor propEditor))
+                    {
+                        // Create a fake content property data object
+                        var contentPropData = new ContentPropertyData(item[propKey], propPreValues);
 
-                    // Create a fake content property data object
-                    var contentPropData = new ContentPropertyData(
-                        item[propKey], propPreValues,
-                        new Dictionary<string, object>());
+                        // Get the property editor to do it's conversion
+                        var valueEditor = propEditor.GetValueEditor(); // TODO: Clarify this is correct. [LK:2019-02-04]
+                        var newValue = valueEditor?.FromEditor(contentPropData, item[propKey]);
 
-                    // Get the property editor to do it's conversion
-                    var newValue = propEditor.ValueEditor.ConvertEditorToDb(contentPropData, item[propKey]);
-
-                    // Store the value back
-                    item[propKey] = (newValue == null) ? null : JToken.FromObject(newValue);
+                        // Store the value back
+                        item[propKey] = (newValue == null) ? null : JToken.FromObject(newValue);
+                    }
                 }
             }
 

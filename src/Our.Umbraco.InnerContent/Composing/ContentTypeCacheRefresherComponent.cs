@@ -1,33 +1,24 @@
 ﻿using System.Linq;
 using Newtonsoft.Json;
 using Our.Umbraco.InnerContent.Helpers;
-using Umbraco.Core;
+using Umbraco.Core.Composing;
+using Umbraco.Core.Services;
 using Umbraco.Core.Sync;
 using Umbraco.Web.Cache;
 
 namespace Our.Umbraco.InnerContent
 {
-    public class Bootstrap : ApplicationEventHandler
+    public class ContentTypeCacheRefresherComponent : IComponent
     {
-        protected override void ApplicationStarted(UmbracoApplicationBase umbracoApplication, ApplicationContext applicationContext)
+        private readonly IContentTypeService _contentTypeService;
+
+        public ContentTypeCacheRefresherComponent(IContentTypeService contentTypeService)
         {
-            DataTypeCacheRefresher.CacheUpdated += (sender, e) =>
-            {
-                if (e.MessageType != MessageType.RefreshByJson)
-                    return;
+            _contentTypeService = contentTypeService;
+        }
 
-                // NOTE: The properties for the JSON payload are available here: (Currently there isn't a public API to deserialize the payload)
-                // https://github.com/umbraco/Umbraco-CMS/blob/release-7.7.0/src/Umbraco.Web/Cache/DataTypeCacheRefresher.cs#L66-L70
-                var payload = JsonConvert.DeserializeAnonymousType((string)e.MessageObject, new[] { new { Id = default(int) } });
-                if (payload == null)
-                    return;
-
-                foreach (var item in payload)
-                {
-                    applicationContext.ApplicationCache.RuntimeCache.ClearCacheItem(string.Format(InnerContentConstants.PreValuesCacheKey, item.Id));
-                }
-            };
-
+        public void Initialize()
+        {
             ContentTypeCacheRefresher.CacheUpdated += (sender, e) =>
             {
                 if (e.MessageType != MessageType.RefreshByJson)
@@ -44,13 +35,17 @@ namespace Our.Umbraco.InnerContent
                 if (ids.Length == 0)
                     return;
 
-                var contentTypes = applicationContext.Services.ContentTypeService.GetAllContentTypes(ids);
+                var contentTypes = _contentTypeService.GetAll(ids);
                 foreach (var contentType in contentTypes)
                 {
                     ContentTypeCacheHelper.TryRemove(contentType);
                     ContentTypeCacheHelper.TryAdd(contentType);
                 }
             };
+
         }
+
+        public void Terminate()
+        { }
     }
 }

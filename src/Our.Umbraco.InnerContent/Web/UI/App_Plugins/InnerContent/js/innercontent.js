@@ -85,10 +85,12 @@ angular.module("umbraco").controller("Our.Umbraco.InnerContent.Controllers.Inner
 
         function ($scope, blueprintConfig) {
 
+            console.log("innercontent.create", $scope.model);
+
             function initialize() {
                 $scope.allowedTypes = $scope.model.availableItems;
                 $scope.allowBlank = blueprintConfig.allowBlank;
-                $scope.enableFilter = $scope.model.enableFilter;
+                $scope.enableFilter = $scope.model.enableFilter === "1";
 
                 if ($scope.allowedTypes.length === 1) {
                     $scope.selectedDocType = $scope.allowedTypes[0];
@@ -139,6 +141,17 @@ angular.module("umbraco").controller("Our.Umbraco.InnerContent.Controllers.Inner
         "overlayHelper",
 
         function ($scope, overlayHelper) {
+
+            console.log("innercontent.dialog", $scope.model);
+
+            // TODO: Review how this is implemented. We could use the `editorService.open` here instead? [LK:2019-04-03]
+            // https://github.com/umbraco/Umbraco-CMS/blob/v8/dev/src/Umbraco.Web.UI.Client/src/views/propertyeditors/contentpicker/contentpicker.controller.js#L421
+            // https://github.com/umbraco/Umbraco-CMS/blob/v8/dev/src/Umbraco.Web.UI.Client/src/views/content/edit.html
+            // https://github.com/umbraco/Umbraco-CMS/blob/v8/dev/src/Umbraco.Web.UI.Client/src/views/content/content.edit.controller.js
+            // https://github.com/umbraco/Umbraco-CMS/blob/v8/dev/src/Umbraco.Web.UI.Client/src/views/components/content/edit.html
+            // https://github.com/umbraco/Umbraco-CMS/blob/v8/dev/src/Umbraco.Web.UI.Client/src/common/directives/components/content/edit.controller.js
+
+
             $scope.item = $scope.model.dialogData.item;
 
             // Set a nodeContext property as nested property editors
@@ -162,6 +175,9 @@ angular.module("umbraco.directives").directive("innerContentOverlay", [
     function ($q, overlayHelper, innerContentService) {
 
         function link(scope, el, attr, ctrl) {
+
+            console.log("innercontent.overlay", scope);
+
             scope.config.editorModels = scope.config.editorModels || {};
             scope.currentItem = null;
             scope.overlayClasses = scope.overlayClasses || [];
@@ -361,64 +377,6 @@ angular.module("umbraco.directives").directive("innerContentOverlay", [
     }
 ]);
 
-angular.module("umbraco.directives").directive("innerContentUnsavedChanges", [
-
-    "$rootScope",
-
-    function ($rootScope) {
-
-        function link(scope) {
-
-            scope.canConfirmClose = false;
-            scope.showConfirmClose = false;
-
-            // This is by no means ideal as we are overriding a core method to prevent the overlay closing
-            // put without coding a custom overlay, I couldn't think of a better way of doing it. We'll
-            // have to keep a close eye on the overlay api to ensure the method name doesn't change, but
-            // for now it works.
-            var overlayScope = scope;
-            while (overlayScope.$id !== $rootScope.$id) {
-                if (overlayScope.hasOwnProperty("overlayForm")) {
-                    scope.canConfirmClose = true;
-                    break;
-                }
-                overlayScope = overlayScope.$parent;
-            }
-
-            if (scope.canConfirmClose) {
-                overlayScope.oldCloseOverLay = overlayScope.closeOverLay;
-                overlayScope.closeOverLay = function () {
-                    if (overlayScope.overlayForm && overlayScope.overlayForm.$dirty) {
-                        scope.showConfirmClose = true;
-                    } else {
-                        overlayScope.oldCloseOverLay.apply(overlayScope);
-                    }
-                };
-            }
-
-            scope.confirmClose = function () {
-                scope.showConfirmClose = false;
-                overlayScope.oldCloseOverLay.apply(overlayScope);
-            };
-
-            scope.cancelClose = function () {
-                scope.showConfirmClose = false;
-            };
-
-        }
-
-        var directive = {
-            restrict: "E",
-            replace: true,
-            templateUrl: Umbraco.Sys.ServerVariables.umbracoSettings.appPluginsPath + "/innercontent/views/innercontent.unsavedchanges.html",
-            link: link
-        };
-
-        return directive;
-
-    }
-]);
-
 // Services
 angular.module("umbraco").factory("innerContentService", [
 
@@ -433,26 +391,6 @@ angular.module("umbraco").factory("innerContentService", [
         var getScaffold = function (contentType, blueprintId) {
 
             var process = function (scaffold) {
-
-                // remove all tabs except the specified tab
-                if (contentType.hasOwnProperty("icTabAlias")) {
-
-                    var tab = _.find(scaffold.tabs, function (tab) {
-                        return tab.id !== 0 && (tab.alias.toLowerCase() === contentType.icTabAlias.toLowerCase() || contentType.icTabAlias === "");
-                    });
-                    scaffold.tabs = [];
-                    if (tab) {
-                        scaffold.tabs.push(tab);
-                    }
-
-                } else {
-
-                    if (self.compareCurrentUmbracoVersion("7.8", { zeroExtend: true }) < 0) {
-                        // Remove general properties tab for pre 7.8 umbraco installs
-                        scaffold.tabs.pop();
-                    }
-
-                }
 
                 return scaffold;
 
@@ -527,8 +465,8 @@ angular.module("umbraco").factory("innerContentService", [
             }
 
             if (dbModel) {
-                for (var t = 0; t < editorModel.tabs.length; t++) {
-                    var tab = editorModel.tabs[t];
+                for (var t = 0; t < editorModel.variants[0].tabs.length; t++) {
+                    var tab = editorModel.variants[0].tabs[t];
                     for (var p = 0; p < tab.properties.length; p++) {
                         var prop = tab.properties[p];
                         if (dbModel.hasOwnProperty(prop.alias)) {
@@ -544,6 +482,8 @@ angular.module("umbraco").factory("innerContentService", [
 
         self.createDbModel = function (model) {
 
+            console.log("self.createDbModel", model);
+
             var dbModel = {
                 key: model.key,
                 name: model.name,
@@ -551,8 +491,8 @@ angular.module("umbraco").factory("innerContentService", [
                 icContentTypeGuid: model.icContentTypeGuid
             };
 
-            for (var t = 0; t < model.tabs.length; t++) {
-                var tab = model.tabs[t];
+            for (var t = 0; t < model.variants[0].tabs.length; t++) {
+                var tab = model.variants[0].tabs[t];
                 for (var p = 0; p < tab.properties.length; p++) {
                     var prop = tab.properties[p];
                     if (typeof prop.value !== "function") {

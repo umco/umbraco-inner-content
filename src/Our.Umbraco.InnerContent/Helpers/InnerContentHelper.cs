@@ -9,27 +9,22 @@ using Umbraco.Core.Models;
 using Umbraco.Core.Models.PublishedContent;
 using Umbraco.Core.Services;
 using Umbraco.Web;
+using Umbraco.Web.Composing;
 
 namespace Our.Umbraco.InnerContent.Helpers
 {
     public static class InnerContentHelper
     {
-        public static IEnumerable<IPublishedContent> ConvertInnerContentToPublishedContent(
-            JArray items,
-            IPublishedContent parentNode = null,
-            int level = 0,
-            bool preview = false)
+        public static IEnumerable<IPublishedElement> ConvertInnerContentToPublishedElement(JArray items, bool preview = false)
         {
-            return items.Select((x, i) => ConvertInnerContentToPublishedContent((JObject)x, parentNode, i, level, preview)).ToList();
+            return items.Select(x => ConvertInnerContentToPublishedElement((JObject)x, preview)).ToList();
         }
 
-        public static IPublishedContent ConvertInnerContentToPublishedContent(
-            JObject item,
-            IPublishedContent parentNode = null,
-            int sortOrder = 0,
-            int level = 0,
-            bool preview = false)
+        public static IPublishedElement ConvertInnerContentToPublishedElement(JObject item, bool preview = false)
         {
+            // TODO: Implement this properly. I've no idea what the `owner` is meant to be. [LK:2019-04-02]
+            var owner = default(IPublishedElement);
+
             var publishedContentType = GetPublishedContentTypeFromItem(item);
             if (publishedContentType == null)
                 return null;
@@ -42,7 +37,7 @@ namespace Our.Umbraco.InnerContent.Helpers
                 var propType = publishedContentType.GetPropertyType(jProp.Key);
                 if (propType != null)
                 {
-                    properties.Add(new DetachedPublishedProperty(propType, jProp.Value, preview));
+                    properties.Add(new DetachedPublishedProperty(propType, owner, jProp.Value, preview));
                 }
             }
 
@@ -50,45 +45,40 @@ namespace Our.Umbraco.InnerContent.Helpers
             propValues.TryGetValue("name", out object nameObj);
             propValues.TryGetValue("key", out object keyObj);
 
-            // Get the current request node we are embedded in
-            var pcr = UmbracoContext.Current.PublishedContentRequest;
-            var containerNode = pcr != null && pcr.HasPublishedContent ? pcr.PublishedContent : null;
-
-            var node = new DetachedPublishedContent(
+            var node = new DetachedPublishedElement(
                 keyObj == null ? Guid.Empty : Guid.Parse(keyObj.ToString()),
                 nameObj?.ToString(),
                 publishedContentType,
-                properties.ToArray(),
-                containerNode,
-                parentNode,
-                sortOrder,
-                level,
-                preview);
+                properties.ToArray());
 
-            // Process children
-            if (propValues.ContainsKey("children"))
-            {
-                var children = ConvertInnerContentToPublishedContent((JArray)propValues["children"], node, level + 1, preview);
-                node.SetChildren(children);
-            }
+            // TODO: Implement later [LK:2019-04-02] (I'm not sure how we're going to deal with IPublishedElement not having "children"
+            //// Process children
+            //if (propValues.ContainsKey("children"))
+            //{
+            //    var children = ConvertInnerContentToPublishedContent((JArray)propValues["children"], node, level + 1, preview);
+            //    node.SetChildren(children);
+            //}
 
-            if (PublishedContentModelFactoryResolver.HasCurrent && PublishedContentModelFactoryResolver.Current.HasValue)
+            // TODO: Implement later [LK:2019-04-02]
+            var factory = Current.Factory.GetInstance<IPublishedModelFactory>();
+            if (factory != null)
             {
                 // Let the current model factory create a typed model to wrap our model
-                return PublishedContentModelFactoryResolver.Current.Factory.CreateModel(node);
+                return factory.CreateModel(node);
             }
 
             return node;
         }
 
-        internal static PreValueCollection GetPreValuesCollectionByDataTypeId(int dtdId)
-        {
-            var preValueCollection = ApplicationContext.Current.ApplicationCache.RuntimeCache.GetCacheItem<PreValueCollection>(
-                string.Format(InnerContentConstants.PreValuesCacheKey, dtdId),
-                () => ApplicationContext.Current.Services.DataTypeService.GetPreValuesCollectionByDataTypeId(dtdId));
+        // TODO: Implement later [LK:2019-04-02]
+        //internal static PreValueCollection GetPreValuesCollectionByDataTypeId(int dtdId)
+        //{
+        //    var preValueCollection = ApplicationContext.Current.ApplicationCache.RuntimeCache.GetCacheItem<PreValueCollection>(
+        //        string.Format(InnerContentConstants.PreValuesCacheKey, dtdId),
+        //        () => ApplicationContext.Current.Services.DataTypeService.GetPreValuesCollectionByDataTypeId(dtdId));
 
-            return preValueCollection;
-        }
+        //    return preValueCollection;
+        //}
 
         internal static string GetContentTypeAliasFromItem(JObject item)
         {
@@ -104,11 +94,11 @@ namespace Our.Umbraco.InnerContent.Helpers
 
         internal static IContentType GetContentTypeFromItem(JObject item)
         {
-            var contentTypeService = ApplicationContext.Current.Services.ContentTypeService;
+            var contentTypeService = Current.Services.ContentTypeService;
 
             var contentTypeGuid = GetContentTypeGuidFromItem(item);
             if (contentTypeGuid.HasValue && contentTypeGuid.Value != Guid.Empty)
-                return contentTypeService.GetContentType(contentTypeGuid.Value);
+                return contentTypeService.Get(contentTypeGuid.Value);
 
             var contentTypeAlias = GetContentTypeAliasFromItem(item);
             if (string.IsNullOrWhiteSpace(contentTypeAlias) == false)
@@ -116,7 +106,7 @@ namespace Our.Umbraco.InnerContent.Helpers
                 // Future-proofing - setting the GUID, queried from the alias
                 SetContentTypeGuid(item, contentTypeAlias, contentTypeService);
 
-                return contentTypeService.GetContentType(contentTypeAlias);
+                return contentTypeService.Get(contentTypeAlias);
             }
 
             return null;
@@ -130,7 +120,7 @@ namespace Our.Umbraco.InnerContent.Helpers
             }
         }
 
-        internal static PublishedContentType GetPublishedContentTypeFromItem(JObject item)
+        internal static IPublishedContentType GetPublishedContentTypeFromItem(JObject item)
         {
             var contentTypeAlias = string.Empty;
 
@@ -143,7 +133,7 @@ namespace Our.Umbraco.InnerContent.Helpers
                 // See: https://github.com/umbraco/Umbraco-CMS/blob/release-7.4.0/src/Umbraco.Core/Models/PublishedContent/PublishedContentType.cs#L133
                 // Our workaround is to cache a content-type GUID => alias lookup.
 
-                ContentTypeCacheHelper.TryGetAlias(contentTypeGuid.Value, out contentTypeAlias, ApplicationContext.Current.Services.ContentTypeService);
+                ContentTypeCacheHelper.TryGetAlias(contentTypeGuid.Value, out contentTypeAlias, Current.Services.ContentTypeService);
             }
 
             // If we don't have the content-type alias at this point, check if we can get it from the item
@@ -153,7 +143,8 @@ namespace Our.Umbraco.InnerContent.Helpers
             if (string.IsNullOrEmpty(contentTypeAlias))
                 return null;
 
-            return PublishedContentType.Get(PublishedItemType.Content, contentTypeAlias);
+            // TODO: Implement properly later [LK:2019-04-02]
+            return Current.PublishedSnapshot.Content.GetContentType(contentTypeAlias);
         }
 
         internal static IContent ConvertInnerContentToBlueprint(JObject item, int userId = 0)
@@ -175,7 +166,11 @@ namespace Our.Umbraco.InnerContent.Helpers
                 if (propType != null)
                 {
                     // TODO: Check if we need to call `ConvertEditorToDb`?
-                    properties.Add(new Property(propType, jProp.Value));
+
+                    var prop = new Property(propType);
+                    prop.SetValue(jProp.Value); // TODO: Check if this is the correct way to do this? Confused about the culture/segment bits. [LK:2019-04-02]
+
+                    properties.Add(prop);
                 }
             }
 

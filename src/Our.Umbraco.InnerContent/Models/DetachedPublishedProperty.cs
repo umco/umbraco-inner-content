@@ -1,47 +1,53 @@
 ﻿using System;
-using Umbraco.Core.Models;
 using Umbraco.Core.Models.PublishedContent;
+using Umbraco.Core.PropertyEditors;
 
 namespace Our.Umbraco.InnerContent.Models
 {
-    // NOTE: If Umbraco's `DetachedPublishedProperty` isn't currently publicly available.
-    // https://github.com/umbraco/Umbraco-CMS/blob/release-7.7.0/src/Umbraco.Web/Models/DetachedPublishedProperty.cs#L7
     public class DetachedPublishedProperty : IPublishedProperty
     {
-        private readonly PublishedPropertyType _propertyType;
-        private readonly object _rawValue;
-        private readonly Lazy<object> _sourceValue;
+        private readonly object _sourceValue;
+        private readonly Lazy<object> _interValue;
         private readonly Lazy<object> _objectValue;
         private readonly Lazy<object> _xpathValue;
-        private readonly bool _isPreview;
 
-        public DetachedPublishedProperty(PublishedPropertyType propertyType, object value)
-            : this(propertyType, value, false)
+        public DetachedPublishedProperty(IPublishedPropertyType propertyType, IPublishedElement owner, object value)
+            : this(propertyType, owner, value, false)
         { }
 
-        public DetachedPublishedProperty(PublishedPropertyType propertyType, object value, bool isPreview)
+        public DetachedPublishedProperty(IPublishedPropertyType propertyType, IPublishedElement owner, object value, bool preview)
         {
-            _propertyType = propertyType;
-            _isPreview = isPreview;
+            PropertyType = propertyType;
 
-            _rawValue = value;
+            _sourceValue = value;
 
-            _sourceValue = new Lazy<object>(() => _propertyType.ConvertDataToSource(_rawValue, _isPreview));
-            _objectValue = new Lazy<object>(() => _propertyType.ConvertSourceToObject(_sourceValue.Value, _isPreview));
-            _xpathValue = new Lazy<object>(() => _propertyType.ConvertSourceToXPath(_sourceValue.Value, _isPreview));
+            _interValue = new Lazy<object>(() => PropertyType.ConvertSourceToInter(owner, _sourceValue, preview));
+            _objectValue = new Lazy<object>(() => PropertyType.ConvertInterToObject(owner, PropertyCacheLevel.Unknown, _interValue.Value, preview));
+            _xpathValue = new Lazy<object>(() => PropertyType.ConvertInterToXPath(owner, PropertyCacheLevel.Unknown, _interValue.Value, preview));
         }
 
-        public string PropertyTypeAlias => _propertyType.PropertyTypeAlias;
+        public IPublishedPropertyType PropertyType { get; }
 
-        public bool HasValue
+        public string Alias => PropertyType.Alias;
+
+        public object GetSourceValue(string culture = null, string segment = null)
         {
-            get { return DataValue != null && DataValue.ToString().Trim().Length > 0; }
+            return _sourceValue;
         }
 
-        public object DataValue => _rawValue;
+        public object GetValue(string culture = null, string segment = null)
+        {
+            return _objectValue.Value;
+        }
 
-        public object Value => _objectValue.Value;
+        public object GetXPathValue(string culture = null, string segment = null)
+        {
+            return _xpathValue.Value;
+        }
 
-        public object XPathValue => _xpathValue.Value;
+        public bool HasValue(string culture = null, string segment = null)
+        {
+            return _sourceValue != null && _sourceValue.ToString().Trim().Length > 0;
+        }
     }
 }

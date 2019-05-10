@@ -1,27 +1,27 @@
 ﻿using System.Collections.Generic;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Umbraco.Core.IO;
-using Umbraco.Core.Models;
 using Umbraco.Core.PropertyEditors;
 
 namespace Our.Umbraco.InnerContent.PropertyEditors
 {
-    public class SimpleInnerContentPreValueEditor : InnerContentPreValueEditor
+    public class SimpleInnerContentConfigurationEditor : InnerContentConfigurationEditor
     {
-        public SimpleInnerContentPreValueEditor()
+        public SimpleInnerContentConfigurationEditor()
             : base()
         {
             // This ensures that the "contentTypes" and "enableFilter" fields are always at the top of the prevalue fields.
             Fields.InsertRange(0, new[]
             {
-                new PreValueField
+                new ConfigurationField
                 {
                     Key = InnerContentConstants.ContentTypesPreValueKey,
                     Name = "Content Types",
                     View = IOHelper.ResolveUrl("~/App_Plugins/InnerContent/views/innercontent.doctypepicker.html"),
                     Description = "Select the content types to use as the data blueprint."
                 },
-                new PreValueField
+                new ConfigurationField
                 {
                     Key = InnerContentConstants.EnableFilterPreValueKey,
                     Name = "Enable Filter?",
@@ -31,22 +31,20 @@ namespace Our.Umbraco.InnerContent.PropertyEditors
             });
         }
 
-        public override IDictionary<string, object> ConvertDbToEditor(IDictionary<string, object> defaultPreVals, PreValueCollection persistedPreVals)
+        public override object FromDatabase(string configurationJson)
         {
-            if (persistedPreVals.IsDictionaryBased)
+            var config = JsonConvert.DeserializeObject<Dictionary<string, object>>(configurationJson);
+
+            if (config.TryGetValue(InnerContentConstants.ContentTypesPreValueKey, out object val) && val is string contentTypes && string.IsNullOrWhiteSpace(contentTypes) == false)
             {
-                var dict = persistedPreVals.PreValuesAsDictionary;
-                if (dict.TryGetValue(InnerContentConstants.ContentTypesPreValueKey, out PreValue contentTypes) && string.IsNullOrWhiteSpace(contentTypes.Value) == false)
+                var items = JArray.Parse(contentTypes);
+                if (TryEnsureContentTypeGuids(items))
                 {
-                    var items = JArray.Parse(contentTypes.Value);
-                    if (TryEnsureContentTypeGuids(items))
-                    {
-                        contentTypes.Value = items.ToString();
-                    }
+                    config[InnerContentConstants.ContentTypesPreValueKey] = items.ToString();
                 }
             }
 
-            return base.ConvertDbToEditor(defaultPreVals, persistedPreVals);
+            return config;
         }
     }
 }
