@@ -1,5 +1,18 @@
 ﻿<div class="inner-content-pane" ng-controller="Our.Umbraco.InnerContent.Controllers.InnerContentCreateController" ng-cloak>
 
+    <div class="umb-control-group" ng-show="enableFilter">
+        <div class="form-search">
+            <i class="icon icon-search"></i>
+            <input type="text"
+                   ng-model="searchTerm"
+                   class="umb-search-field search-query input-block-level -full-width-input"
+                   localize="placeholder"
+                   placeholder="@placeholders_filter"
+                   umb-auto-focus
+                   no-dirty-check />
+        </div>
+    </div>
+
     <h5 ng-show="selectContentType">Select a Content Type</h5>
     <h5 ng-show="selectBlueprint"><localize key="blueprints_selectBlueprint">Select a blueprint</localize></h5>
 
@@ -8,8 +21,8 @@
     </p>
 
     <ul class="umb-actions umb-actions-child" ng-show="selectContentType">
-        
-        <li data-element="action-create-{{docType.alias}}" ng-repeat="docType in allowedTypes">
+
+        <li data-element="action-create-{{docType.alias}}" ng-repeat="docType in allowedTypes | filter: searchTerm">
             <a ng-click="createOrSelectBlueprintIfAny(docType)">
                 <i class="large {{docType.icon}}"></i>
                 <span class="menu-label">
