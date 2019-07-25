@@ -1,4 +1,4 @@
-﻿// Prevalue Editors
+// Prevalue Editors
 angular.module("umbraco").controller("Our.Umbraco.InnerContent.Controllers.DocTypePickerController", [
 
     "$scope",
@@ -49,7 +49,6 @@ angular.module("umbraco").controller("Our.Umbraco.InnerContent.Controllers.DocTy
                 icContentTypeGuid: "",
                 nameTemplate: ""
             };
-            $scope.model.value.push(newItem);
             openDocTypePicker(newItem);
             setDirty();
         };
@@ -100,6 +99,8 @@ angular.module("umbraco").controller("Our.Umbraco.InnerContent.Controllers.DocTy
                 show: true,
                 submit: function (model) {
                     config.icContentTypeGuid = model.selectedItem.guid;
+                    $scope.model.value.push(config);
+
                     updateSelectedDocTypes();
                     vm.docTypePicker.show = false;
                     vm.docTypePicker = null;
