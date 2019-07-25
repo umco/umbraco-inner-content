@@ -1,0 +1,26 @@
+trigger:
+- master
+
+pool:
+  vmImage: 'vs2017-win2016'
+
+variables:
+  version: 2.0.5.$(Build.BuildId)
+
+steps:
+- task: CmdLine@2
+  displayName: 'Build Packages'
+  inputs:
+    script: 'build-pipelines.cmd'
+  env:
+    BranchName: $(Build.SourceBranchName)
+    Version: $(version)
+    BuildNumber: $(Build.BuildId)
+    Tag: false
+    Suffix: 'lcsc'
+
+- task: PublishBuildArtifacts@1
+  inputs:
+    PathtoPublish: 'artifacts'
+    ArtifactName: 'drop'
+    publishLocation: 'Container'
