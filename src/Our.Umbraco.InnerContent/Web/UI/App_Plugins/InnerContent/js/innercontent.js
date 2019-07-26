@@ -51,7 +51,7 @@ angular.module("umbraco").controller("Our.Umbraco.InnerContent.Controllers.DocTy
                 icContentTypeGuid: "",
                 nameTemplate: ""
             };
-            openDocTypePicker(newItem);
+            openDocTypePicker(newItem, true);
             setDirty();
         };
 
@@ -93,7 +93,7 @@ angular.module("umbraco").controller("Our.Umbraco.InnerContent.Controllers.DocTy
             });
         };
 
-        function openDocTypePicker(config) {
+        function openDocTypePicker(config, isNew) {
             vm.docTypePicker = {
                 view: "itempicker",
                 availableItems: vm.docTypes,
@@ -101,7 +101,9 @@ angular.module("umbraco").controller("Our.Umbraco.InnerContent.Controllers.DocTy
                 show: true,
                 submit: function (model) {
                     config.icContentTypeGuid = model.selectedItem.guid;
-                    $scope.model.value.push(config);
+                    if (isNew === true) {
+                        $scope.model.value.push(config);
+                    }
 
                     updateSelectedDocTypes();
                     vm.docTypePicker.show = false;
