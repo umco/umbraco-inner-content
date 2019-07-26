@@ -1,4 +1,4 @@
-﻿// Prevalue Editors
+// Prevalue Editors
 angular.module("umbraco").controller("Our.Umbraco.InnerContent.Controllers.DocTypePickerController", [
 
     "$scope",
@@ -7,10 +7,17 @@ angular.module("umbraco").controller("Our.Umbraco.InnerContent.Controllers.DocTy
     function ($scope, innerContentService) {
 
         var vm = this;
+        vm.docTypes = [];
+        vm.selectedDocTypes = [];
+        vm.selectedItems = [];
         vm.add = add;
         vm.remove = remove;
         vm.tooltipMouseOver = tooltipMouseOver;
         vm.tooltipMouseLeave = tooltipMouseLeave;
+        vm.getContentType = getContentType;
+        vm.openDocTypePicker = openDocTypePicker;
+        vm.showPrompt = showPrompt;
+        vm.hidePrompt = hidePrompt;
 
         vm.sortableOptions = {
             axis: "y",
@@ -33,23 +40,35 @@ angular.module("umbraco").controller("Our.Umbraco.InnerContent.Controllers.DocTy
 
         innerContentService.getAllContentTypes().then(function (docTypes) {
             vm.docTypes = docTypes;
+            initSelectedItems();
+            updateSelectedDocTypes();
+
+            $scope.$watch('vm.selectedItems', _.debounce(function (newVal, oldVal) {
+                if (newVal !== oldVal) {
+                    updateModel();
+                }
+            }, 300), true);
         });
 
         if (!$scope.model.value) {
             $scope.model.value = [];
-            add();
         }
 
         function add() {
-            $scope.model.value.push({
-                icContentTypeGuid: "",
-                nameTemplate: ""
-            });
+            var newItem = {
+                guid: "",
+                nameTemplate: "",
+                icon: "",
+                name: "",
+                alias: ""
+            };
+            openDocTypePicker(newItem, true);
             setDirty();
         };
 
         function remove(index) {
-            $scope.model.value.splice(index, 1);
+            vm.selectedItems.splice(index, 1);
+            updateSelectedDocTypes();
             setDirty();
         };
 
@@ -67,6 +86,76 @@ angular.module("umbraco").controller("Our.Umbraco.InnerContent.Controllers.DocTy
                 event: null,
                 content: null
             };
+        };
+
+        function initSelectedItems() {
+            vm.selectedItems = _.map($scope.model.value, function (i) {
+                var docType = getContentType(i.icContentTypeGuid);
+
+                return {
+                    guid: i.icContentTypeGuid,
+                    nameTemplate: i.nameTemplate,
+                    icon: docType.icon,
+                    name: docType.name,
+                    alias: docType.alias
+                };
+            });
+        }
+
+        function updateSelectedDocTypes() {
+            vm.selectedDocTypes = _.filter(vm.docTypes, function (i) {
+                var match = _.find(vm.selectedItems, function (c) {
+                    return c.guid === i.guid;
+                });
+
+                return match !== undefined;
+            });
+        };
+
+        function updateModel() {
+            $scope.model.value = _.map(vm.selectedItems, function (i) {
+                return {
+                    icContentTypeGuid: i.guid,
+                    nameTemplate: i.nameTemplate
+                };
+            });
+        }
+
+        function getContentType(guid) {
+            return _.find(vm.docTypes, function (d) {
+                return d.guid === guid;
+            });
+        };
+
+        function openDocTypePicker(item, isNew) {
+            vm.docTypePicker = {
+                view: "itempicker",
+                availableItems: vm.docTypes,
+                selectedItems: vm.selectedDocTypes,
+                show: true,
+                submit: function (model) {
+                    item.guid = model.selectedItem.guid;
+                    item.icon = model.selectedItem.icon;
+                    item.name = model.selectedItem.name;
+                    item.alias = model.selectedItem.alias;
+
+                    if (isNew === true) {
+                        vm.selectedItems.push(item);
+                    }
+
+                    updateSelectedDocTypes();
+                    vm.docTypePicker.show = false;
+                    vm.docTypePicker = null;
+                }
+            };
+        };
+
+        function showPrompt(item) {
+            item.promptIsVisible = true;
+        };
+
+        function hidePrompt(item) {
+            delete item.promptIsVisible;
         };
 
         function setDirty() {

@@ -1,42 +1,43 @@
 ﻿<div class="inner-content__doctypepicker" ng-controller="Our.Umbraco.InnerContent.Controllers.DocTypePickerController as vm">
-    <div>
-        <table class="table table-striped">
-            <thead>
-                <tr>
-                    <th class="td-min" />
-                    <th>
-                        Document Type
-                    </th>
-                    <th>
-                        Name Template
-                        <i class="icon icon-help-alt inner-content__help-icon"
-                           data-tooltip="Enter an angularjs expression to evaluate against each item for its name."
-                           ng-mouseover="vm.tooltipMouseOver($event)"
-                           ng-mouseleave="vm.tooltipMouseLeave()"></i>
-                    </th>
-                    <th class="td-min" ng-show="model.value.length > 1" />
-                </tr>
-            </thead>
-            <tbody ui-sortable="vm.sortableOptions" ng-model="model.value">
-                <tr ng-repeat="config in model.value">
-                    <td class="icon icon-navigation"></td>
-                    <td>
-                        <select ng-options="dt.guid as dt.name for dt in vm.docTypes"
-                                ng-model="config.icContentTypeGuid" required></select>
-                    </td>
-                    <td>
-                        <input type="text" ng-model="config.nameTemplate" />
-                    </td>
-                    <td ng-show="model.value.length > 1">
-                        <a class="btn btn-danger" ng-click="vm.remove($index)">Remove</a>
-                    </td>
-                </tr>
-            </tbody>
-        </table>
-        <div>
-            <a href="" class="btn" ng-click="vm.add()">Add</a>
-        </div>
+    <div class="inner-content__help-container">
+        <i class="icon icon-help-alt inner-content__help-icon"
+           data-tooltip="Name Template: Enter an angularjs expression to evaluate against each item for its name."
+           ng-mouseover="vm.tooltipMouseOver($event)"
+           ng-mouseleave="vm.tooltipMouseLeave()"></i>
     </div>
+    <div class="list-view-layouts" ui-sortable="vm.sortableOptions" ng-model="vm.selectedItems">
+        <div class="list-view-layout" ng-repeat="item in vm.selectedItems">
+            <i class="icon-navigation list-view-layout__sort-handle"></i>
+            <div>
+                <a href="" ng-click="vm.openDocTypePicker(item)" class="list-view-layout__icon">
+                    <i class="{{ item.icon ||  'icon-stop' }}"></i>
+                </a>
+            </div>
+            <div class="list-view-layout__name">
+                <span class="list-view-layout__name-text">{{ item.name || 'Name' }}</span>
+                <span class="list-view-layout__system">({{ item.alias || 'alias' }})</span>
+            </div>
+            <div class="list-view-layout__path">
+                <input type="text" ng-model="item.nameTemplate" placeholder="name template..." class="-full-width-input" />
+            </div>
+            <div>
+                <div class="list-view-layout__remove">
+                    <i class="icon-trash" ng-click="vm.showPrompt(item)"></i>
+                    <umb-confirm-action ng-if="item.promptIsVisible"
+                                        direction="left"
+                                        on-confirm="vm.remove($index)"
+                                        on-cancel="vm.hidePrompt(item)">
+                    </umb-confirm-action>
+                </div>
+            </div>
+        </div>
+        <a href="" class="list-view-add-layout" ng-click="vm.add()">Add Content Type</a>
+    </div>
+    <umb-overlay ng-if="vm.docTypePicker.show"
+                 model="vm.docTypePicker"
+                 view="vm.docTypePicker.view"
+                 position="right">
+    </umb-overlay>
     <umb-tooltip ng-if="vm.tooltip.show" event="vm.tooltip.event">
         {{vm.tooltip.content}}
     </umb-tooltip>
