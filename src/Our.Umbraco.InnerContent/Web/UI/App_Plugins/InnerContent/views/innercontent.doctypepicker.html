@@ -5,28 +5,28 @@
            ng-mouseover="vm.tooltipMouseOver($event)"
            ng-mouseleave="vm.tooltipMouseLeave()"></i>
     </div>
-    <div class="list-view-layouts" ui-sortable="vm.sortableOptions" ng-model="model.value">
-        <div class="list-view-layout" ng-repeat="config in model.value">
+    <div class="list-view-layouts" ui-sortable="vm.sortableOptions" ng-model="vm.selectedItems">
+        <div class="list-view-layout" ng-repeat="item in vm.selectedItems">
             <i class="icon-navigation list-view-layout__sort-handle"></i>
             <div>
-                <a href="" ng-click="vm.openDocTypePicker(config)" class="list-view-layout__icon">
-                    <i class="{{ vm.getContentType(config.icContentTypeGuid).icon ||  'icon-stop' }}"></i>
+                <a href="" ng-click="vm.openDocTypePicker(item)" class="list-view-layout__icon">
+                    <i class="{{ item.icon ||  'icon-stop' }}"></i>
                 </a>
             </div>
             <div class="list-view-layout__name">
-                <span class="list-view-layout__name-text">{{ vm.getContentType(config.icContentTypeGuid).name || 'Name' }}</span>
-                <span class="list-view-layout__system">({{ vm.getContentType(config.icContentTypeGuid).alias || 'alias' }})</span>
+                <span class="list-view-layout__name-text">{{ item.name || 'Name' }}</span>
+                <span class="list-view-layout__system">({{ item.alias || 'alias' }})</span>
             </div>
             <div class="list-view-layout__path">
-                <input type="text" ng-model="config.nameTemplate" placeholder="name template..." class="-full-width-input" />
+                <input type="text" ng-model="item.nameTemplate" placeholder="name template..." class="-full-width-input" />
             </div>
             <div>
                 <div class="list-view-layout__remove">
-                    <i class="icon-trash" ng-click="vm.showPrompt(config)"></i>
-                    <umb-confirm-action ng-if="config.promptIsVisible"
+                    <i class="icon-trash" ng-click="vm.showPrompt(item)"></i>
+                    <umb-confirm-action ng-if="item.promptIsVisible"
                                         direction="left"
                                         on-confirm="vm.remove($index)"
-                                        on-cancel="vm.hidePrompt(config)">
+                                        on-cancel="vm.hidePrompt(item)">
                     </umb-confirm-action>
                 </div>
             </div>
