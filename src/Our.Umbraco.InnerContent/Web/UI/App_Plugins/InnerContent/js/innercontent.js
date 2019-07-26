@@ -15,6 +15,8 @@ angular.module("umbraco").controller("Our.Umbraco.InnerContent.Controllers.DocTy
         vm.tooltipMouseLeave = tooltipMouseLeave;
         vm.getContentType = getContentType;
         vm.openDocTypePicker = openDocTypePicker;
+        vm.showPrompt = showPrompt;
+        vm.hidePrompt = hidePrompt;
 
         vm.sortableOptions = {
             axis: "y",
@@ -106,6 +108,14 @@ angular.module("umbraco").controller("Our.Umbraco.InnerContent.Controllers.DocTy
                     vm.docTypePicker = null;
                 }
             };
+        };
+
+        function showPrompt(config) {
+            config.promptIsVisible = true;
+        };
+
+        function hidePrompt(config) {
+            delete config.promptIsVisible;
         };
 
         function setDirty() {
