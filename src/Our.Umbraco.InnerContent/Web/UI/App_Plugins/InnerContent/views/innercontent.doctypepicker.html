@@ -5,33 +5,52 @@
            ng-mouseover="vm.tooltipMouseOver($event)"
            ng-mouseleave="vm.tooltipMouseLeave()"></i>
     </div>
-    <div class="list-view-layouts" ui-sortable="vm.sortableOptions" ng-model="vm.selectedItems">
-        <div class="list-view-layout" ng-repeat="item in vm.selectedItems">
-            <i class="icon-navigation list-view-layout__sort-handle"></i>
-            <div>
-                <a href="" ng-click="vm.openDocTypePicker(item)" class="list-view-layout__icon">
-                    <i class="{{ item.icon ||  'icon-stop' }}"></i>
-                </a>
-            </div>
-            <div class="list-view-layout__name">
-                <span class="list-view-layout__name-text">{{ item.name || 'Name' }}</span>
-                <span class="list-view-layout__system">({{ item.alias || 'alias' }})</span>
-            </div>
-            <div class="list-view-layout__path">
-                <input type="text" ng-model="item.nameTemplate" placeholder="name template..." class="-full-width-input" />
-            </div>
-            <div>
+    <div class="inner-content__groups" ui-sortable="vm.sortableOptions" ng-model="vm.docTypeGroups">
+        <div class="inner-content__group" ng-repeat="group in vm.docTypeGroups">
+            <div class="inner-content__group-config">
+                <i class="icon-navigation list-view-layout__sort-handle"></i>
+                <div class="inner-content__group-name list-view-layout__path">
+                    <input type="text" ng-model="group.groupName" placeholder="group name..." class="-full-width-input" />
+                </div>
                 <div class="list-view-layout__remove">
-                    <i class="icon-trash" ng-click="vm.showPrompt(item)"></i>
-                    <umb-confirm-action ng-if="item.promptIsVisible"
+                    <i class="icon-trash" ng-click="vm.showPrompt(group)"></i>
+                    <umb-confirm-action ng-if="group.promptIsVisible"
                                         direction="left"
-                                        on-confirm="vm.remove($index)"
-                                        on-cancel="vm.hidePrompt(item)">
+                                        on-confirm="vm.removeGroup($index)"
+                                        on-cancel="vm.hidePrompt(group)">
                     </umb-confirm-action>
                 </div>
             </div>
+            <div class="inner-content__group-doctypes list-view-layouts" ui-sortable="vm.sortableOptions" ng-model="group.docTypes">
+                <div class="list-view-layout" ng-repeat="item in group.docTypes">
+                    <i class="icon-navigation list-view-layout__sort-handle"></i>
+                    <div>
+                        <a href="" ng-click="vm.openDocTypePicker(item)" class="list-view-layout__icon">
+                            <i class="{{ item.icon ||  'icon-stop' }}"></i>
+                        </a>
+                    </div>
+                    <div class="list-view-layout__name">
+                        <span class="list-view-layout__name-text">{{ item.name || 'Name' }}</span>
+                        <span class="list-view-layout__system">({{ item.alias || 'alias' }})</span>
+                    </div>
+                    <div class="list-view-layout__path">
+                        <input type="text" ng-model="item.nameTemplate" placeholder="name template..." class="-full-width-input" />
+                    </div>
+                    <div>
+                        <div class="list-view-layout__remove">
+                            <i class="icon-trash" ng-click="vm.showPrompt(item)"></i>
+                            <umb-confirm-action ng-if="item.promptIsVisible"
+                                                direction="left"
+                                                on-confirm="vm.removeDocType(group, $index)"
+                                                on-cancel="vm.hidePrompt(item)">
+                            </umb-confirm-action>
+                        </div>
+                    </div>
+                </div>
+                <a href="" class="list-view-add-layout" ng-click="vm.addDocType(group)">Add Content Type</a>
+            </div>
         </div>
-        <a href="" class="list-view-add-layout" ng-click="vm.add()">Add Content Type</a>
+        <a href="" class="list-view-add-layout" ng-click="vm.addGroup()">Add Group</a>
     </div>
     <umb-overlay ng-if="vm.docTypePicker.show"
                  model="vm.docTypePicker"

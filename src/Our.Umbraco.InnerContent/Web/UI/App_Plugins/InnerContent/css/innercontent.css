@@ -1,5 +1,9 @@
 ﻿/* Inner Content - Doc Type Picker */
 
+.inner-content__doctypepicker .list-view-layout__sort-handle {
+    color: #807c83
+}
+
 .inner-content__doctypepicker .inner-content__help-container {
     text-align: right;
     margin-bottom: .5em;
@@ -18,6 +22,35 @@
     width: 100%;
 }
 
+/* Inner Content - Doc Type Picker Groups */
+
+.inner-content__doctypepicker .inner-content__groups {
+}
+
+.inner-content__doctypepicker .inner-content__group {
+    margin-bottom: 30px;
+    border: 1px solid #d8d7d9;
+}
+
+    .inner-content__doctypepicker .inner-content__group .list-view-add-layout {
+        margin: 10px 15px;
+    }
+
+.inner-content__doctypepicker .inner-content__group-config {
+    display: flex;
+    padding: 10px 15px;
+    align-items: center;
+    background-color: #d8d7d9;
+}
+
+.inner-content__doctypepicker .inner-content__group-name {
+    flex-grow: 1;
+}
+
+.inner-content__doctypepicker .inner-content__group-doctypes {
+}
+
+
 /* Inner Content - Content Overlay Panel */
 
 .inner-content-overlay > .umb-overlay-right > .umb-overlay__form > .umb-overlay-container {
@@ -32,3 +65,12 @@
 .inner-content-pane {
     margin: 30px 20px;
 }
+
+    .inner-content-pane .inner-content-pane__group {
+        text-transform: uppercase;
+        font-size: 12px;
+        border-bottom: 1px solid #f3f3f5;
+        padding-bottom: 5px;
+        margin-top: 20px;
+        font-weight: bold;
+    }
