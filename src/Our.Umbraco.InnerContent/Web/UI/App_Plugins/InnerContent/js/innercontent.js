@@ -90,53 +90,6 @@ angular.module("umbraco").controller("Our.Umbraco.InnerContent.Controllers.DocTy
             }];
         }
 
-        function addGroup() {
-            vm.docTypeGroups.push({
-                groupName: '',
-                docTypes: []
-            });
-        }
-
-        function removeGroup(index) {
-            vm.docTypeGroups.splice(index, 1);
-            updateSelectedDocTypes();
-            setDirty();
-        }
-
-        function addDocType(group) {
-            var newItem = {
-                guid: "",
-                nameTemplate: "",
-                icon: "",
-                name: "",
-                alias: ""
-            };
-            openDocTypePicker(newItem, group, true);
-            setDirty();
-        };
-
-        function removeDocType(group, index) {
-            group.docTypes.splice(index, 1);
-            updateSelectedDocTypes();
-            setDirty();
-        };
-
-        function tooltipMouseOver($event) {
-            vm.tooltip = {
-                show: true,
-                event: $event,
-                content: $event.currentTarget.dataset.tooltip
-            };
-        };
-
-        function tooltipMouseLeave() {
-            vm.tooltip = {
-                show: false,
-                event: null,
-                content: null
-            };
-        };
-
         function updateSelectedDocTypes() {
             var selectedGuids = _.reduce(vm.docTypeGroups, function (acc, cur) {
                 _.each(cur.docTypes, function (i) {
@@ -164,12 +117,37 @@ angular.module("umbraco").controller("Our.Umbraco.InnerContent.Controllers.DocTy
                     docTypes: docTypes
                 };
             });
-        }
+        };
 
-        function getContentType(guid) {
-            return _.find(vm.docTypes, function (d) {
-                return d.guid === guid;
+        function addGroup() {
+            vm.docTypeGroups.push({
+                groupName: '',
+                docTypes: []
             });
+        };
+
+        function removeGroup(index) {
+            vm.docTypeGroups.splice(index, 1);
+            updateSelectedDocTypes();
+            setDirty();
+        };
+
+        function addDocType(group) {
+            var newItem = {
+                guid: "",
+                nameTemplate: "",
+                icon: "",
+                name: "",
+                alias: ""
+            };
+            openDocTypePicker(newItem, group, true);
+            setDirty();
+        };
+
+        function removeDocType(group, index) {
+            group.docTypes.splice(index, 1);
+            updateSelectedDocTypes();
+            setDirty();
         };
 
         function openDocTypePicker(item, group, isNew) {
@@ -195,12 +173,34 @@ angular.module("umbraco").controller("Our.Umbraco.InnerContent.Controllers.DocTy
             };
         };
 
+        function tooltipMouseOver($event) {
+            vm.tooltip = {
+                show: true,
+                event: $event,
+                content: $event.currentTarget.dataset.tooltip
+            };
+        };
+
+        function tooltipMouseLeave() {
+            vm.tooltip = {
+                show: false,
+                event: null,
+                content: null
+            };
+        };
+
         function showPrompt(item) {
             item.promptIsVisible = true;
         };
 
         function hidePrompt(item) {
             delete item.promptIsVisible;
+        };
+
+        function getContentType(guid) {
+            return _.find(vm.docTypes, function (d) {
+                return d.guid === guid;
+            });
         };
 
         function setDirty() {
