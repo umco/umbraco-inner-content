@@ -1,24 +1,53 @@
 ﻿/* Inner Content - Doc Type Picker */
 
-.inner-content__doctypepicker table input,
-.inner-content__doctypepicker table select {
-    width: 100%;
-    padding-right: 0;
+.inner-content__doctypepicker .list-view-layout__sort-handle {
+    color: #807c83
 }
 
-.inner-content__doctypepicker table td.icon-navigation,
+.inner-content__doctypepicker .inner-content__help-container {
+    text-align: right;
+    margin-bottom: .5em;
+}
+
 .inner-content__doctypepicker i.inner-content__help-icon {
     vertical-align: middle;
     color: #CCC;
 }
 
-.inner-content__doctypepicker table td.icon-navigation:hover,
-.inner-content__doctypepicker i.inner-content__help-icon:hover {
-    color: #343434;
+    .inner-content__doctypepicker i.inner-content__help-icon:hover {
+        color: #343434;
+    }
+
+.inner-content__doctypepicker .list-view-layout__system {
+    width: 100%;
 }
 
-.inner-content__doctypepicker table .td-min {
-    width: 1px;
+/* Inner Content - Doc Type Picker Groups */
+
+.inner-content__doctypepicker .inner-content__groups {
+}
+
+.inner-content__doctypepicker .inner-content__group {
+    margin-bottom: 30px;
+    border: 1px solid #d8d7d9;
+}
+
+    .inner-content__doctypepicker .inner-content__group .list-view-add-layout {
+        margin: 10px 15px;
+    }
+
+.inner-content__doctypepicker .inner-content__group-config {
+    display: flex;
+    padding: 10px 15px;
+    align-items: center;
+    background-color: #d8d7d9;
+}
+
+.inner-content__doctypepicker .inner-content__group-name {
+    flex-grow: 1;
+}
+
+.inner-content__doctypepicker .inner-content__group-doctypes {
 }
 
 
@@ -36,3 +65,12 @@
 .inner-content-pane {
     margin: 30px 20px;
 }
+
+    .inner-content-pane .inner-content-pane__group {
+        text-transform: uppercase;
+        font-size: 12px;
+        border-bottom: 1px solid #f3f3f5;
+        padding-bottom: 5px;
+        margin-top: 20px;
+        font-weight: bold;
+    }

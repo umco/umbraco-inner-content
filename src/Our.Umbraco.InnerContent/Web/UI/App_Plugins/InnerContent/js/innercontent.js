@@ -1,4 +1,4 @@
-﻿// Prevalue Editors
+// Prevalue Editors
 angular.module("umbraco").controller("Our.Umbraco.InnerContent.Controllers.DocTypePickerController", [
 
     "$scope",
@@ -7,10 +7,19 @@ angular.module("umbraco").controller("Our.Umbraco.InnerContent.Controllers.DocTy
     function ($scope, innerContentService) {
 
         var vm = this;
-        vm.add = add;
-        vm.remove = remove;
+        vm.docTypes = [];
+        vm.selectedDocTypes = [];
+        vm.docTypeGroups = [];
+        vm.addDocType = addDocType;
+        vm.removeDocType = removeDocType;
+        vm.addGroup = addGroup;
+        vm.removeGroup = removeGroup;
         vm.tooltipMouseOver = tooltipMouseOver;
         vm.tooltipMouseLeave = tooltipMouseLeave;
+        vm.getContentType = getContentType;
+        vm.openDocTypePicker = openDocTypePicker;
+        vm.showPrompt = showPrompt;
+        vm.hidePrompt = hidePrompt;
 
         vm.sortableOptions = {
             axis: "y",
@@ -33,24 +42,135 @@ angular.module("umbraco").controller("Our.Umbraco.InnerContent.Controllers.DocTy
 
         innerContentService.getAllContentTypes().then(function (docTypes) {
             vm.docTypes = docTypes;
+            init();
+            updateSelectedDocTypes();
+
+            $scope.$watch('vm.docTypeGroups', _.debounce(function (newVal, oldVal) {
+                if (newVal !== oldVal) {
+                    updateModel();
+                }
+            }, 300), true);
         });
 
-        if (!$scope.model.value) {
-            $scope.model.value = [];
-            add();
+        function init() {
+            if ($scope.model.value && $scope.model.value.length !== 0) {
+                ensureGroupSupport(); // for data types that were configured before groups feature
+
+                vm.docTypeGroups = _.map($scope.model.value, function (i) {
+                    var docTypes = _.map(i.docTypes, function (d) {
+                        var ct = getContentType(d.icContentTypeGuid);
+
+                        return {
+                            guid: d.icContentTypeGuid,
+                            nameTemplate: d.nameTemplate,
+                            icon: ct.icon,
+                            name: ct.name,
+                            alias: ct.alias
+                        };
+                    });
+
+                    return {
+                        groupName: i.groupName,
+                        docTypes: docTypes
+                    };
+                });
+            } else {
+                addGroup();
+            }
         }
 
-        function add() {
-            $scope.model.value.push({
-                icContentTypeGuid: "",
-                nameTemplate: ""
+        function ensureGroupSupport() {
+            if ('groupName' in $scope.model.value[0]) {
+                return;
+            }
+
+            $scope.model.value = [{
+                groupName: '',
+                docTypes: $scope.model.value
+            }];
+        }
+
+        function updateSelectedDocTypes() {
+            var selectedGuids = _.reduce(vm.docTypeGroups, function (acc, cur) {
+                _.each(cur.docTypes, function (i) {
+                    acc.push(i.guid);
+                });
+                return acc;
+            }, []);
+
+            vm.selectedDocTypes = _.filter(vm.docTypes, function (i) {
+                return _.contains(selectedGuids, i.guid);
             });
+        };
+
+        function updateModel() {
+            $scope.model.value = _.map(vm.docTypeGroups, function (i) {
+                var docTypes = _.map(i.docTypes, function (d) {
+                    return {
+                        icContentTypeGuid: d.guid,
+                        nameTemplate: d.nameTemplate
+                    };
+                });
+
+                return {
+                    groupName: i.groupName,
+                    docTypes: docTypes
+                };
+            });
+        };
+
+        function addGroup() {
+            vm.docTypeGroups.push({
+                groupName: '',
+                docTypes: []
+            });
+        };
+
+        function removeGroup(index) {
+            vm.docTypeGroups.splice(index, 1);
+            updateSelectedDocTypes();
             setDirty();
         };
 
-        function remove(index) {
-            $scope.model.value.splice(index, 1);
+        function addDocType(group) {
+            var newItem = {
+                guid: "",
+                nameTemplate: "",
+                icon: "",
+                name: "",
+                alias: ""
+            };
+            openDocTypePicker(newItem, group, true);
             setDirty();
+        };
+
+        function removeDocType(group, index) {
+            group.docTypes.splice(index, 1);
+            updateSelectedDocTypes();
+            setDirty();
+        };
+
+        function openDocTypePicker(item, group, isNew) {
+            vm.docTypePicker = {
+                view: "itempicker",
+                availableItems: vm.docTypes,
+                selectedItems: vm.selectedDocTypes,
+                show: true,
+                submit: function (model) {
+                    item.guid = model.selectedItem.guid;
+                    item.icon = model.selectedItem.icon;
+                    item.name = model.selectedItem.name;
+                    item.alias = model.selectedItem.alias;
+
+                    if (isNew === true) {
+                        group.docTypes.push(item);
+                    }
+
+                    updateSelectedDocTypes();
+                    vm.docTypePicker.show = false;
+                    vm.docTypePicker = null;
+                }
+            };
         };
 
         function tooltipMouseOver($event) {
@@ -67,6 +187,20 @@ angular.module("umbraco").controller("Our.Umbraco.InnerContent.Controllers.DocTy
                 event: null,
                 content: null
             };
+        };
+
+        function showPrompt(item) {
+            item.promptIsVisible = true;
+        };
+
+        function hidePrompt(item) {
+            delete item.promptIsVisible;
+        };
+
+        function getContentType(guid) {
+            return _.find(vm.docTypes, function (d) {
+                return d.guid === guid;
+            });
         };
 
         function setDirty() {
@@ -90,8 +224,10 @@ angular.module("umbraco").controller("Our.Umbraco.InnerContent.Controllers.Inner
                 $scope.allowBlank = blueprintConfig.allowBlank;
                 $scope.enableFilter = $scope.model.enableFilter;
 
-                if ($scope.allowedTypes.length === 1) {
-                    $scope.selectedDocType = $scope.allowedTypes[0];
+                var allowedTypes = getAllowedTypes();
+
+                if (allowedTypes.length === 1) {
+                    $scope.selectedDocType = allowedTypes[0];
                     $scope.selectContentType = false;
                     $scope.selectBlueprint = true;
                 } else {
@@ -99,6 +235,19 @@ angular.module("umbraco").controller("Our.Umbraco.InnerContent.Controllers.Inner
                     $scope.selectBlueprint = false;
                 }
             };
+
+            function getAllowedTypes() {
+                if ('groupName' in $scope.allowedTypes[0]) {
+                    var flattenedAllowedTypes = _.reduce($scope.allowedTypes, function (acc, cur) {
+                        acc = acc.concat(cur.docTypes);
+                        return acc;
+                    }, []);
+
+                    return flattenedAllowedTypes;
+                } else {
+                    return $scope.allowedTypes;
+                }
+            }
 
             function createBlank(docTypeKey) {
                 $scope.model.selectedItem = { "key": docTypeKey, "blueprint": null };
@@ -167,7 +316,9 @@ angular.module("umbraco.directives").directive("innerContentOverlay", [
             scope.overlayClasses = scope.overlayClasses || [];
 
             var getContentType = function (guid) {
-                return _.find(scope.config.contentTypes, function (ct) {
+                var contentTypes = getFlattenedContentTypes(scope.config.contentTypes);
+
+                return _.find(contentTypes, function (ct) {
                     return ct.icContentTypeGuid.toLowerCase() === guid.toLowerCase();
                 });
             };
@@ -195,6 +346,17 @@ angular.module("umbraco.directives").directive("innerContentOverlay", [
                     });
                 }
 
+            };
+
+            var getFlattenedContentTypes = function (contentTypes) {
+                if ('groupName' in contentTypes[0]) {
+                    return _.reduce(contentTypes, function (acc, cur) {
+                        acc = acc.concat(cur.docTypes);
+                        return acc;
+                    }, []);
+                } else {
+                    return contentTypes;
+                }
             };
 
             scope.contentTypePickerOverlay = {
@@ -239,13 +401,15 @@ angular.module("umbraco.directives").directive("innerContentOverlay", [
 
             scope.openContentTypePickerOverlay = function () {
 
-                if (scope.contentTypePickerOverlay.availableItems.length === 0) {
+                var availableItems = getFlattenedContentTypes(scope.contentTypePickerOverlay.availableItems);
+
+                if (availableItems.length === 0) {
                     scope.closeAllOverlays();
                     return;
                 }
 
-                if (scope.contentTypePickerOverlay.availableItems.length === 1 && _.isEmpty(scope.contentTypePickerOverlay.availableItems[0].blueprints)) {
-                    var ct = getContentType(scope.contentTypePickerOverlay.availableItems[0].key);
+                if (availableItems.length === 1 && _.isEmpty(availableItems[0].blueprints)) {
+                    var ct = getContentType(availableItems[0].key);
                     createEditorModel(ct).then(function (em) {
                         scope.currentItem = em;
                         scope.openContentEditorOverlay();
@@ -298,6 +462,17 @@ angular.module("umbraco.directives").directive("innerContentOverlay", [
                 }
             };
 
+            function ensureGroupSupport(contentTypes) {
+                if ('groupName' in contentTypes[0]) {
+                    return contentTypes;
+                }
+
+                return [{
+                    groupName: '',
+                    docTypes: contentTypes
+                }];
+            }
+
             var initOpen = function () {
 
                 // Map scaffolds to content type picker list
@@ -325,13 +500,28 @@ angular.module("umbraco.directives").directive("innerContentOverlay", [
                 // If overlay items haven't be initialized, then intialize them
                 if (!scope.config.contentTypePickerItems) {
 
-                    var guids = scope.config.contentTypes.map(function (itm) {
+                    var flattenedContentTypes = getFlattenedContentTypes(scope.config.contentTypes);
+                    var guids = flattenedContentTypes.map(function (itm) {
                         return itm.icContentTypeGuid;
                     });
+
                     innerContentService.getContentTypesByGuid(guids).then(function (contentTypes) {
 
+                        // get grouped content types using a copy of config.doctypes as a base
+                        var groupedContentTypes = angular.copy(scope.config.contentTypes);
+                        groupedContentTypes = ensureGroupSupport(groupedContentTypes);
+
+                        groupedContentTypes = _.map(groupedContentTypes, function (g) {
+                            g.docTypes = _.map(g.docTypes, function (i) {
+                                return _.find(contentTypes, function (c) {
+                                    return c.guid === i.icContentTypeGuid;
+                                });
+                            });
+                            return g;
+                        });
+
                         // Cache items in the PE's config so we only request these once per PE instance
-                        scope.config.contentTypePickerItems = contentTypes;
+                        scope.config.contentTypePickerItems = groupedContentTypes;
 
                         initOpen();
 
@@ -469,7 +659,19 @@ angular.module("umbraco").factory("innerContentService", [
             return (test !== Object(test));
         };
 
+        var getFlattenedContentTypes = function (contentTypes) {
+            if ('groupName' in contentTypes[0]) {
+                return _.reduce(contentTypes, function (acc, cur) {
+                    acc = acc.concat(cur.docTypes);
+                    return acc;
+                }, []);
+            } else {
+                return contentTypes;
+            }
+        };
+
         self.populateName = function (itm, idx, contentTypes) {
+            contentTypes = getFlattenedContentTypes(contentTypes);
 
             var contentType = _.find(contentTypes, function (itm2) {
                 return itm2.icContentTypeGuid === itm.icContentTypeGuid;
@@ -569,7 +771,9 @@ angular.module("umbraco").factory("innerContentService", [
         };
 
         self.createDefaultDbModel = function (contentType) {
-            return self.createEditorModel(contentType).then(function (editorModel) {
+            var docType = ('groupName' in contentType) ? contentType.docTypes[0] : contentType;
+
+            return self.createEditorModel(docType).then(function (editorModel) {
                 return self.createDbModel(editorModel);
             });
         };
