@@ -4,6 +4,7 @@ using System.Linq;
 using Newtonsoft.Json.Linq;
 using Our.Umbraco.InnerContent.Helpers;
 using Umbraco.Core;
+using Umbraco.Core.Logging;
 using Umbraco.Core.Models;
 using Umbraco.Core.Models.Editors;
 using Umbraco.Core.PropertyEditors;
@@ -73,11 +74,12 @@ namespace Our.Umbraco.InnerContent.PropertyEditors
                         // Get the editor to do it's conversion, and store it back
                         item[propKey] = propEditor?.ValueEditor?.ConvertDbToString(prop, propType, dataTypeService);
                     }
-                    catch (InvalidOperationException)
+                    catch (InvalidOperationException ex)
                     {
                         // https://github.com/umco/umbraco-nested-content/issues/111
                         // Catch any invalid cast operations as likely means Courier failed due to missing
                         // or trashed item so couldn't convert a guid back to an int
+                        LogHelper.Error<InnerContentPropertyValueEditor>(propKey, ex);
 
                         item[propKey] = null;
                     }
