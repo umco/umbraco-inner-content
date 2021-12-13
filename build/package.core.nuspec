@@ -15,6 +15,7 @@
 		<licenseUrl></licenseUrl>
 		<language></language>
 		<tags></tags>
+		<repository type="git" url="https://github.com/umco/umbraco-inner-content" />
 		<dependencies>
 			<dependency id="UmbracoCms.Core" version="0.0.0" />
 		</dependencies>

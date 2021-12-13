@@ -1,10 +1,10 @@
-﻿<div class="inner-content-pane" ng-controller="Our.Umbraco.InnerContent.Controllers.InnerContentCreateController" ng-cloak>
+﻿<div class="inner-content-pane" ng-controller="Our.Umbraco.InnerContent.Controllers.InnerContentCreateController as vm" ng-cloak>
 
-    <div class="umb-control-group" ng-show="enableFilter">
+    <div class="umb-control-group" ng-if="vm.enableFilter">
         <div class="form-search">
             <i class="icon icon-search"></i>
             <input type="text"
-                   ng-model="searchTerm"
+                   ng-model="vm.searchTerm"
                    class="umb-search-field search-query input-block-level -full-width-input"
                    localize="placeholder"
                    placeholder="@placeholders_filter"
@@ -13,43 +13,53 @@
         </div>
     </div>
 
-    <h5 ng-show="selectContentType">Select a Content Type</h5>
-    <h5 ng-show="selectBlueprint"><localize key="blueprints_selectBlueprint">Select a blueprint</localize></h5>
+    <h5 ng-if="vm.selectClipboard">Select from Clipboard</h5>
 
-    <p class="abstract" ng-if="allowedTypes && allowedTypes.length === 0">
+    <ul class="umb-actions umb-actions-child" ng-if="vm.clipboardItems">
+        <li ng-repeat="item in vm.clipboardItems | filter: vm.searchTerm">
+            <a ng-click="vm.paste(item)">
+                <i class="large icon" ng-class="item.icon"></i>
+                <span class="menu-label">
+                    <span ng-bind="item.name"></span>
+                </span>
+            </a>
+        </li>
+    </ul>
+
+    <h5 ng-if="vm.selectContentType">Select a Content Type</h5>
+
+    <p class="abstract" ng-if="vm.allowedTypes && vm.allowedTypes.length === 0">
         <localize key="create_noDocumentTypes" />
     </p>
 
-    <ul class="umb-actions umb-actions-child" ng-show="selectContentType">
+    <ul class="umb-actions umb-actions-child" ng-if="vm.selectContentType">
 
-        <li data-element="action-create-{{docType.alias}}" ng-repeat="docType in allowedTypes | filter: searchTerm">
-            <a ng-click="createOrSelectBlueprintIfAny(docType)">
-                <i class="large {{docType.icon}}"></i>
+        <li data-element="action-create-{{docType.alias}}" ng-repeat="docType in vm.allowedTypes | filter: vm.searchTerm">
+            <a ng-click="vm.createOrSelectBlueprintIfAny(docType)">
+                <i class="large icon" ng-class="docType.icon"></i>
                 <span class="menu-label">
-                    {{docType.name}}
-                    <small>
-                        {{docType.description}}
-                    </small>
+                    <span ng-bind="docType.name"></span>
+                    <small ng-bind="docType.description"></small>
                 </span>
             </a>
         </li>
 
     </ul>
 
-    <ul class="umb-actions umb-actions-child" ng-show="selectBlueprint">
+    <h5 ng-if="vm.selectBlueprint"><localize key="blueprints_selectBlueprint">Select a blueprint</localize></h5>
 
-        <li ng-repeat="(key, value) in selectedDocType.blueprints">
-            <a ng-click="createFromBlueprint(selectedDocType.key, key)">
-                <i class="large {{selectedDocType.icon}}"></i>
-                <span class="menu-label">
-                    {{value}}
-                </span>
+    <ul class="umb-actions umb-actions-child" ng-if="vm.selectBlueprint">
+
+        <li ng-repeat="(key, value) in vm.selectedDocType.blueprints">
+            <a ng-click="createFromBlueprint(vm.selectedDocType.key, key)">
+                <i class="large icon" ng-class="vm.selectedDocType.icon"></i>
+                <span class="menu-label" ng-bind="value"></span>
             </a>
         </li>
 
-        <li class="sep" ng-show="allowBlank">
-            <a ng-click="createBlank(selectedDocType.key)">
-                <i class="large {{selectedDocType.icon}}"></i>
+        <li class="sep" ng-if="vm.allowBlank">
+            <a ng-click="vm.createBlank(vm.selectedDocType.key)">
+                <i class="large" ng-class="vm.selectedDocType.icon"></i>
                 <span class="menu-label">
                     <localize key="blueprints_blankBlueprint">Blank</localize>
                 </span>

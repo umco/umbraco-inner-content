@@ -1,44 +1,46 @@
 ﻿// Prevalue Editors
 angular.module("umbraco").controller("Our.Umbraco.InnerContent.Controllers.DocTypePickerController", [
-
     "$scope",
     "innerContentService",
-
     function ($scope, innerContentService) {
 
         var vm = this;
-        vm.add = add;
-        vm.remove = remove;
-        vm.tooltipMouseOver = tooltipMouseOver;
-        vm.tooltipMouseLeave = tooltipMouseLeave;
 
-        vm.sortableOptions = {
-            axis: "y",
-            containment: "parent",
-            cursor: "move",
-            handle: ".icon-navigation",
-            opacity: 0.7,
-            scroll: true,
-            tolerance: "pointer",
-            stop: function (e, ui) {
-                setDirty();
+        function init() {
+
+            vm.add = add;
+            vm.remove = remove;
+            vm.tooltipMouseOver = tooltipMouseOver;
+            vm.tooltipMouseLeave = tooltipMouseLeave;
+
+            vm.sortableOptions = {
+                axis: "y",
+                containment: "parent",
+                cursor: "move",
+                handle: ".icon-navigation",
+                opacity: 0.7,
+                scroll: true,
+                tolerance: "pointer",
+                stop: function (e, ui) {
+                    setDirty();
+                }
+            };
+
+            vm.tooltip = {
+                show: false,
+                event: null,
+                content: null
+            };
+
+            innerContentService.getAllContentTypes().then(function (docTypes) {
+                vm.docTypes = docTypes;
+            });
+
+            if (!$scope.model.value) {
+                $scope.model.value = [];
+                add();
             }
         };
-
-        vm.tooltip = {
-            show: false,
-            event: null,
-            content: null
-        };
-
-        innerContentService.getAllContentTypes().then(function (docTypes) {
-            vm.docTypes = docTypes;
-        });
-
-        if (!$scope.model.value) {
-            $scope.model.value = [];
-            add();
-        }
 
         function add() {
             $scope.model.value.push({
@@ -74,91 +76,107 @@ angular.module("umbraco").controller("Our.Umbraco.InnerContent.Controllers.DocTy
                 $scope.propertyForm.$setDirty();
             }
         };
+
+        init();
     }
 ]);
 
 // Property Editors
-angular.module("umbraco").controller("Our.Umbraco.InnerContent.Controllers.InnerContentCreateController",
-    [
-        "$scope",
-        "blueprintConfig",
+angular.module("umbraco").controller("Our.Umbraco.InnerContent.Controllers.InnerContentCreateController", [
+    "$scope",
+    "blueprintConfig",
+    "innerContentService",
+    function ($scope, blueprintConfig, innerContentService) {
 
-        function ($scope, blueprintConfig) {
+        var vm = this;
 
-            function initialize() {
-                $scope.allowedTypes = $scope.model.availableItems;
-                $scope.allowBlank = blueprintConfig.allowBlank;
-                $scope.enableFilter = $scope.model.enableFilter;
+        function init() {
 
-                if ($scope.allowedTypes.length === 1) {
-                    $scope.selectedDocType = $scope.allowedTypes[0];
-                    $scope.selectContentType = false;
-                    $scope.selectBlueprint = true;
-                } else {
-                    $scope.selectContentType = true;
-                    $scope.selectBlueprint = false;
+            vm.allowedTypes = $scope.model.availableItems;
+            vm.allowBlank = blueprintConfig.allowBlank;
+            vm.enableFilter = $scope.model.enableFilter;
+
+            vm.createBlank = createBlank;
+            vm.createOrSelectBlueprintIfAny = createOrSelectBlueprintIfAny;
+            vm.createFromBlueprint = createFromBlueprint;
+
+            vm.selectClipboard = false;
+            var copiedGuid = innerContentService.getCopiedContentTypeGuid();
+            if (copiedGuid) {
+                var allowed = _.find(vm.allowedTypes, function (x) {
+                    return x.key === copiedGuid;
+                });
+                if (allowed) {
+                    vm.selectClipboard = true;
+                    vm.clipboardItems = [innerContentService.getCopiedContent()];
                 }
-            };
+            }
 
-            function createBlank(docTypeKey) {
-                $scope.model.selectedItem = { "key": docTypeKey, "blueprint": null };
-                $scope.model.submit($scope.model);
-            };
+            if (vm.allowedTypes.length === 1) {
 
-            function createOrSelectBlueprintIfAny(docType) {
-                var blueprintIds = _.keys(docType.blueprints || {});
-                $scope.selectedDocType = docType;
-                if (blueprintIds.length) {
-                    if (blueprintConfig.skipSelect) {
-                        createFromBlueprint(docType.key, blueprintIds[0]);
-                    } else {
-                        $scope.selectContentType = false;
-                        $scope.selectBlueprint = true;
-                    }
+                vm.selectedDocType = vm.allowedTypes[0];
+                vm.selectContentType = false;
+                vm.selectBlueprint = true;
+
+            } else {
+
+                vm.selectContentType = true;
+                vm.selectBlueprint = false;
+
+            }
+        };
+
+        function createBlank(docTypeKey) {
+            $scope.model.selectedItem = { "key": docTypeKey, "blueprint": null };
+            $scope.model.submit($scope.model);
+        };
+
+        function createOrSelectBlueprintIfAny(docType) {
+            var blueprintIds = _.keys(docType.blueprints || {});
+            vm.selectedDocType = docType;
+            if (blueprintIds.length) {
+                if (blueprintConfig.skipSelect) {
+                    createFromBlueprint(docType.key, blueprintIds[0]);
                 } else {
-                    createBlank(docType.key);
+                    vm.selectContentType = false;
+                    vm.selectBlueprint = true;
                 }
-            };
+            } else {
+                createBlank(docType.key);
+            }
+        };
 
-            function createFromBlueprint(docTypeKey, blueprintId) {
-                $scope.model.selectedItem = { "key": docTypeKey, "blueprint": blueprintId };
-                $scope.model.submit($scope.model);
-            };
+        function createFromBlueprint(docTypeKey, blueprintId) {
+            $scope.model.selectedItem = { "key": docTypeKey, "blueprint": blueprintId };
+            $scope.model.submit($scope.model);
+        };
 
-            $scope.createBlank = createBlank;
-            $scope.createOrSelectBlueprintIfAny = createOrSelectBlueprintIfAny;
-            $scope.createFromBlueprint = createFromBlueprint;
+        init();
+    }
+]);
 
-            initialize();
-        }
-    ]);
+angular.module("umbraco").controller("Our.Umbraco.InnerContent.Controllers.InnerContentDialogController", [
+    "$scope",
+    "overlayHelper",
+    function ($scope, overlayHelper) {
+        $scope.item = $scope.model.dialogData.item;
 
-angular.module("umbraco").controller("Our.Umbraco.InnerContent.Controllers.InnerContentDialogController",
-    [
-        "$scope",
-        "overlayHelper",
+        // Set a nodeContext property as nested property editors
+        // can use this to know what doc type this node is etc
+        // NC + DTGE do the same
+        $scope.nodeContext = $scope.item;
 
-        function ($scope, overlayHelper) {
-            $scope.item = $scope.model.dialogData.item;
-
-            // Set a nodeContext property as nested property editors
-            // can use this to know what doc type this node is etc
-            // NC + DTGE do the same
-            $scope.nodeContext = $scope.item;
-
-            // When using doctype compositions, the tab Id may conflict with any nested inner-content items.
-            // This attempts to make the tab ID to be unique.
-            $scope.tabIdSuffix = "_" + $scope.item.contentTypeAlias + "_" + overlayHelper.getNumberOfOverlays();
-        }
-    ]);
+        // When using doctype compositions, the tab Id may conflict with any nested inner-content items.
+        // This attempts to make the tab ID to be unique.
+        $scope.tabIdSuffix = "_" + $scope.item.contentTypeAlias + "_" + overlayHelper.getNumberOfOverlays();
+    }
+]);
 
 // Directives
 angular.module("umbraco.directives").directive("innerContentOverlay", [
-
     "$q",
     "overlayHelper",
     "innerContentService",
-
     function ($q, overlayHelper, innerContentService) {
 
         function link(scope, el, attr, ctrl) {
@@ -362,9 +380,7 @@ angular.module("umbraco.directives").directive("innerContentOverlay", [
 ]);
 
 angular.module("umbraco.directives").directive("innerContentUnsavedChanges", [
-
     "$rootScope",
-
     function ($rootScope) {
 
         function link(scope) {
@@ -421,11 +437,9 @@ angular.module("umbraco.directives").directive("innerContentUnsavedChanges", [
 
 // Services
 angular.module("umbraco").factory("innerContentService", [
-
     "$interpolate",
     "localStorageService",
     "Our.Umbraco.InnerContent.Resources.InnerContentResources",
-
     function ($interpolate, localStorageService, icResources) {
 
         var self = {};
@@ -672,15 +686,12 @@ angular.module("umbraco").factory("innerContentService", [
 
         return self;
     }
-
 ]);
 
 // Resources
 angular.module("umbraco.resources").factory("Our.Umbraco.InnerContent.Resources.InnerContentResources", [
-
     "$http",
     "umbRequestHelper",
-
     function ($http, umbRequestHelper) {
         return {
             getAllContentTypes: function () {

@@ -4,13 +4,11 @@
             <thead>
                 <tr>
                     <th class="td-min" />
-                    <th>
-                        Document Type
-                    </th>
+                    <th>Document Type</th>
                     <th>
                         Name Template
                         <i class="icon icon-help-alt inner-content__help-icon"
-                           data-tooltip="Enter an angularjs expression to evaluate against each item for its name."
+                           data-tooltip="Enter an AngularJS expression to evaluate against each item to display as its name."
                            ng-mouseover="vm.tooltipMouseOver($event)"
                            ng-mouseleave="vm.tooltipMouseLeave()"></i>
                     </th>
@@ -21,8 +19,9 @@
                 <tr ng-repeat="config in model.value">
                     <td class="icon icon-navigation"></td>
                     <td>
-                        <select ng-options="dt.guid as dt.name for dt in vm.docTypes"
-                                ng-model="config.icContentTypeGuid" required></select>
+                        <select required
+                                ng-options="dt.guid as dt.name for dt in vm.docTypes"
+                                ng-model="config.icContentTypeGuid"></select>
                     </td>
                     <td>
                         <input type="text" ng-model="config.nameTemplate" />
